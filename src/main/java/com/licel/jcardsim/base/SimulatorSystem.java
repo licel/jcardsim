@@ -40,8 +40,19 @@ public class SimulatorSystem {
     private static final short API_VERSION = 0x202;
     // transient memory storage
     private static TransientMemory transientMemory = new TransientMemory();
-    // transient memory storage
+
     private static SimulatorRuntime runtime = new SimulatorRuntime();
+
+    public static byte currentChannel = 0;
+    public static Object previousActiveObject;
+    
+    public static NullPointerException nullPointerException;
+    public static SecurityException securityException;
+
+    private SimulatorSystem() {
+        nullPointerException = new NullPointerException();
+        securityException = new SecurityException();
+    }
 
     /**
      * Checks if the specified object is transient.
@@ -242,7 +253,10 @@ public class SimulatorSystem {
      * @see #abortTransaction()
      */
     public static void commitTransaction() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        if (transactionDepth == 0) {
+            TransactionException.throwIt(TransactionException.NOT_IN_PROGRESS);
+        }
+        transactionDepth = 0;
     }
 
     /**
@@ -366,7 +380,7 @@ public class SimulatorSystem {
     }
 
     public static byte getCurrentlySelectedChannel() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return currentChannel;
     }
 
     /**
@@ -382,7 +396,7 @@ public class SimulatorSystem {
      * AID parameter is currently active on this or another logical channel
      */
     public static boolean isAppletActive(AID theApplet) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return (theApplet == runtime.getAID());
     }
 
     public static void sendAPDU(byte[] buffer, short bOff, short len) {
@@ -462,5 +476,20 @@ public class SimulatorSystem {
      */
     static SimulatorRuntime getRuntime() {
         return runtime;
+    }
+    
+    public static void resetRuntime() {
+        runtime.resetRuntime();
+    }
+    
+    public static void setJavaOwner(Object obj, Object owner) {
+    }
+    
+    public static Object getJavaOwner(Object obj) {
+        return obj;
+    }
+    
+    public static short getJavaContext(Object obj) {
+        return 0;
     }
 }

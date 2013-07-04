@@ -90,16 +90,8 @@ public class SimulatorRuntime {
         return previousAID;
     }
 
-    public Shareable getSharedObject(AID serverAID, byte parameter) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    public byte getCurrentlySelectedChannel() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    public boolean isAppletActive(AID theApplet) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void appletInstalling(AID aid) {
+        appletToInstallAID = aid;
     }
 
     /**
@@ -134,7 +126,6 @@ public class SimulatorRuntime {
             SystemException.throwIt(SystemException.ILLEGAL_AID);
         }
         applets.put(aid, new AppletHolder(appletClass));
-        appletToInstallAID = aid;
     }
 
     /**
@@ -151,8 +142,9 @@ public class SimulatorRuntime {
         if (ah == null) {
             SystemException.throwIt(SystemException.ILLEGAL_AID);
         }
-        ah.state = AppletHolder.REGISTERED;
-        ah.applet = applet;
+        ah.setApplet(applet);
+        ah.register();
+        ah.install();
         appletToInstallAID = null;
     }
 
@@ -267,7 +259,7 @@ public class SimulatorRuntime {
     void sendAPDU(byte[] buffer, short bOff, short len) {
         responseBufferSize = Util.arrayCopyNonAtomic(buffer, bOff, responseBuffer, responseBufferSize, len);
     }
-    
+
     /**
      * powerdown/powerup
      */
@@ -280,6 +272,24 @@ public class SimulatorRuntime {
             if (ah.getState() != AppletHolder.INSTALLED) {
                 aidsToTrash.add(aid);
             }
+        }
+        for(int i=0;i<aidsToTrash.size();i++) {
+            applets.remove(aidsToTrash.get(i));
+        }
+
+        Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) responseBuffer.length, (byte) 0);
+        responseBufferSize = 0;
+        currentAID = null;
+        previousAID = null;
+        appletToInstallAID = null;
+    }
+
+    void resetRuntime() {
+        Iterator aids = applets.keySet().iterator();
+        ArrayList aidsToTrash = new ArrayList();
+        while (aids.hasNext()) {
+            AID aid = (AID) aids.next();
+            aidsToTrash.add(aid);
         }
         for(int i=0;i<aidsToTrash.size();i++) {
             applets.remove(aidsToTrash.get(i));
@@ -312,8 +322,20 @@ public class SimulatorRuntime {
             this.state = LOADED;
         }
         
+        void install(){
+            this.state = INSTALLED;
+        }
+        
+        void register(){
+            this.state = REGISTERED;
+        }
+        
         byte getState(){
             return state;
+        }
+        
+        void setApplet(Applet applet){
+            this.applet = applet;
         }
         
         Applet getApplet(){

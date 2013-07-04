@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Licel LLC.
+ * Copyright 2013 Licel LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.licel.jcardsim.utils;
+package com.licel.jcardsim.samples;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 import junit.framework.TestCase;
 import com.licel.jcardsim.base.SimulatorSystem;
+import com.licel.jcardsim.utils.APDUScriptTool;
 
 /**
- * Test class APDUScriptTool.
- * @author LICEL LLC
+ * Test javacard sample (odDemo1-2).
  */
-public class APDUScriptToolTest extends TestCase {
-
-    private static final String TEST_APPLET_AID = "010203040506070809";
+public class odDemo12Test extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
@@ -40,30 +38,35 @@ public class APDUScriptToolTest extends TestCase {
     }
 
     /**
-     * Test of executeCommands method, of class APDUScriptTool.
+     * Test of javacard sample (odDemo1-2).
      */
     public void testExecuteCommands() throws Exception {
+
         System.out.println("executeCommands");
+
         Properties cfg = new Properties();
-        cfg.setProperty("com.licel.jcardsim.smartcardio.applet.0.AID", TEST_APPLET_AID);
-        cfg.setProperty("com.licel.jcardsim.smartcardio.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
+        cfg.setProperty("com.licel.jcardsim.smartcardio.applet.0.AID", "a00000006203010c070101");
+        cfg.setProperty("com.licel.jcardsim.smartcardio.applet.0.Class", "com.licel.jcardsim.samples.odSample.packageA.A");
+
         StringBuilder sb = new StringBuilder();
         sb.append("powerup;\n");
-        sb.append("//CREATE APPLET CMD\n");
-        sb.append("0x80 0xb8 0x00 0x00 0x10 0x9 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x8 0x09 0x05 0x00 0x00 0x02 0xF 0xF 0x7f;\n");
-        sb.append("// SELECT APPLET CMD\n");
-        sb.append("0x00 0xa4 0x00 0x00 0x09 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x8 0x09 0x7f;\n");
-        sb.append("// TEST NOP\n");
-        sb.append("0x01 0x02 0x00 0x00 0x00 0x2; \n");
-        sb.append("// TEST SW_INS_NOT_SUPPORTED\n");
-        sb.append("0x01 0x05 0x00 0x00 0x00 0x2 ;\n");
-        sb.append("// test hello world from card\n");
-        sb.append("0x01 0x01 0x00 0x00 0x00 0x0d;\n");
-        sb.append("// test echo\n");
-        sb.append("0x01 0x01 0x01 0x00 0x0d 0x48 0x65 0x6c 0x6c 0x6f 0x20 0x77 0x6f 0x72 0x6c 0x64 0x20 0x21 0x0d;\n");
-        sb.append("// test echo2\n");
-        sb.append("0x01 0x03 0x01 0x02 0x05 0x01 0x02 0x03 0x04 0x05 0x7F;");
+        sb.append("// create Applet A's instance\n");
+        sb.append("0x80 0xB8 0x00 0x00 0x0D 0x0B 0xA0 0x00 0x00 0x00 0x62 0x03 0x01 0x0C 0x07 0x01 0x01 0x00 0x7F;\n");
+        sb.append("// 90 00 SW_NO_ERROR\n");
+        sb.append("//select Applet A's instance\n");
+        sb.append("0x00 0xA4 0x04 0x00 0x0B 0xA0 0x00 0x00 0x00 0x62 0x03 0x01 0x0C 0x07 0x01 0x01 0x7F;\n");
+        sb.append("// 90 00 SW_NO_ERROR\n");
+        sb.append("//request Object Deletion\n");
+        sb.append("0xC0 0x10 0x00 0x00 0x00 0x7F;\n");
+        sb.append("// 90 00 SW_NO_ERROR\n");
+        sb.append("//verify reset mem gone\n");
+        sb.append("0xC0 0x14 0x00 0x00 0x00 0x7F;\n");
+        sb.append("// 90 00 SW_NO_ERROR\n");
+        sb.append("//set all attribtues (inclusing transient arrays) to null. This also requests GC\n");
+        sb.append("0xC0 0x15 0x00 0x00 0x00 0x7F;\n");
+        sb.append("// 90 00 SW_NO_ERROR\n");
         sb.append("powerdown;\n");
+
         InputStream commandsStream = new ByteArrayInputStream(sb.toString().replaceAll("\n", System.getProperty("line.separator")).getBytes());     
         boolean isException = true;
         try {

@@ -66,6 +66,7 @@ public class Simulator {
         try {
             Class appletClass = SimulatorSystem.getRuntime().getAppletClass(aid);
             if(appletClass == null) SystemException.throwIt(SystemException.ILLEGAL_AID);
+            SimulatorSystem.getRuntime().appletInstalling(aid);
             Method initMethod = appletClass.getMethod("install",
                     new Class[]{byte[].class, short.class, byte.class});
             initMethod.invoke(null, new Object[]{bArray, new Short(bOffset), new Byte(bLength)});
@@ -137,5 +138,9 @@ public class Simulator {
      */
     public void reset() {
         SimulatorSystem.getRuntime().reset();
-    }   
+    }
+
+    public void resetRuntime() {
+        SimulatorSystem.getRuntime().resetRuntime();
+    }
 }

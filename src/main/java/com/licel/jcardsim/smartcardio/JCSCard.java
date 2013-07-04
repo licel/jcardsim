@@ -143,10 +143,10 @@ public class JCSCard extends Card {
             AID aid = new AID(data, (short) 1, data[0]);
             // parameters
             try {
-                simulator.createApplet(aid, data, (short) (data[0]+2), (byte) data[data[0]+1]);
+                simulator.createApplet(aid, data, (short) 0, (byte) data.length);
                 byte[] response = new byte[data[0] + 2];
                 aid.getBytes(response, (short) 0);
-                Util.setShort(response, (short) (response.length-2), ISO7816.SW_NO_ERROR);
+                Util.setShort(response, (short) (response.length - 2), ISO7816.SW_NO_ERROR);
                 ResponseAPDU resp = new ResponseAPDU(response);
                 return new ResponseAPDU(response);
             } catch (SystemException e) {

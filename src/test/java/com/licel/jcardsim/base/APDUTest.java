@@ -47,6 +47,7 @@ public class APDUTest extends TestCase {
      */
     public void testAPDUApplet() {
         Simulator simulator = new Simulator();
+        simulator.resetRuntime();
         byte[] appletAIDBytes = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
         AID appletAID = new AID(appletAIDBytes, (short) 0, (byte) appletAIDBytes.length);
         simulator.installApplet(appletAID, HelloWorldApplet.class);

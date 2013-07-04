@@ -23,6 +23,7 @@ import javacard.framework.ISO7816;
 import javax.smartcardio.*;
 import junit.framework.TestCase;
 import org.bouncycastle.util.encoders.Hex;
+import com.licel.jcardsim.base.SimulatorSystem;
 
 /**
  * Test Java Card Terminal emulation.
@@ -43,6 +44,7 @@ public class JCardSimProviderTest extends TestCase {
     }
 
     public void testProvider() throws CardException, NoSuchAlgorithmException {
+        SimulatorSystem.resetRuntime();
         System.setProperty("com.licel.jcardsim.smartcardio.applet.0.AID", TEST_APPLET_AID);
         System.setProperty("com.licel.jcardsim.smartcardio.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
         if (Security.getProvider("jCardSim") == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Licel LLC.
+ * Copyright 2013 Licel LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package javacard.framework;
+package java.rmi;
 
-/**
- * The Shareable interface serves to identify all shared objects.
- * Any object that needs to be shared through the applet firewall
- * must directly or indirectly implement this interface. Only those
- * methods specified in a shareable interface are available through
- * the firewall.
- *
- * Implementation classes can implement any number of shareable
- * interfaces and can extend other shareable implementation classes.
- *
- */
-public interface Shareable {
+public class RemoteException extends java.io.IOException {
+
+    public RemoteException() {
+    }
 
 }
