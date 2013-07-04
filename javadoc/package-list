@@ -1,0 +1,8 @@
+com.licel.jcardsim.base
+com.licel.jcardsim.crypto
+com.licel.jcardsim.samples
+com.licel.jcardsim.smartcardio
+com.licel.jcardsim.utils
+javacard.framework
+javacard.security
+javacardx.crypto
