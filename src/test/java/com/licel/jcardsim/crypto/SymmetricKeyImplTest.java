@@ -17,6 +17,7 @@ package com.licel.jcardsim.crypto;
 
 import javacard.framework.JCSystem;
 import javacard.framework.Util;
+import javacard.security.AESKey;
 import javacard.security.KeyBuilder;
 import junit.framework.TestCase;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -99,13 +100,21 @@ public class SymmetricKeyImplTest extends TestCase {
         des3Key.setKey(key, (short) 0);
         isValidCipher = (des3Key.getCipher() instanceof DESedeEngine);
         assertEquals(true, isValidCipher);
-        // aes key
-        SymmetricKeyImpl aesKey = new SymmetricKeyImpl(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128);
+        // aes key - 128
+        AESKey aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
         key = JCSystem.makeTransientByteArray((short) 16, JCSystem.CLEAR_ON_RESET);
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         aesKey.setKey(key, (short) 0);
-        isValidCipher = (aesKey.getCipher() instanceof AESEngine);
-        assertEquals(true, isValidCipher);
+        // aes key - 192
+        aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_192, false);
+        key = JCSystem.makeTransientByteArray((short) 24, JCSystem.CLEAR_ON_RESET);
+        Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
+        aesKey.setKey(key, (short) 0);
+        // aes key - 256
+        aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
+        key = JCSystem.makeTransientByteArray((short) 32, JCSystem.CLEAR_ON_RESET);
+        Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
+        aesKey.setKey(key, (short) 0);
 
     }
 }

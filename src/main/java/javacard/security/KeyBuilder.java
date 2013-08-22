@@ -302,7 +302,7 @@ public class KeyBuilder {
             case TYPE_AES_TRANSIENT_RESET:
             case TYPE_AES_TRANSIENT_DESELECT:
             case TYPE_AES:
-                if (keyLength != 128 && keyLength != 128 && keyLength != 256) {
+                if (keyLength != 128 && keyLength != 192 && keyLength != 256) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
                 key = new SymmetricKeyImpl(keyType, keyLength);
