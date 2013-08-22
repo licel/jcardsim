@@ -454,9 +454,9 @@ public final class APDU {
             return pre;
         }
         if (Lc != 0) {
-            short len = SimulatorSystem.receiveAPDU(buffer, bOff);
-            if (len < 0) {
-                APDUException.throwIt(APDUException.IO_ERROR);
+            short len = 0;
+            if(buffer[ISO7816.OFFSET_LC] != 0) {
+                len = buffer[ISO7816.OFFSET_LC];
             }
             Lc -= len;
             ramVars[LC] = (byte) Lc;

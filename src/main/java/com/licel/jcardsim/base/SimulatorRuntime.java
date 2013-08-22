@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import javacard.framework.*;
-import javax.smartcardio.CommandAPDU;
-import javax.smartcardio.ResponseAPDU;
 
 /**
  * Base implementation of Java Card Runtime
@@ -190,37 +188,23 @@ public class SimulatorRuntime {
      * Transmit APDU to previous selected applet
      * @param commandAPDU command apdu
      * @return response apdu
-     * @see CommandAPDU
-     * @see ResponseAPDU
      * @throws SystemException.ILLEGAL_USE if appplet not selected before
      */
-    ResponseAPDU transmitCommand(CommandAPDU commandAPDU) throws SystemException {
+    byte[] transmitCommand(byte[] command) throws SystemException {
         Applet applet = getApplet(getAID());
-        ResponseAPDU response = null;
+        byte[] response = null;
         Util.arrayFillNonAtomic(theSW, (short) 0, (short) 2, (byte) 0);
         if (applet == null) {
             SystemException.throwIt(SystemException.ILLEGAL_USE);
         }
         try {
             // set apdu
-            commandBuffer = JCSystem.makeTransientByteArray((short) (ISO7816.OFFSET_CDATA + commandAPDU.getNc()), JCSystem.CLEAR_ON_RESET);
-            commandBuffer[ISO7816.OFFSET_CLA] = (byte) commandAPDU.getCLA();
-            commandBuffer[ISO7816.OFFSET_INS] = (byte) commandAPDU.getINS();
-            commandBuffer[ISO7816.OFFSET_P1] = (byte) commandAPDU.getP1();
-            commandBuffer[ISO7816.OFFSET_P2] = (byte) commandAPDU.getP2();
-            commandBuffer[ISO7816.OFFSET_LC] = (byte) commandAPDU.getNc();
-            if (commandAPDU.getNc() > 0) {
-                Util.arrayCopyNonAtomic(commandAPDU.getData(), ISO7816.OFFSET_CLA, commandBuffer, ISO7816.OFFSET_CDATA, (short)commandAPDU.getNc());
-            }
-            // header (5 bytes)
-            Util.arrayCopyNonAtomic(commandBuffer, (short) 0, APDU.getCurrentAPDUBuffer(),
-                    (short) 0, ISO7816.OFFSET_CDATA);
+            Util.arrayCopyNonAtomic(command, (short) 0, APDU.getCurrentAPDUBuffer(),
+                    (short) 0, (short) command.length);
             applet.process(APDU.getCurrentAPDU());
-            if(commandAPDU.getNe()>0 && commandAPDU.getNe()<responseBufferSize) CardRuntimeException.throwIt(ISO7816.SW_WRONG_LENGTH);
-            byte[] responseData = JCSystem.makeTransientByteArray((short) (responseBufferSize + 2), JCSystem.CLEAR_ON_RESET);
-            Util.arrayCopyNonAtomic(responseBuffer, (short) 0, responseData, (short) 0, responseBufferSize);
-            Util.setShort(responseData, responseBufferSize, ISO7816.SW_NO_ERROR);
-            response = new ResponseAPDU(responseData);
+            response = JCSystem.makeTransientByteArray((short) (responseBufferSize + 2), JCSystem.CLEAR_ON_RESET);
+            Util.arrayCopyNonAtomic(responseBuffer, (short) 0, response, (short) 0, responseBufferSize);
+            Util.setShort(response, responseBufferSize, ISO7816.SW_NO_ERROR);
         } catch (Throwable e) {
             Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
             if (e instanceof CardException) {
@@ -228,7 +212,7 @@ public class SimulatorRuntime {
             } else if (e instanceof CardRuntimeException) {
                 Util.setShort(theSW, (short) 0, ((CardRuntimeException) e).getReason());
             }
-            response = new ResponseAPDU(theSW);
+            response = theSW;
         }
         APDU.getCurrentAPDU().reset();
         Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) 255, (byte) 0);
@@ -236,19 +220,6 @@ public class SimulatorRuntime {
         return response;
     }
 
-    /**
-     * Copy command buffer to apdu
-     * @param buffer dest byte array
-     * @param bOff the starting offset in buffer
-     * @return bytes copied
-     */
-    short receiveAPDU(byte[] buffer, short bOff) {
-        if (commandBuffer[ISO7816.OFFSET_LC] == 0) {
-            return 0;
-        }
-        Util.arrayCopyNonAtomic(commandBuffer, bOff, buffer, bOff, (short) (commandBuffer.length - bOff));
-        return (short) (commandBuffer.length - bOff);
-    }
 
     /**
      * Copy response bytes to internal buffer

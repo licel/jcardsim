@@ -154,7 +154,7 @@ public class JCSCard extends Card {
             }
             return new ResponseAPDU(theSW);
         } else {
-            return simulator.transmitCommand(capdu);
+            return new ResponseAPDU(simulator.transmitCommand(capdu.getBytes()));
         }
     }
 

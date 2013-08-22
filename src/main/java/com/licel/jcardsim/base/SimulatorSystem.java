@@ -16,8 +16,6 @@
 package com.licel.jcardsim.base;
 
 import javacard.framework.*;
-import javax.smartcardio.CommandAPDU;
-import javax.smartcardio.ResponseAPDU;
 
 /**
  * Base implementation of <code>JCSystem</code>
@@ -403,10 +401,6 @@ public class SimulatorSystem {
         runtime.sendAPDU(buffer, bOff, len);
     }
 
-    public static short receiveAPDU(byte[] buffer, short bOff) {
-        return runtime.receiveAPDU(buffer, bOff);
-    }
-
     /**
      * This method is used by the applet to register <code>this</code> applet instance with
      * the Java Card runtime environment and to
@@ -461,8 +455,8 @@ public class SimulatorSystem {
      * @param commandAPDU
      * @return responseAPDU
      */
-    static ResponseAPDU transmitCommand(CommandAPDU commandAPDU) {
-        return runtime.transmitCommand(commandAPDU);
+    static byte[] transmitCommand(byte[] command) {
+        return runtime.transmitCommand(command);
     }
 
     public static boolean isAppletSelecting(Applet aThis) {

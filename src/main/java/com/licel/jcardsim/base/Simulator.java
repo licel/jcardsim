@@ -20,8 +20,6 @@ import javacard.framework.AID;
 import javacard.framework.Applet;
 import javacard.framework.JCSystem;
 import javacard.framework.SystemException;
-import javax.smartcardio.CommandAPDU;
-import javax.smartcardio.ResponseAPDU;
 
 /**
  * Main class for deal with Applets
@@ -128,9 +126,9 @@ public class Simulator {
      * @see ResponseAPDU
      * @throws SystemException.ILLEGAL_USE if appplet not selected before
      */
-    public ResponseAPDU transmitCommand(CommandAPDU commandAPDU)
+    public byte[] transmitCommand(byte[] command)
             throws SystemException {
-        return SimulatorSystem.transmitCommand(commandAPDU);
+        return SimulatorSystem.transmitCommand(command);
     }
     
     /**
