@@ -115,6 +115,11 @@ public class SymmetricKeyImplTest extends TestCase {
         key = JCSystem.makeTransientByteArray((short) 32, JCSystem.CLEAR_ON_RESET);
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         aesKey.setKey(key, (short) 0);
+        // aes key - 256
+        aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
+        key = new byte[32];
+        Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
+        aesKey.setKey(key, (short) 0);
 
     }
 }

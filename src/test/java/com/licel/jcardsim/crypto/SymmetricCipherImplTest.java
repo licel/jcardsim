@@ -16,6 +16,8 @@
 package com.licel.jcardsim.crypto;
 
 import javacard.framework.JCSystem;
+import javacard.framework.Util;
+import javacard.security.AESKey;
 import javacard.security.Key;
 import javacard.security.KeyBuilder;
 import javacardx.crypto.Cipher;
@@ -24,8 +26,8 @@ import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
- * Test for <code>SymmetricCipherImpl</code>
- * Test data from NXP JCOP31-36 JavaCard
+ * Test for
+ * <code>SymmetricCipherImpl</code> Test data from NXP JCOP31-36 JavaCard
  */
 public class SymmetricCipherImplTest extends TestCase {
 
@@ -95,6 +97,19 @@ public class SymmetricCipherImplTest extends TestCase {
         // ALG_DES_CBC_NOPAD
         "81B2369E2773858F"
     };
+    // AES test data from NIST
+    // AESVS VarTxt test data for ECB (Key length: 128bit)
+    String[] AES_ECB_128_TEST = {"00000000000000000000000000000000", "80000000000000000000000000000000", "3ad78e726c1ec02b7ebfe92b23d9ec34"};
+    // AESVS VarTxt test data for ECB (Key length: 192bit)
+    String[] AES_ECB_192_TEST = {"000000000000000000000000000000000000000000000000", "80000000000000000000000000000000", "6cd02513e8d4dc986b4afe087a60bd0c"};
+    // AESVS VarTxt test data for ECB (Key length: 256bit)
+    String[] AES_ECB_256_TEST = {"0000000000000000000000000000000000000000000000000000000000000000", "80000000000000000000000000000000", "ddc6bf790c15760d8d9aeb6f9a75fd4e"};
+    // AESVS VarKey test data for CBC (Key length: 128bit)
+    String[] AES_CBC_128_TEST = {"80000000000000000000000000000000", "00000000000000000000000000000000", "00000000000000000000000000000000", "0edd33d3c621e546455bd8ba1418bec8"};
+    // AESVS VarKey test data for CBC (Key length: 192bit)
+    String[] AES_CBC_192_TEST = {"800000000000000000000000000000000000000000000000", "00000000000000000000000000000000", "00000000000000000000000000000000", "de885dc87f5a92594082d02cc1e1b42c"};
+    // AESVS VarKey test data for CBC (Key length: 256bit)
+    String[] AES_CBC_256_TEST = {"8000000000000000000000000000000000000000000000000000000000000000", "00000000000000000000000000000000", "00000000000000000000000000000000", "e35a6dcb19b201a01ebcfa8aa22b5759"};
 
     public SymmetricCipherImplTest(String testName) {
         super(testName);
@@ -167,8 +182,48 @@ public class SymmetricCipherImplTest extends TestCase {
 
     }
 
+    public void testAes() {
+        testAESMode(KeyBuilder.LENGTH_AES_128, Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, AES_ECB_128_TEST);
+        testAESMode(KeyBuilder.LENGTH_AES_192, Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, AES_ECB_192_TEST);
+        testAESMode(KeyBuilder.LENGTH_AES_256, Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, AES_ECB_256_TEST);
+        testAESMode(KeyBuilder.LENGTH_AES_128, Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, AES_CBC_128_TEST);
+        testAESMode(KeyBuilder.LENGTH_AES_192, Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, AES_CBC_192_TEST);
+        testAESMode(KeyBuilder.LENGTH_AES_256, Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, AES_CBC_256_TEST);
+    }
+
     /**
-     * Test method <code>doFinal</code>
+     * Test AES cipher mode
+     */
+    public void testAESMode(short keyLen, byte mode, String[] testData) {
+        short keyLenInBytes = (short) (keyLen / 8);
+        Cipher engine = Cipher.getInstance(mode, false);
+        AESKey aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, keyLen, false);
+        byte[] etalonKey = Hex.decode(testData[0]);
+        byte[] key = new byte[keyLenInBytes];
+        Util.arrayCopy(etalonKey, (short) 0, key, (short) 0, (short) etalonKey.length);
+        aesKey.setKey(key, (short) 0);
+        boolean needIV = (mode == Cipher.ALG_AES_BLOCK_128_CBC_NOPAD);
+        if (needIV) {
+            byte[] iv = Hex.decode(testData[1]);
+            engine.init(aesKey, Cipher.MODE_ENCRYPT, iv, (short)0, (short)iv.length);
+        } else {
+            engine.init(aesKey, Cipher.MODE_ENCRYPT);
+        }
+        byte[] encrypted = new byte[16]; // AES 128
+        short processedBytes = engine.doFinal(Hex.decode(testData[needIV?2:1]), (short) 0, (short) 16, encrypted, (short) 0);
+        assertEquals(processedBytes, 16);
+        assertEquals(true, Arrays.areEqual(encrypted, Hex.decode(testData[needIV?3:2])));
+        engine.init(aesKey, Cipher.MODE_DECRYPT);
+        byte[] decrypted = new byte[16]; // AES 128
+        processedBytes = engine.doFinal(Hex.decode(testData[needIV?3:2]), (short) 0, (short) 16, decrypted, (short) 0);
+        assertEquals(processedBytes, 16);
+        assertEquals(true, Arrays.areEqual(decrypted, Hex.decode(testData[needIV?2:1])));
+    }
+
+    /**
+     * Test method
+     * <code>doFinal</code>
+     *
      * @param engine test engine
      * @param key etalon key
      * @param iv IV if present

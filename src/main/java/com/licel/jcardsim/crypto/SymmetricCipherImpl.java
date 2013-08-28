@@ -111,6 +111,7 @@ public class SymmetricCipherImpl extends Cipher {
         SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
         switch (algorithm) {
             case ALG_DES_CBC_NOPAD:
+            case ALG_AES_BLOCK_128_CBC_NOPAD:
                 engine = new BufferedBlockCipher(new CBCBlockCipher(key.getCipher()));
                 break;
             case ALG_DES_CBC_ISO9797_M1:
@@ -123,6 +124,7 @@ public class SymmetricCipherImpl extends Cipher {
                 engine = new PaddedBufferedBlockCipher(new CBCBlockCipher(key.getCipher()), new PKCS7Padding());
                 break;
             case ALG_DES_ECB_NOPAD:
+            case ALG_AES_BLOCK_128_ECB_NOPAD:                
                 engine = new BufferedBlockCipher(key.getCipher());
                 break;
             case ALG_DES_ECB_ISO9797_M1:
