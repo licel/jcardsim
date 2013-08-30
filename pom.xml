@@ -50,6 +50,12 @@
             <artifactId>bcprov-jdk14</artifactId>
             <version>1.46</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>4.1.1.4</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <artifactId>jcardsim</artifactId>
     <name>Java Card Runime Environment Simulator</name>
@@ -87,6 +93,11 @@
                         </goals>
                         <configuration> 
                             <minimizeJar>true</minimizeJar>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.bouncycastle:*</include>
+                                </includes>
+                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>

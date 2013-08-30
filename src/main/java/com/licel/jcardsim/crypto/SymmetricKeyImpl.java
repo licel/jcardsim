@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.security.SecureRandom;
 import javacard.framework.JCSystem;
 import javacard.security.AESKey;
 import javacard.security.CryptoException;
@@ -22,6 +23,7 @@ import javacard.security.DESKey;
 import javacard.security.KeyBuilder;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.engines.DESedeEngine;
@@ -32,7 +34,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
  * @see DESKey
  * @see AESKey
  */
-public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, KeyWithParameters {
+public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey {
 
     protected ByteContainer key;
 
@@ -128,5 +130,9 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, KeyWith
 
     public boolean isInitialized() {
         return key.isInitialized();
+    }
+
+    public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
+        return null;
     }
 }

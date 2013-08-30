@@ -15,6 +15,7 @@ package com.licel.jcardsim.crypto;
  * limitations under the License.
  */
 
+import java.util.Arrays;
 import javacard.security.DSAPrivateKey;
 import javacard.security.DSAPublicKey;
 import javacard.security.ECPrivateKey;
@@ -26,7 +27,9 @@ import javacard.security.PublicKey;
 import javacard.security.RSAPrivateCrtKey;
 import javacard.security.RSAPrivateKey;
 import javacard.security.RSAPublicKey;
+import javax.xml.bind.DatatypeConverter;
 import junit.framework.TestCase;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Test for <code>KeyPairImpl</code>
@@ -67,16 +70,48 @@ public class KeyPairImplTest extends TestCase {
     public void testGenKeyPairRSA() {
         System.out.println("genKeyPair RSA");
         KeyPairImpl instance = null;
+        byte[] publicExponent = new byte[3];
+        byte[] etalonExponent = new byte[]{(byte)0x01, (byte)0x00, (byte)0x01};
         for (int i = 0; i < RSA_SIZES.length; i++) {
             instance = new KeyPairImpl(KeyPair.ALG_RSA, RSA_SIZES[i]);
             instance.genKeyPair();
             PublicKey publicKey = instance.getPublic();
             assertEquals(true, publicKey instanceof RSAPublicKey);
+            ((RSAPublicKey)publicKey).getExponent(publicExponent, (short)0);
+            assertEquals(true, Arrays.equals(publicExponent, etalonExponent));
             PrivateKey privateKey = instance.getPrivate();
             assertEquals(true, privateKey instanceof RSAPrivateKey);
         }
     }
 
+    /**
+     * Test of genKeyPair method, of class KeyPairImpl.
+     * algorithm RSA - NXP JCOP not support this algorithm
+     * for on-card key generation
+     */
+    public void testGenKeyPairRSAWithCustomPublicExponent() {
+        System.out.println("genKeyPair RSA(Custom Public Exponent)");
+        // DON'T USE THIS PUBLIC EXPONENT IN THE REAL APPLICATION
+        byte[] customExponent = new byte[] {(byte)0x03};
+        RSAPublicKey publicKey = (RSAPublicKey)KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_1024, false);
+        KeyPair instance = new KeyPair(publicKey, null);
+        publicKey.setExponent(customExponent, (short)0, (short)customExponent.length);
+        instance.genKeyPair();
+        publicKey = (RSAPublicKey)instance.getPublic();
+        byte[] generatedExponent = new byte[customExponent.length];
+        publicKey.getExponent(generatedExponent, (short)0);
+        assertEquals(Arrays.equals(customExponent, generatedExponent), true);
+        customExponent = new byte[] {(byte)0x01,(byte)0x02, (byte)0x03, (byte)0x04, (byte)0x05};
+        publicKey = (RSAPublicKey)KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC, KeyBuilder.LENGTH_RSA_1024, false);
+        instance = new KeyPair(publicKey, null);
+        publicKey.setExponent(customExponent, (short)0, (short)customExponent.length);
+        instance.genKeyPair();
+        publicKey = (RSAPublicKey)instance.getPublic();
+        generatedExponent = new byte[customExponent.length];
+        publicKey.getExponent(generatedExponent, (short)0);
+        assertEquals(Arrays.equals(customExponent, generatedExponent), true);
+    }
+    
     /**
      * Test of genKeyPair method, of class KeyPairImpl.
      * algorithm RSA CRT - NXP JCOP support only this algorithm
@@ -137,7 +172,7 @@ public class KeyPairImplTest extends TestCase {
      * for on-card key generation
      */
     public void testGenKeyPairDSA() {
-        System.out.println("genKeyPair EC_FP");
+        System.out.println("genKeyPair DSA");
         KeyPairImpl instance = null;
         for (int i = 0; i < DSA_SIZES.length; i++) {
             instance = new KeyPairImpl(KeyPair.ALG_DSA, DSA_SIZES[i]);

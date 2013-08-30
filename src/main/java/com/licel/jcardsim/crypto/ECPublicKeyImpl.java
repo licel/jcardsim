@@ -28,7 +28,7 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
  * @see ECPublicKey
  * @see ECPublicKeyParameters
  */
-public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey, KeyWithParameters {
+public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
 
     protected ByteContainer w = new ByteContainer();
 

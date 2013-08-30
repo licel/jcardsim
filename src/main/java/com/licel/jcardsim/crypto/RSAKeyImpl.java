@@ -15,21 +15,26 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import javacard.security.CryptoException;
 import javacard.security.KeyBuilder;
 import javacard.security.RSAPrivateKey;
 import javacard.security.RSAPublicKey;
 import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.KeyGenerationParameters;
+import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 
 /**
- * Implementation <code>RSAPublic/RSAPrivate</code> based
- * on BouncyCastle CryptoAPI
+ * Implementation
+ * <code>RSAPublic/RSAPrivate</code> based on BouncyCastle CryptoAPI
+ *
  * @see RSAPrivateKey
  * @see RSAPublicKey
  * @see RSAKeyParameters
  */
-public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey, KeyWithParameters {
+public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey {
 
     protected ByteContainer exponent = new ByteContainer();
     protected ByteContainer modulus = new ByteContainer();
@@ -37,6 +42,7 @@ public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey, 
 
     /**
      * Construct not-initialized rsa key
+     *
      * @param isPrivate true if private key
      * @param size key size it bits (modulus size)
      * @see KeyBuilder
@@ -48,8 +54,9 @@ public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey, 
     }
 
     /**
-     * Construct and initialize rsa key with RSAKeyParameters.
-     * Use in KeyPairImpl
+     * Construct and initialize rsa key with RSAKeyParameters. Use in
+     * KeyPairImpl
+     *
      * @see KeyPair
      * @see RSAKeyParameters
      * @param params key params from BouncyCastle API
@@ -86,7 +93,9 @@ public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey, 
     }
 
     /**
-     * Get <code>RSAKeyParameters</code>
+     * Get
+     * <code>RSAKeyParameters</code>
+     *
      * @return parameters for use with BouncyCastle API
      * @see RSAKeyParameters
      */
@@ -95,5 +104,33 @@ public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey, 
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
         return new RSAKeyParameters(isPrivate, modulus.getBigInteger(), exponent.getBigInteger());
+    }
+
+    /**
+     * Get
+     * <code>RSAKeyGenerationParameters</code>
+     *
+     * @param rnd Secure Random Generator
+     * @return parameters for use with BouncyCastle API
+     */
+    public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
+        if (!isPrivate && exponent.isInitialized()) {
+            return new RSAKeyGenerationParameters(exponent.getBigInteger(),
+                    rnd, size, 80);
+        }
+        return getDefaultKeyGenerationParameters(size, rnd);
+    }
+
+    /**
+     * Get default
+     * <code>RSAKeyGenerationParameters</code>
+     *
+     * @param keySize key size in bits
+     * @param rnd Secure Random Generator
+     * @return parameters for use with BouncyCastle API
+     */
+    static KeyGenerationParameters getDefaultKeyGenerationParameters(short keySize, SecureRandom rnd) {
+        return new RSAKeyGenerationParameters(new BigInteger("10001", 16),
+                rnd, keySize, 80);
     }
 }

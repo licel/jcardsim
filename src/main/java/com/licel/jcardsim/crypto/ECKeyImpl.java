@@ -16,19 +16,24 @@
 package com.licel.jcardsim.crypto;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import javacard.framework.JCSystem;
 import javacard.security.CryptoException;
 import javacard.security.ECKey;
 import javacard.security.KeyBuilder;
+import javacard.security.KeyPair;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
 import org.bouncycastle.crypto.params.ECKeyParameters;
 import org.bouncycastle.math.ec.ECCurve;
 
 /**
- * Base class for <code>ECPublicKeyImpl/ECPrivateKeyImpl</code>
- * on BouncyCastle CryptoAPI
+ * Base class for
+ * <code>ECPublicKeyImpl/ECPrivateKeyImpl</code> on BouncyCastle CryptoAPI
+ *
  * @see ECKey
  */
 public abstract class ECKeyImpl extends KeyImpl implements ECKey {
@@ -46,6 +51,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
 
     /**
      * Construct not-initialized ecc key
+     *
      * @param keyType - key type
      * @param keySize - key size in bits
      * @see KeyPair
@@ -58,8 +64,8 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     }
 
     /**
-     * Construct and initialize ecc key with ECKeyParameters.
-     * Use in KeyPairImpl
+     * Construct and initialize ecc key with ECKeyParameters. Use in KeyPairImpl
+     *
      * @see KeyPair
      * @see ECKeyParameters
      * @parameters params key params from BouncyCastle API
@@ -153,7 +159,9 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     }
 
     /**
-     * Get <code>ECDomainParameters</code>
+     * Get
+     * <code>ECDomainParameters</code>
+     *
      * @return parameters for use with BouncyCastle API
      * @see ECDomainParameters
      */
@@ -173,7 +181,9 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     }
 
     /**
-     * Set <code>ECDomainParameters</code> for EC curve
+     * Set
+     * <code>ECDomainParameters</code> for EC curve
+     *
      * @param parameters
      * @see ECDomainParameters
      */
@@ -196,8 +206,38 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     }
 
     /**
-     * Get defaults <code>ECDomainParameters</code> for EC curve
+     * Get
+     * <code>ECKeyGenerationParameters</code>
+     *
+     * @param rnd Secure Random Generator
+     * @return parameters for use with BouncyCastle API
+     */
+    public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
+        if (isInitialized()) {
+            return new ECKeyGenerationParameters(getDomainParameters(), rnd);
+        }
+        return getDefaultKeyGenerationParameters(type, size, rnd);
+    }
+
+    /**
+     * Get default
+     * <code>ECKeyGenerationParameters</code>
+     *
+     * @param algorithm
+     * @param keySize key size in bits
+     * @param rnd Secure Random Generator
+     * @return parameters for use with BouncyCastle API
+     */
+    static KeyGenerationParameters getDefaultKeyGenerationParameters(byte algorithm, short keySize, SecureRandom rnd) {
+        byte keyType = algorithm == KeyPair.ALG_EC_FP ? KeyBuilder.TYPE_EC_FP_PUBLIC : KeyBuilder.TYPE_EC_F2M_PUBLIC;
+        return new ECKeyGenerationParameters(getDefaultsDomainParameters(keyType, keySize), rnd);
+    }
+
+    /**
+     * Get defaults
+     * <code>ECDomainParameters</code> for EC curve
      * {@link http://www.secg.org/collateral/sec2_final.pdf}
+     *
      * @param keyType
      * @param keySize
      * @return parameters for use with BouncyCastle API

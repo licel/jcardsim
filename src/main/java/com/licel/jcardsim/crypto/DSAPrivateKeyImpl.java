@@ -28,7 +28,7 @@ import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
  * @see DSAPrivateKey
  * @see DSAPrivateKeyParameters
  */
-public class DSAPrivateKeyImpl extends DSAKeyImpl implements DSAPrivateKey, KeyWithParameters {
+public class DSAPrivateKeyImpl extends DSAKeyImpl implements DSAPrivateKey {
 
     protected ByteContainer x = new ByteContainer();
 

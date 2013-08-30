@@ -374,7 +374,7 @@ public class SimulatorSystem {
      * Always throw SystemException.ILLEGAL_USE
      */
     public static void requestObjectDeletion() {
-        SystemException.throwIt(SystemException.ILLEGAL_USE);
+        // do nothing
     }
 
     public static byte getCurrentlySelectedChannel() {
