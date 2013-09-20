@@ -148,7 +148,9 @@ public final class ByteContainer {
         if (dest.length - offset < data.length) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        return Util.arrayCopy(data, (short) 0, dest, offset, (short) data.length);
+        Util.arrayCopy(data, (short) 0, dest, offset, (short) data.length);
+        // https://code.google.com/p/jcardsim/issues/detail?id=14
+        return (short)data.length;
     }
 
     /**

@@ -97,7 +97,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     }
 
     public void setFieldFP(byte[] buffer, short offset, short length) throws CryptoException {
-        fp.getBytes(buffer, offset);
+        fp.setBytes(buffer, offset, length);
     }
 
     public void setFieldF2M(short e) throws CryptoException {
@@ -111,7 +111,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     }
 
     public void setA(byte[] buffer, short offset, short length) throws CryptoException {
-        a.getBytes(buffer, offset);
+        a.setBytes(buffer, offset, length);
     }
 
     public void setB(byte[] buffer, short offset, short length) throws CryptoException {

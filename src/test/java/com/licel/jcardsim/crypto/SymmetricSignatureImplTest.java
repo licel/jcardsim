@@ -161,6 +161,7 @@ public class SymmetricSignatureImplTest extends TestCase {
             engine.init(key, Signature.MODE_SIGN, iv, (short) 0, (short) iv.length);
         }
         byte[] mac = JCSystem.makeTransientByteArray((short) macEtalon.length, JCSystem.CLEAR_ON_RESET);
+        //
         engine.sign(msg, (short) 0, (short) msg.length, mac, (short) 0);
         assertEquals(true, Arrays.areEqual(mac, macEtalon));
         // verify

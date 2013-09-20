@@ -39,6 +39,7 @@ import org.bouncycastle.crypto.signers.RSADigestSigner;
 public class AsymmetricSignatureImpl extends Signature {
 
     Signer engine;
+    Key key;
     byte algorithm;
     boolean isInitialized;
 
@@ -77,16 +78,31 @@ public class AsymmetricSignatureImpl extends Signature {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
         engine.init(theMode == MODE_SIGN, ((KeyWithParameters) theKey).getParameters());
+        this.key = theKey;
         isInitialized = true;
     }
 
     public void init(Key theKey, byte theMode, byte[] bArray, short bOff, short bLen) throws CryptoException {
-        CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
     }
 
     public short getLength() throws CryptoException {
         if (!isInitialized) {
             CryptoException.throwIt(CryptoException.INVALID_INIT);
+        }
+        if (!key.isInitialized()) {
+            CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
+        }
+        switch (algorithm) {
+            case ALG_RSA_SHA_ISO9796:
+            case ALG_RSA_SHA_PKCS1:
+            case ALG_RSA_MD5_PKCS1:
+            case ALG_RSA_RIPEMD160_ISO9796:
+            case ALG_RSA_RIPEMD160_PKCS1:
+                return (short)(key.getSize()>>3);
+            case ALG_ECDSA_SHA:
+                // x,y + der payload
+                return (short)(((key.getSize()*2)>>3) + 8);
         }
         return 0;
     }
@@ -110,7 +126,8 @@ public class AsymmetricSignatureImpl extends Signature {
         byte[] sig;
         try {
             sig = engine.generateSignature();
-            return Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
+            Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
+            return (short) sig.length;
         } catch (org.bouncycastle.crypto.CryptoException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         } catch (DataLengthException ex) {

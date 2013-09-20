@@ -58,10 +58,10 @@ public abstract class RandomData {
             throws CryptoException {
         RandomData instance = null;
         switch (algorithm) {
-            case ALG_PSEUDO_RANDOM: // '\001'
+            case ALG_PSEUDO_RANDOM: 
+            case ALG_SECURE_RANDOM: 
                 instance = new RandomDataImpl();
                 break;
-
             default:
                 CryptoException.throwIt((short) 3);
                 break;

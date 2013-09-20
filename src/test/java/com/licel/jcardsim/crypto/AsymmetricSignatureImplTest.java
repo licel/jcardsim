@@ -27,8 +27,8 @@ import junit.framework.TestCase;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
- * Test for <code>AsymmetricSignatureImpl</code>
- * Test data from NXP JCOP31-36 JavaCard
+ * Test for
+ * <code>AsymmetricSignatureImpl</code> Test data from NXP JCOP31-36 JavaCard
  */
 public class AsymmetricSignatureImplTest extends TestCase {
 
@@ -74,15 +74,15 @@ public class AsymmetricSignatureImplTest extends TestCase {
         // verify signs
         Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_ISO9796, false);
         testEngineVerify(signature, publicKey, Hex.decode(MESSAGE),
-                Hex.decode(RSA_SIGNATURES[0]));
+                Hex.decode(RSA_SIGNATURES[0]), (short) 0);
 
         signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
         testEngineVerify(signature, publicKey, Hex.decode(MESSAGE),
-                Hex.decode(RSA_SIGNATURES[1]));
+                Hex.decode(RSA_SIGNATURES[1]), (short) 0);
 
         signature = Signature.getInstance(Signature.ALG_RSA_MD5_PKCS1, false);
         testEngineVerify(signature, publicKey, Hex.decode(MESSAGE),
-                Hex.decode(RSA_SIGNATURES[2]));
+                Hex.decode(RSA_SIGNATURES[2]), (short) 0);
 
     }
 
@@ -107,6 +107,7 @@ public class AsymmetricSignatureImplTest extends TestCase {
 
     /**
      * Base SelfTest sign/verify method
+     *
      * @param keyAlg - key generation algorithm
      * @param keySize - key size
      * @param signAlg - signature algorithm
@@ -120,27 +121,47 @@ public class AsymmetricSignatureImplTest extends TestCase {
         // init engine
         Signature signEngine = Signature.getInstance(signAlg, false);
         signEngine.init(privateKey, Signature.MODE_SIGN);
-        byte[] signature = JCSystem.makeTransientByteArray((short) 128, JCSystem.CLEAR_ON_RESET);
+        // sign length + extra space
+        byte[] signature = JCSystem.makeTransientByteArray((short) (128 + 10), JCSystem.CLEAR_ON_RESET);
         byte[] msg = JCSystem.makeTransientByteArray((short) 65, JCSystem.CLEAR_ON_RESET);
         RandomData rnd = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
         rnd.generateData(msg, (short) 0, (short) msg.length);
-        signEngine.sign(msg, (short) 0, (short) msg.length, signature, (short) 0);
+        short signLen = signEngine.sign(msg, (short) 0, (short) msg.length, signature, (short) 10);
+        // issue https://code.google.com/p/jcardsim/issues/detail?id=14
+        assertEquals(signLen<=signEngine.getLength(), true);
         Signature verifyEngine = Signature.getInstance(signAlg, false);
-        testEngineVerify(verifyEngine, publicKey, msg, signature);
+        testEngineVerify(verifyEngine, publicKey, msg, signature, (short) 10, signLen);
     }
 
-    /**
-     * Test the method <code>verify</code> of <code>Signature</code> engine
+     /**
+     * Test the method
+     * <code>verify</code> of
+     * <code>Signature</code> engine
+     *
      * @param engine tested engine
      * @param publicKey public key
      * @param etalonMsg etalon message bytes
      * @param etalonSign etalon signature bytes
      */
     public void testEngineVerify(Signature engine, PublicKey publicKey,
-            byte[] etalonMsg, byte[] etalonSign) {
+            byte[] etalonMsg, byte[] etalonSign, short etalonSignOffset) {
+        testEngineVerify(engine, publicKey, etalonMsg, etalonSign, etalonSignOffset, (short) etalonSign.length);
+    }   
+    /**
+     * Test the method
+     * <code>verify</code> of
+     * <code>Signature</code> engine
+     *
+     * @param engine tested engine
+     * @param publicKey public key
+     * @param etalonMsg etalon message bytes
+     * @param etalonSign etalon signature bytes
+     */
+    public void testEngineVerify(Signature engine, PublicKey publicKey,
+            byte[] etalonMsg, byte[] etalonSign, short etalonSignOffset, short etalonSignLength) {
         engine.init(publicKey, Signature.MODE_VERIFY);
         boolean result = engine.verify(etalonMsg, (short) 0, (short) etalonMsg.length,
-                etalonSign, (short) 0, (short) etalonSign.length);
+                etalonSign, etalonSignOffset, (short)(etalonSignLength!=0?etalonSignLength:etalonSign.length));
         assertEquals(true, result);
     }
 }

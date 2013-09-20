@@ -22,9 +22,9 @@ import javacard.security.Key;
 import javacardx.crypto.Cipher;
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.paddings.BlockCipherPadding;
-import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 
 /*
  * Implementation <code>Cipher</code> with asymmetric keys based
@@ -99,7 +99,8 @@ public class AssymetricCipherImpl extends Cipher {
         }
         try {
             byte[] data = engine.processBlock(buffer, (short) 0, (short) buffer.length);
-            return Util.arrayCopyNonAtomic(data, (short) 0, outBuff, outOffset, (short) data.length);
+            Util.arrayCopyNonAtomic(data, (short) 0, outBuff, outOffset, (short) data.length);
+            return (short) data.length;
         } catch (InvalidCipherTextException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }

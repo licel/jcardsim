@@ -70,14 +70,19 @@ public class KeyPairImplTest extends TestCase {
     public void testGenKeyPairRSA() {
         System.out.println("genKeyPair RSA");
         KeyPairImpl instance = null;
+        short offset = 10;
         byte[] publicExponent = new byte[3];
+        byte[] publicExponentArray = new byte[offset+3];
         byte[] etalonExponent = new byte[]{(byte)0x01, (byte)0x00, (byte)0x01};
         for (int i = 0; i < RSA_SIZES.length; i++) {
             instance = new KeyPairImpl(KeyPair.ALG_RSA, RSA_SIZES[i]);
             instance.genKeyPair();
             PublicKey publicKey = instance.getPublic();
             assertEquals(true, publicKey instanceof RSAPublicKey);
-            ((RSAPublicKey)publicKey).getExponent(publicExponent, (short)0);
+            // https://code.google.com/p/jcardsim/issues/detail?id=14
+            short publicExponentSize = ((RSAPublicKey)publicKey).getExponent(publicExponentArray, offset);
+            assertEquals(etalonExponent.length, publicExponentSize);
+            ((RSAPublicKey)publicKey).getExponent(publicExponent, (short) 0);
             assertEquals(true, Arrays.equals(publicExponent, etalonExponent));
             PrivateKey privateKey = instance.getPrivate();
             assertEquals(true, privateKey instanceof RSAPrivateKey);
