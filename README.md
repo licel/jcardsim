@@ -1,11 +1,11 @@
-jCardSim
+jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
 ========
 
 ### Congratulations! jCardSim has won [Duke's Choice 2013 Award](https://www.java.net//dukeschoice)!
 
 ![alt text](https://licel.ru/wp-content/uploads/DCA2013_Badge_Winner.jpg "jCardSim is a winner of Duke's Choice 2013")
 
-**Please note** that we moved our code repository here from Google Code. Now GitHub repository is official repo for the project.
+**Please note** that we moved our code repository here from Google Code. 
 
 jCardSim is an open source simulator implements Java Card, v.2.2.1:
 
