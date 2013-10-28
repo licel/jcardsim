@@ -35,6 +35,20 @@ assertEquals(0x9000, response.getSW());
 * APDU scripting (scripts are compatible with apdutool from Java Card Development Kit)
 * Ease of verification tests creation (Common Criteria)
 
+*JavaDoc*: https://jcardsim.googlecode.com/svn/trunk/javadoc/index.html
+
+*Latest stable release*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar
+
+*Snapshot Maven Repository*: https://oss.sonatype.org
+
+```xml
+<dependency>
+  <groupId>com.licel</groupId>
+  <artifactId>jcardsim</artifactId>
+  <version>2.2.1-SNAPSHOT</version>
+</dependency>
+```
+
 ### What is the difference from Oracle Java Card Development Kit simulator?
 
 * **Implementation of javacard.security.***
