@@ -97,19 +97,20 @@ public class SymmetricCipherImplTest extends TestCase {
         // ALG_DES_CBC_NOPAD
         "81B2369E2773858F"
     };
-    // AES test data from NIST
-    // AESVS VarTxt test data for ECB (Key length: 128bit)
-    String[] AES_ECB_128_TEST = {"00000000000000000000000000000000", "80000000000000000000000000000000", "3ad78e726c1ec02b7ebfe92b23d9ec34"};
-    // AESVS VarTxt test data for ECB (Key length: 192bit)
-    String[] AES_ECB_192_TEST = {"000000000000000000000000000000000000000000000000", "80000000000000000000000000000000", "6cd02513e8d4dc986b4afe087a60bd0c"};
-    // AESVS VarTxt test data for ECB (Key length: 256bit)
-    String[] AES_ECB_256_TEST = {"0000000000000000000000000000000000000000000000000000000000000000", "80000000000000000000000000000000", "ddc6bf790c15760d8d9aeb6f9a75fd4e"};
-    // AESVS VarKey test data for CBC (Key length: 128bit)
-    String[] AES_CBC_128_TEST = {"80000000000000000000000000000000", "00000000000000000000000000000000", "00000000000000000000000000000000", "0edd33d3c621e546455bd8ba1418bec8"};
-    // AESVS VarKey test data for CBC (Key length: 192bit)
-    String[] AES_CBC_192_TEST = {"800000000000000000000000000000000000000000000000", "00000000000000000000000000000000", "00000000000000000000000000000000", "de885dc87f5a92594082d02cc1e1b42c"};
-    // AESVS VarKey test data for CBC (Key length: 256bit)
-    String[] AES_CBC_256_TEST = {"8000000000000000000000000000000000000000000000000000000000000000", "00000000000000000000000000000000", "00000000000000000000000000000000", "e35a6dcb19b201a01ebcfa8aa22b5759"};
+    // AES test data from NIST (sp800-38a)
+    // FORMAT: key:[iv]:data:result
+    // Appendix F.1
+    String[] AES_ECB_128_TEST = {"2b7e151628aed2a6abf7158809cf4f3c", "6bc1bee22e409f96e93d7e117393172a", "3ad77bb40d7a3660a89ecaf32466ef97"};
+    // Appendix F.1.3
+    String[] AES_ECB_192_TEST = {"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b", "6bc1bee22e409f96e93d7e117393172a", "bd334f1d6e45f25ff712a214571fa5cc"};
+    // Appendix F.1.5
+    String[] AES_ECB_256_TEST = {"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4", "6bc1bee22e409f96e93d7e117393172a", "f3eed1bdb5d2a03c064b5a7e3db181f8"};
+    // Appendix F.2.1
+    String[] AES_CBC_128_TEST = {"2b7e151628aed2a6abf7158809cf4f3c", "000102030405060708090a0b0c0d0e0f", "6bc1bee22e409f96e93d7e117393172a", "7649abac8119b246cee98e9b12e9197d"};
+    // Appendix F.2.3
+    String[] AES_CBC_192_TEST = {"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b", "000102030405060708090a0b0c0d0e0f", "6bc1bee22e409f96e93d7e117393172a", "4f021db243bc633d7178183a9fa071e8"};
+    // Appendix F.2.5
+    String[] AES_CBC_256_TEST = {"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4", "000102030405060708090a0b0c0d0e0f", "6bc1bee22e409f96e93d7e117393172a", "f58c4c04d6e5f1ba779eabfb5f7bfbd6"};
 
     public SymmetricCipherImplTest(String testName) {
         super(testName);
@@ -213,7 +214,12 @@ public class SymmetricCipherImplTest extends TestCase {
         short processedBytes = engine.doFinal(Hex.decode(testData[needIV?2:1]), (short) 0, (short) 16, encrypted, (short) 0);
         assertEquals(processedBytes, 16);
         assertEquals(true, Arrays.areEqual(encrypted, Hex.decode(testData[needIV?3:2])));
-        engine.init(aesKey, Cipher.MODE_DECRYPT);
+        if (needIV) {
+            byte[] iv = Hex.decode(testData[1]);
+            engine.init(aesKey, Cipher.MODE_DECRYPT, iv, (short)0, (short)iv.length);
+        } else {
+            engine.init(aesKey, Cipher.MODE_DECRYPT);
+        }
         byte[] decrypted = new byte[16]; // AES 128
         processedBytes = engine.doFinal(Hex.decode(testData[needIV?3:2]), (short) 0, (short) 16, decrypted, (short) 0);
         assertEquals(processedBytes, 16);
