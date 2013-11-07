@@ -37,6 +37,47 @@
         <developerConnection>scm:svn:https://jcardsim.googlecode.com/svn/trunk/</developerConnection>
         <url>http://jcardsim.googlecode.com/svn/trunk/</url>
     </scm>
+    
+    <profiles>
+        <profile>
+            <id>sign</id>
+            <activation>
+                <property>
+                    <name>keystoreLocation</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jarsigner-plugin</artifactId>
+                        <version>1.2</version>
+                        <executions>
+                            <execution>
+                                <id>sign</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <keystore>${keystoreLocation}</keystore>
+                            <alias>${keyAlias}</alias>
+                            <storepass>${keystorePass}</storepass>
+                            <keypass>${keyPass}</keypass>
+                            <storetype>${storeType}</storetype>
+                        </configuration>
+                    </plugin>                
+                </plugins>
+            </build>
+        </profile>    
+    </profiles>
   
     <dependencies>
         <dependency>
@@ -112,32 +153,6 @@
                     </execution>
                 </executions>
             </plugin> 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jarsigner-plugin</artifactId>
-                <version>1.2</version>
-                <executions>
-                    <execution>
-                        <id>sign</id>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>verify</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <keystore>${keystoreLocation}</keystore>
-                    <alias>${keyAlias}</alias>
-                    <storepass>${keystorePass}</storepass>
-                    <keypass>${keyPass}</keypass>
-                    <storetype>${storeType}</storetype>
-                </configuration>
-            </plugin>                
         </plugins>
     </build>
 </project>
