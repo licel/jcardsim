@@ -15,46 +15,37 @@
  */
 package com.licel.jcardsim.smartcardio;
 
-import com.licel.jcardsim.base.Simulator;
-import java.text.MessageFormat;
+import com.licel.jcardsim.io.JavaCardInterface;
 import javacard.framework.AID;
 import javacard.framework.ISO7816;
 import javacard.framework.SystemException;
 import javacard.framework.Util;
 import javax.smartcardio.*;
-import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Card implementation class.
+ *
  * @author LICEL LLC
  */
 public class JCSCard extends Card {
     // default protocol
+
     static final String T0_PROTOCOL = "T=0";
-    // default ATR - NXP JCOP 31/36K
-    static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
-    // ATR system property name
-    static final String ATR_SYSTEM_PROPERTY = "com.licel.jcardsim.smartcardio.ATR";
-    // Applet AID system property template
-    static final MessageFormat AID_SP_TEMPLATE = new MessageFormat("com.licel.jcardsim.smartcardio.applet.{0}.AID");
-    // Applet ClassName system property template
-    static final MessageFormat APPLET_CLASS_SP_TEMPLATE = new MessageFormat("com.licel.jcardsim.smartcardio.applet.{0}.Class");
     // ATR
     private ATR atr;
     // Simulator
-    private Simulator simulator;
+    private JavaCardInterface cardInterface;
     //
     private JCSCardChannel basicChannel;
 
-    public JCSCard() {
-        simulator = new Simulator();
-        atr = new ATR(Hex.decode(System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR)));
+    public JCSCard(JavaCardInterface cardInterface) {
+        this.cardInterface = cardInterface;
+        atr = new ATR(cardInterface.getATR());
         basicChannel = new JCSCardChannel(this, 0);
     }
 
     /**
-     * Returns ATR configured by system property com.licel.jcardsim.smartcardio.ATR
-     * Default ATR - 3BFA1800008131FE454A434F5033315632333298.
+     *
      */
     public ATR getATR() {
         return atr;
@@ -73,6 +64,7 @@ public class JCSCard extends Card {
 
     /**
      * Always returns basic channel with id = 0
+     *
      * @throws CardException
      */
     public CardChannel openLogicalChannel() throws CardException {
@@ -114,7 +106,7 @@ public class JCSCard extends Card {
             AID aid = new AID(aidBytes, (short) 0, (byte) aidBytes.length);
             boolean appletSelectionResult = false;
             try {
-                appletSelectionResult = simulator.selectApplet(aid);
+                appletSelectionResult = cardInterface.selectApplet(aid);
             } catch (Throwable t) {
             }
             if (!appletSelectionResult) {
@@ -143,7 +135,7 @@ public class JCSCard extends Card {
             AID aid = new AID(data, (short) 1, data[0]);
             // parameters
             try {
-                simulator.createApplet(aid, data, (short) 0, (byte) data.length);
+                cardInterface.createApplet(aid, data, (short) 0, (byte) data.length);
                 byte[] response = new byte[data[0] + 2];
                 aid.getBytes(response, (short) 0);
                 Util.setShort(response, (short) (response.length - 2), ISO7816.SW_NO_ERROR);
@@ -154,47 +146,7 @@ public class JCSCard extends Card {
             }
             return new ResponseAPDU(theSW);
         } else {
-            return new ResponseAPDU(simulator.transmitCommand(capdu.getBytes()));
-        }
-    }
-
-    /**
-     * powerdown/powerup
-     */
-    void reset(){
-        simulator.reset();
-        // init applets
-        initApplets();
-    }
-    
-    /**
-     * Init applets
-     */
-    private void initApplets() {
-        for (int i = 0; i < 10; i++) {
-            String appletAID = System.getProperty(AID_SP_TEMPLATE.format(new Object[]{new Integer(i)}));
-            if (appletAID != null) {
-                String appletClassName = System.getProperty(APPLET_CLASS_SP_TEMPLATE.format(new Object[]{new Integer(i)}));
-                if (appletClassName != null) {
-                    loadApplet(appletAID, appletClassName);
-                }
-            }
-        }
-    }
-
-    /**
-     * Install applet
-     */
-    private void loadApplet(String appletAID, String appletClassName) {
-        byte[] aidBytes = Hex.decode(appletAID);
-        if (aidBytes == null || aidBytes.length < 5 || aidBytes.length > 16) {
-            throw new IllegalArgumentException("AID must be in hex format 5..16 bytes length");
-        }
-        try {
-            Class appletClass = Class.forName(appletClassName);
-            simulator.loadApplet(new AID(aidBytes, (short) 0, (byte) aidBytes.length), appletClass);
-        } catch (ClassNotFoundException ex) {
-            throw new IllegalArgumentException("Applet class: "+appletClassName+" not found!", ex);
+            return new ResponseAPDU(cardInterface.transmitCommand(capdu.getBytes()));
         }
     }
 }
