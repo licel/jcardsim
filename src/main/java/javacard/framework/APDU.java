@@ -456,7 +456,7 @@ public final class APDU {
         if (Lc != 0) {
             short len = 0;
             if(buffer[ISO7816.OFFSET_LC] != 0) {
-                len = buffer[ISO7816.OFFSET_LC];
+                len = (short) (buffer[ISO7816.OFFSET_LC] & 0xff);
             }
             Lc -= len;
             ramVars[LC] = (byte) Lc;
