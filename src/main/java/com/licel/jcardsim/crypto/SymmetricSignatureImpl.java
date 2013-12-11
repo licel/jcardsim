@@ -76,6 +76,10 @@ public class SymmetricSignatureImpl extends Signature {
                 macSize = 64;
                 paddingEngine = new PKCS7Padding();
                 break;
+            case ALG_AES_MAC_128_NOPAD:
+                macSize = 128;
+                paddingEngine = null;
+                break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
@@ -108,12 +112,15 @@ public class SymmetricSignatureImpl extends Signature {
         if (!(theKey instanceof SymmetricKeyImpl)) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        if (bLen != 8) {
+        SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
+        if (bLen != key.getCipher().getBlockSize()) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
         engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
-        engine.init(new ParametersWithIV(key.getParameters(), bArray, bOff, bLen));
+        // CBC-MAC iv == 0
+        if (algorithm != ALG_AES_MAC_128_NOPAD) {
+            engine.init(new ParametersWithIV(key.getParameters(), bArray, bOff, bLen));
+        }
         isInitialized = true;
     }
 

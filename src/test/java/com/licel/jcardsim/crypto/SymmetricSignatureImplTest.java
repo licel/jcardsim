@@ -25,7 +25,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Test for <code>SymmetricSignatureImpl</code>
- * Test data from NXP JCOP31-36 JavaCard
+ * Test data from NXP JCOP31-36/41 JavaCard
  */
 public class SymmetricSignatureImplTest extends TestCase {
 
@@ -83,6 +83,13 @@ public class SymmetricSignatureImplTest extends TestCase {
         "81B2369E2773858F"
     };
 
+    // etalon message for AES-CBC
+    String MESSAGE_16 = "6BC1BEE22E409F96E93D7E117393172A";
+    // etalon aes 128 key
+    String AES_128_KEY = "2B7E151628AED2A6ABF7158809CF4F3C";
+    // etalon mac
+    String AES_CBC_MAC = "3AD77BB40D7A3660A89ECAF32466EF97";
+    
     public SymmetricSignatureImplTest(String testName) {
         super(testName);
     }
@@ -113,6 +120,16 @@ public class SymmetricSignatureImplTest extends TestCase {
         desKey.setKey(Hex.decode(DES_KEY), (short) 0);
         testSignVerify(desKey, MESSAGE_8, MESSAGE_15, DES_MAC_8,
                 DES_MAC_15, DES_MAC_8_IV, DES_MAC_15_IV);
+    }
+
+    /**
+     * Test of sign/verifys methods, of class SymmetricSignatureImpl with AES Key
+     */
+    public void testSignVerifyAES() {
+        SymmetricKeyImpl aesKey = new SymmetricKeyImpl(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128);
+        aesKey.setKey(Hex.decode(AES_128_KEY), (short) 0);
+        Signature engine = Signature.getInstance(Signature.ALG_AES_MAC_128_NOPAD, false);
+        testEngineSignVerify(engine, aesKey, null, Hex.decode(MESSAGE_16), Hex.decode(AES_CBC_MAC));
     }
 
     /**
