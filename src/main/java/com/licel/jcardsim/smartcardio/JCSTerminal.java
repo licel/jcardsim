@@ -15,28 +15,35 @@
  */
 package com.licel.jcardsim.smartcardio;
 
+import com.licel.jcardsim.io.CAD;
+import com.licel.jcardsim.io.JavaCardInterface;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
 /**
  * CardTerminal implementation class.
+ *
  * @author LICEL LLC
  */
 public class JCSTerminal extends CardTerminal {
 
-    final static String NAME="jCardSim.Terminal";
+    final static String NAME = "jCardSim.Terminal";
+    CAD cad;
     static JCSCard card = null;
-            
+
+    public JCSTerminal() {
+        cad = new CAD(System.getProperties());
+    }
+
     public String getName() {
         return NAME;
     }
 
     public Card connect(String string) throws CardException {
         if (card == null) {
-            card = new JCSCard();
+            card = new JCSCard((JavaCardInterface) cad.getCardInterface());
         }
-        card.reset();
         return card;
     }
 
