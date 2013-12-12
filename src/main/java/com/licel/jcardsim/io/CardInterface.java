@@ -13,12 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.licel.jcardsim.io;
 
-package java.rmi;
+/**
+ * Basic SmartCard Interface
+ *
+ * @author LICEL LLC
+ */
+public interface CardInterface {
 
-public class RemoteException extends java.io.IOException {
+    /**
+     * Powerdown/Powerup
+     */
+    public void reset();
 
-    public RemoteException() {
-    }
+    /**
+     * Returns ATR
+     */
+    public byte[] getATR();
 
+    /**
+     * Transmit APDU to previous selected applet
+     *
+     * @param commandAPDU command apdu
+     * @return response apdu
+     * @see CommandAPDU
+     * @see ResponseAPDU
+     * @throws SystemException.ILLEGAL_USE if appplet not selected before
+     */
+    public byte[] transmitCommand(byte[] data);
 }

@@ -15,71 +15,152 @@
  */
 package com.licel.jcardsim.base;
 
+import com.licel.jcardsim.io.JavaCardInterface;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.text.MessageFormat;
 import javacard.framework.AID;
 import javacard.framework.Applet;
 import javacard.framework.JCSystem;
 import javacard.framework.SystemException;
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Main class for deal with Applets
  */
-public class Simulator {
-            
+public class Simulator implements JavaCardInterface {
+
+    // default ATR - NXP JCOP 31/36K
+    static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
+    // ATR system property name
+    static final String ATR_SYSTEM_PROPERTY = "com.licel.jcardsim.card.ATR";
+    // card ATR 
+    byte[] atr = null;
+    static final String PROPERTY_PREFIX = "com.licel.jcardsim.card.applet.";
+    static final String OLD_PROPERTY_PREFIX = "com.licel.jcardsim.smartcardio.applet.";
+    // Applet AID system property template
+    static final MessageFormat AID_SP_TEMPLATE = new MessageFormat("{0}.AID");
+    // Applet ClassName system property template
+    static final MessageFormat APPLET_CLASS_SP_TEMPLATE = new MessageFormat("{0}.Class");
+    // Applet Class Loader
+    AppletClassLoader cl = new AppletClassLoader(new URL[]{});
+
     /**
-     * Construct <code>Simulator</code> object and init base systems
+     * Construct Simulator object and init base systems
      */
     public Simulator() {
+        resetRuntime();
         JCSystem.getVersion();
+        atr = Hex.decode(System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
+        // init preinstalled applets
+        for (int i = 0; i < 10; i++) {
+            String selectedPrefix = PROPERTY_PREFIX;
+            String aidPropertyName = PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{new Integer(i)});
+            String aidPropertyOldName = OLD_PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{new Integer(i)});
+            String appletAID = System.getProperty(aidPropertyName);
+            if (appletAID == null) {
+                appletAID = System.getProperty(aidPropertyOldName);
+                if (appletAID != null) {
+                    selectedPrefix = OLD_PROPERTY_PREFIX;
+                }
+            }
+            if (appletAID != null) {
+                String appletClassName = System.getProperty(selectedPrefix + APPLET_CLASS_SP_TEMPLATE.format(new Object[]{new Integer(i)}));
+                if (appletClassName != null) {
+                    byte[] aidBytes = Hex.decode(appletAID);
+                    if (aidBytes == null || aidBytes.length < 5 || aidBytes.length > 16) {
+                        // skip incorrect applet
+                        continue;
+                    }
+                    loadApplet(new AID(aidBytes, (short) 0, (byte) aidBytes.length), appletClassName);
+                }
+            }
+        }
+
+    }
+
+    public AID loadApplet(AID aid, String appletClassName, byte[] appletJarContents) throws SystemException {
+        // simple method, but emulate real card login
+        // download data
+        byte[] aidData = new byte[16];
+        aid.getBytes(aidData, (short) 0);
+        Class appletClass = null;
+        try {
+            cl.addAppletContents(appletJarContents);
+            appletClass = cl.loadClass(appletClassName);
+        } catch (Exception e) {
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+
+        }
+        if (appletClass != null) {
+            return loadApplet(aid, appletClass);
+        } else {
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+            return null;
+        }
+    }
+
+    public AID loadApplet(AID aid, String appletClassName) throws SystemException {
+        Class appletClass = null;
+        try {
+            appletClass = cl.loadClass(appletClassName);
+        } catch (ClassNotFoundException ex) {
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        }
+        if (!(appletClass.getSuperclass() == Applet.class)) {
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        }
+        return loadApplet(aid, appletClass);
     }
 
     /**
-     * Load <code>Applet</code> into Simulator
+     * Load
+     * <code>Applet</code> into Simulator
+     *
      * @param aid applet aid
      * @param appletClass applet class
      * @return applet <code>AID</code>
-     * @throws SystemException if <code>appletClass</code> not instanceof 
+     * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
     public AID loadApplet(AID aid, Class appletClass) throws SystemException {
-          if (!(appletClass.getSuperclass() == Applet.class)) {
+        if (!(appletClass.getSuperclass() == Applet.class)) {
             SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
         SimulatorSystem.getRuntime().loadApplet(aid, appletClass);
-        return aid;  
+        return aid;
     }
 
-    /**
-     * Create <code>Applet</code> instance in Simulator
-     * @param aid applet aid
-     * @param bArray the array containing installation parameters
-     * @param bOffset the starting offset in bArray
-     * @param bLength the length in bytes of the parameter data in bArray
-     * @return applet <code>AID</code>
-     * @throws SystemException if exception in <code>Applet.install(..)</code>
-     * method occurs.
-     */
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
         try {
             Class appletClass = SimulatorSystem.getRuntime().getAppletClass(aid);
-            if(appletClass == null) SystemException.throwIt(SystemException.ILLEGAL_AID);
+            if (appletClass == null) {
+                SystemException.throwIt(SystemException.ILLEGAL_AID);
+            }
             SimulatorSystem.getRuntime().appletInstalling(aid);
             Method initMethod = appletClass.getMethod("install",
                     new Class[]{byte[].class, short.class, byte.class});
             initMethod.invoke(null, new Object[]{bArray, new Short(bOffset), new Byte(bLength)});
         } catch (Exception ex) {
+            ex.printStackTrace();
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CRATION_FAILED);
         }
         return aid;
     }
-    
+
     /**
-     * Install <code>Applet</code> into Simulator without installing data
+     * Install
+     * <code>Applet</code> into Simulator without installing data
+     *
      * @param aid applet aid or null
      * @param appletClass applet class
      * @return applet <code>AID</code>
-     * @throws SystemException if <code>appletClass</code> not instanceof 
+     * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
     public AID installApplet(AID aid, Class appletClass) throws SystemException {
@@ -87,19 +168,20 @@ public class Simulator {
     }
 
     /**
-     * Install <code>Applet</code> into Simulator.
-     * This method is equal to:
+     * Install
+     * <code>Applet</code> into Simulator. This method is equal to:
      * <code>
      * loadApplet(...);
      * createApplet(...);
      * </code>
+     *
      * @param aid applet aid or null
      * @param appletClass applet class
      * @param bArray the array containing installation parameters
      * @param bOffset the starting offset in bArray
      * @param bLength the length in bytes of the parameter data in bArray
      * @return applet <code>AID</code>
-     * @throws SystemException if <code>appletClass</code> not instanceof 
+     * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
     public AID installApplet(AID aid, Class appletClass, byte bArray[], short bOffset,
@@ -108,37 +190,53 @@ public class Simulator {
         return createApplet(aid, bArray, bOffset, bLength);
     }
 
-    /**
-     * Select applet by it's AID 
-     * It's method must be called before start working with applet instance
-     * @param aid appletId
-     * @return true if applet selection success
-     */
+    public AID installApplet(AID aid, String appletClassName, byte bArray[], short bOffset,
+            byte bLength) throws SystemException {
+        loadApplet(aid, appletClassName);
+        return createApplet(aid, bArray, bOffset, bLength);
+    }
+
+    public AID installApplet(AID aid, String appletClassName, byte[] appletContents, byte bArray[], short bOffset,
+            byte bLength) throws SystemException {
+        loadApplet(aid, appletClassName, appletContents);
+        return createApplet(aid, bArray, bOffset, bLength);
+    }
+
     public boolean selectApplet(AID aid) throws SystemException {
         return SimulatorSystem.selectApplet(aid);
     }
 
-    /**
-     * Transmit APDU to previous selected applet
-     * @param commandAPDU command apdu
-     * @return response apdu
-     * @see CommandAPDU
-     * @see ResponseAPDU
-     * @throws SystemException.ILLEGAL_USE if appplet not selected before
-     */
     public byte[] transmitCommand(byte[] command)
             throws SystemException {
         return SimulatorSystem.transmitCommand(command);
     }
-    
-    /**
-     * powerdown/powerup
-     */
+
     public void reset() {
         SimulatorSystem.getRuntime().reset();
     }
 
-    public void resetRuntime() {
+    public final void resetRuntime() {
         SimulatorSystem.getRuntime().resetRuntime();
+    }
+
+    public byte[] getATR() {
+        return atr;
+    }
+
+    class AppletClassLoader extends URLClassLoader {
+
+        AppletClassLoader(URL[] urls) {
+            super(urls, Simulator.class.getClassLoader());
+        }
+
+        void addAppletContents(byte[] appletJarContents) throws IOException {
+            File downloadedAppletJar = File.createTempFile("applet", "contents");
+            downloadedAppletJar.deleteOnExit();
+            FileOutputStream fos = new FileOutputStream(downloadedAppletJar);
+            fos.write(appletJarContents);
+            fos.close();
+            addURL(downloadedAppletJar.toURI().toURL());
+
+        }
     }
 }

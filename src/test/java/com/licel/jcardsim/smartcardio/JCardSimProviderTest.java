@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.smartcardio;
 
+import com.licel.jcardsim.base.SimulatorSystem;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Arrays;
@@ -23,7 +24,6 @@ import javacard.framework.ISO7816;
 import javax.smartcardio.*;
 import junit.framework.TestCase;
 import org.bouncycastle.util.encoders.Hex;
-import com.licel.jcardsim.base.SimulatorSystem;
 
 /**
  * Test Java Card Terminal emulation.
@@ -32,7 +32,7 @@ import com.licel.jcardsim.base.SimulatorSystem;
  */
 public class JCardSimProviderTest extends TestCase {
 
-    private static final ATR ETALON_ATR = new ATR(Hex.decode(JCSCard.DEFAULT_ATR));
+    private static final ATR ETALON_ATR = new ATR(Hex.decode("3BFA1800008131FE454A434F5033315632333298"));
     private static final String TEST_APPLET_AID = "010203040506070809";
 
     protected void setUp() throws Exception {
@@ -45,8 +45,8 @@ public class JCardSimProviderTest extends TestCase {
 
     public void testProvider() throws CardException, NoSuchAlgorithmException {
         SimulatorSystem.resetRuntime();
-        System.setProperty("com.licel.jcardsim.smartcardio.applet.0.AID", TEST_APPLET_AID);
-        System.setProperty("com.licel.jcardsim.smartcardio.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
+        System.setProperty("com.licel.jcardsim.card.applet.0.AID", TEST_APPLET_AID);
+        System.setProperty("com.licel.jcardsim.card.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
         if (Security.getProvider("jCardSim") == null) {
             JCardSimProvider provider = new JCardSimProvider();
             Security.addProvider(provider);
