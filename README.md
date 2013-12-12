@@ -20,7 +20,7 @@ Key Features:
 
 ```java
 //1. create simulator
-Simulator simulator = new Simulator();
+JavaxSmartCardInterface simulator = new JavaxSmartCardInterface();
 //2. install applet
 simulator.installApplet(appletAID, HelloWorldApplet.class);
 //3. select applet
