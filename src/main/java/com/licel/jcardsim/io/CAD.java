@@ -28,6 +28,7 @@ public class CAD {
 
     public final static byte INTERNAL = 0;
     public final static byte RMI = 1;
+    public final static byte JAVAX_SMARTCARDIO = 2;
     byte interfaceType;
     CardInterface cardInterface;
 
@@ -45,6 +46,9 @@ public class CAD {
                 } catch (Exception e) {
                     throw new RuntimeException("RMI CardInterface init error", e);
                 }
+                break;
+            case JAVAX_SMARTCARDIO:
+                cardInterface = new JavaxSmartCardInterface();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown CAD type: " + type);
