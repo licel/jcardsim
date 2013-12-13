@@ -202,9 +202,7 @@ public class SimulatorRuntime {
             Util.arrayCopyNonAtomic(command, (short) 0, APDU.getCurrentAPDUBuffer(),
                     (short) 0, (short) command.length);
             applet.process(APDU.getCurrentAPDU());
-            response = JCSystem.makeTransientByteArray((short) (responseBufferSize + 2), JCSystem.CLEAR_ON_RESET);
-            Util.arrayCopyNonAtomic(responseBuffer, (short) 0, response, (short) 0, responseBufferSize);
-            Util.setShort(response, responseBufferSize, ISO7816.SW_NO_ERROR);
+            Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
             Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
             if (e instanceof CardException) {
@@ -213,6 +211,11 @@ public class SimulatorRuntime {
                 Util.setShort(theSW, (short) 0, ((CardRuntimeException) e).getReason());
             }
             response = theSW;
+        }
+        if(theSW[0] == 0x61 || theSW[0] == (byte)0x90) {
+            response = JCSystem.makeTransientByteArray((short) (responseBufferSize + 2), JCSystem.CLEAR_ON_RESET);
+            Util.arrayCopyNonAtomic(responseBuffer, (short) 0, response, (short) 0, responseBufferSize);
+            Util.arrayCopyNonAtomic(theSW, (short) 0, response, responseBufferSize, (short) 2);
         }
         APDU.getCurrentAPDU().reset();
         Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) 255, (byte) 0);
