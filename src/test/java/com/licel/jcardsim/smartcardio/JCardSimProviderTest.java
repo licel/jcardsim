@@ -117,5 +117,9 @@ public class JCardSimProviderTest extends TestCase {
         assertEquals(0x9000, response.getSW());
         assertEquals(0xF, response.getData()[0]);
         assertEquals(0xF, response.getData()[1]);
+        // test continued data
+        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x06, 0x00, 0x00));
+        assertEquals(0x6107, response.getSW());
+        assertEquals("Hello ", new String(response.getData()));
     }
 }
