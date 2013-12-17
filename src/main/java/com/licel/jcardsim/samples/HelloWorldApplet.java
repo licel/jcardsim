@@ -40,6 +40,10 @@ public class HelloWorldApplet extends Applet {
      */
     private final static byte NOP_INS = (byte) 0x02;
     /**
+     * Instruction: queue data and return 61xx
+     */
+    private final static byte SAY_CONTINUE_INS = (byte) 0x06;
+    /**
      * Byte array representing "Hello Java Card world!" string.
      */
     private static byte[] helloMessage = new byte[]{
@@ -97,6 +101,9 @@ public class HelloWorldApplet extends Applet {
                 return;
             case SAY_IPARAMS_INS:
                 sayIParams(apdu);
+                return;
+            case SAY_CONTINUE_INS:
+                sayContinue(apdu);
                 return;
             case NOP_INS:
                 return;
@@ -167,4 +174,15 @@ public class HelloWorldApplet extends Applet {
         apdu.sendBytesLong(initParamsBytes, (short) 0, (short)initParamsBytes.length);
     }   
 
+    /**
+     * send some hello data, and indicate there's more
+     */
+    private void sayContinue(APDU apdu) {
+    	byte[] echo = JCSystem.makeTransientByteArray((byte)6, JCSystem.CLEAR_ON_RESET);
+    	Util.arrayCopyNonAtomic(helloMessage, (short)0, echo, (short)0, (short)6);
+        apdu.setOutgoing();
+        apdu.setOutgoingLength((short) echo.length);
+        apdu.sendBytesLong(echo, (short) 0, (short) echo.length);
+        ISOException.throwIt((short) (ISO7816.SW_BYTES_REMAINING_00 | 0x07));
+    }
 }
