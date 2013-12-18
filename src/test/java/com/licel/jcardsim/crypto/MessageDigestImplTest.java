@@ -38,9 +38,25 @@ public class MessageDigestImplTest extends TestCase {
     // card response with algorithm SHA256
     static final String MD_1_NXP_SHA256 = "E700E0E6E5A4F3FF05CCBD4DA9CDBBEC712189DE65EF1ED19C351F7966270EF0";
     static final String MD_2_NXP_SHA256 = "17CB067C5E384B85DF370B96A5C91817D908F0C760CB2D7539EF8B9A7C02AB80";
+    // NIST SHA-384 SHA ETALON MESSAGES 
+    static final String MESSAGE_64_NIST_SHA384 = "DE60275BDAFCE4B1";
+    static final String MESSAGE_256_NIST_SHA384 = "BE01E520E69F04174CCF95455B1C81445298264D9ADC4958574A52843D95B8BA";
+    // NIST SHA-384 ETALON DIGESTS
+    static final String MD_64_NIST_SHA384 = "A3D861D866C1362423EB21C6BEC8E44B74CE993C55BAA2B6640567560EBECDAEDA07183DBBBD95E0F522CAEE5DDBDAF0";
+    static final String MD_256_NIST_SHA384 = "C5CF54B8E3105B1C7BF7A43754D915B0947F28B6DC94A019182929B5C848E11441C9E4E90C7449F4C3CD12954F0F5D99";
+    // NIST SHA-512 ETALON MESSAGES
+    static final String MESSAGE_64_NIST_SHA512 = "6F8D58B7CAB1888C";
+    static final String MESSAGE_256_NIST_SHA512 = "8CCB08D2A1A282AA8CC99902ECAF0F67A9F21CFFE28005CB27FCF129E963F99D";
+    // NIST SHA-512 ETALON DIGESTS
+    static final String MD_64_NIST_SHA512 = "A3941DEF2803C8DFC08F20C06BA7E9A332AE0C67E47AE57365C243EF40059B11BE22C91DA6A80C2CFF0742A8F4BCD941BDEE0B861EC872B215433CE8DCF3C031";
+    static final String MD_256_NIST_SHA512 = "4551DEF2F9127386EEA8D4DAE1EA8D8E49B2ADD0509F27CCBCE7D9E950AC7DB01D5BCA579C271B9F2D806730D88F58252FD0C2587851C3AC8A0E72B4E1DC0DA6";
+    
+    
     MessageDigest engineMD5 = new MessageDigestImpl(MessageDigest.ALG_MD5);
     MessageDigest engineSHA1 = new MessageDigestImpl(MessageDigest.ALG_SHA);
     MessageDigest engineSHA256 = new MessageDigestImpl(MessageDigest.ALG_SHA_256);
+    MessageDigest engineSHA384 = new MessageDigestImpl(MessageDigest.ALG_SHA_384);
+    MessageDigest engineSHA512 = new MessageDigestImpl(MessageDigest.ALG_SHA_512);
 
     public MessageDigestImplTest(String testName) {
         super(testName);
@@ -71,6 +87,14 @@ public class MessageDigestImplTest extends TestCase {
         expResult = MessageDigest.ALG_SHA_256;
         result = engineSHA256.getAlgorithm();
         assertEquals(expResult, result);
+        // sha384
+        expResult = MessageDigest.ALG_SHA_384;
+        result = engineSHA384.getAlgorithm();
+        assertEquals(expResult, result);
+        // sha512
+        expResult = MessageDigest.ALG_SHA_512;
+        result = engineSHA512.getAlgorithm();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -79,17 +103,15 @@ public class MessageDigestImplTest extends TestCase {
     public void testGetLength() {
         System.out.println("getLength");
         // md5
-        byte expResult = 16;
-        byte result = engineMD5.getLength();
-        assertEquals(expResult, result);
+        assertEquals(engineMD5.getLength(), MessageDigest.LENGTH_MD5);
         // sha1
-        expResult = 20;
-        result = engineSHA1.getLength();
-        assertEquals(expResult, result);
+        assertEquals(engineSHA1.getLength(), MessageDigest.LENGTH_SHA);
         // sha256
-        expResult = 32;
-        result = engineSHA256.getLength();
-        assertEquals(expResult, result);
+        assertEquals(engineSHA256.getLength(), MessageDigest.LENGTH_SHA_256);
+        // sha384
+        assertEquals(engineSHA384.getLength(), MessageDigest.LENGTH_SHA_384);
+        // sha512
+        assertEquals(engineSHA512.getLength(), MessageDigest.LENGTH_SHA_512);
     }
 
     /**
@@ -122,6 +144,26 @@ public class MessageDigestImplTest extends TestCase {
         testEngineDoUpdateFinal(engineSHA256, Hex.decode(MESSAGE2), Hex.decode(MD_2_NXP_SHA256));
     }
 
+    /**
+     * Test SHA384 algorithm with card response
+     */
+    public void testSHA384() {
+        System.out.println("test SHA384 doFinal()");
+        testEngineDoFinal(engineSHA384, Hex.decode(MESSAGE_64_NIST_SHA384), Hex.decode(MD_64_NIST_SHA384));
+        System.out.println("test SHA384 doUpdate() + doFinal()");
+        testEngineDoUpdateFinal(engineSHA384, Hex.decode(MESSAGE_256_NIST_SHA384), Hex.decode(MD_256_NIST_SHA384));
+    }
+
+    /**
+     * Test SHA512 algorithm with card response
+     */
+    public void testSHA512() {
+        System.out.println("test SHA512 doFinal()");
+        testEngineDoFinal(engineSHA512, Hex.decode(MESSAGE_64_NIST_SHA512), Hex.decode(MD_64_NIST_SHA512));
+        System.out.println("test SHA512 doUpdate() + doFinal()");
+        testEngineDoUpdateFinal(engineSHA512, Hex.decode(MESSAGE_256_NIST_SHA512), Hex.decode(MD_256_NIST_SHA512));
+    }
+    
     /**
      * Test method <code>doFinal</code>
      * @param engine tested engine
