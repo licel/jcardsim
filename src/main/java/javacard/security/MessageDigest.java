@@ -40,11 +40,45 @@ public abstract class MessageDigest {
      * Message Digest algorithm RIPE MD-160.
      */
     public static final byte ALG_RIPEMD160 = 3;
-	/**
-	 * Message Digest algorithm SHA-256. The block size used by this algorithm
-	 * is 64 bytes.
-	 */
+    /**
+     * Message Digest algorithm SHA-256. The block size used by this algorithm
+     * is 64 bytes.
+     */
     public static final byte ALG_SHA_256 = 4;
+    /**
+     * Message Digest algorithm SHA-384. The block size used by this algorithm 
+     * is 128 bytes.
+     */
+    public static final byte ALG_SHA_384 = 5;
+    /**
+     * Message Digest algorithm SHA-512. The block size used by this algorithm
+     * is 128 bytes.
+     */
+    public static final byte ALG_SHA_512 = 6;
+    /**
+     * Length of digest in bytes for SHA
+     */
+    public static final byte LENGTH_MD5 = 16;
+    /**
+     * Length of digest in bytes for RIPE MD-160
+     */
+    public static final byte LENGTH_RIPEMD160 = 20;
+    /**
+     * Length of digest in bytes for SHA-256
+     */
+    public static final byte LENGTH_SHA = 20;
+    /**
+     * Length of digest in bytes for MD5
+     */
+    public static final byte LENGTH_SHA_256 = 32;
+    /**
+     * Length of digest in bytes for SHA-384
+     */
+    public static final byte LENGTH_SHA_384 = 48;
+    /**
+     * Length of digest in bytes for SHA-512
+     */
+    public static final byte LENGTH_SHA_512 = 64;
 
     /**
      * Protected Constructor
