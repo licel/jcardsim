@@ -35,8 +35,12 @@ public class MessageDigestImplTest extends TestCase {
     // card response with algorithm SHA1
     static final String MD_1_NXP_SHA1 = "94FF92DC796929290990BA74F4B125F04F9B510A";
     static final String MD_2_NXP_SHA1 = "01793FF98B954C3F60F276B179186C499F619A9D";
+    // card response with algorithm SHA256
+    static final String MD_1_NXP_SHA256 = "E700E0E6E5A4F3FF05CCBD4DA9CDBBEC712189DE65EF1ED19C351F7966270EF0";
+    static final String MD_2_NXP_SHA256 = "17CB067C5E384B85DF370B96A5C91817D908F0C760CB2D7539EF8B9A7C02AB80";
     MessageDigest engineMD5 = new MessageDigestImpl(MessageDigest.ALG_MD5);
     MessageDigest engineSHA1 = new MessageDigestImpl(MessageDigest.ALG_SHA);
+    MessageDigest engineSHA256 = new MessageDigestImpl(MessageDigest.ALG_SHA_256);
 
     public MessageDigestImplTest(String testName) {
         super(testName);
@@ -63,7 +67,10 @@ public class MessageDigestImplTest extends TestCase {
         expResult = MessageDigest.ALG_SHA;
         result = engineSHA1.getAlgorithm();
         assertEquals(expResult, result);
-
+        // sha256
+        expResult = MessageDigest.ALG_SHA_256;
+        result = engineSHA256.getAlgorithm();
+        assertEquals(expResult, result);
     }
 
     /**
@@ -78,6 +85,10 @@ public class MessageDigestImplTest extends TestCase {
         // sha1
         expResult = 20;
         result = engineSHA1.getLength();
+        assertEquals(expResult, result);
+        // sha256
+        expResult = 32;
+        result = engineSHA256.getLength();
         assertEquals(expResult, result);
     }
 
@@ -99,6 +110,16 @@ public class MessageDigestImplTest extends TestCase {
         testEngineDoFinal(engineSHA1, Hex.decode(MESSAGE1), Hex.decode(MD_1_NXP_SHA1));
         System.out.println("test SHA1 doUpdate() + doFinal()");
         testEngineDoUpdateFinal(engineSHA1, Hex.decode(MESSAGE2), Hex.decode(MD_2_NXP_SHA1));
+    }
+    
+    /**
+     * Test SHA256 algorithm with card response
+     */
+    public void testSHA256() {
+        System.out.println("test SHA256 doFinal()");
+        testEngineDoFinal(engineSHA256, Hex.decode(MESSAGE1), Hex.decode(MD_1_NXP_SHA256));
+        System.out.println("test SHA256 doUpdate() + doFinal()");
+        testEngineDoUpdateFinal(engineSHA256, Hex.decode(MESSAGE2), Hex.decode(MD_2_NXP_SHA256));
     }
 
     /**
