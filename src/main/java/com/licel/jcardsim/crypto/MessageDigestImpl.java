@@ -34,10 +34,10 @@ import org.bouncycastle.crypto.digests.SHA512Digest;
  * @see SHA1Digest
  */
 public class MessageDigestImpl extends MessageDigest {
-
+    
     private Digest engine;
     private byte algorithm;
-
+    
     public MessageDigestImpl(byte algorithm) {
         this.algorithm = algorithm;
         switch (algorithm) {
@@ -64,25 +64,25 @@ public class MessageDigestImpl extends MessageDigest {
                 break;
         }
     }
-
+    
     public byte getAlgorithm() {
         return algorithm;
     }
-
+    
     public byte getLength() {
         return (byte) engine.getDigestSize();
     }
-
+    
     public short doFinal(byte inBuff[], short inOffset, short inLength,
-            byte outBuff[], short outOffset) {
+                         byte outBuff[], short outOffset) {
         engine.update(inBuff, inOffset, inLength);
         return (short) engine.doFinal(outBuff, outOffset);
     }
-
+    
     public void update(byte inBuff[], short inOffset, short inLength) {
         engine.update(inBuff, inOffset, inLength);
     }
-
+    
     public void reset() {
         engine.reset();
     }
