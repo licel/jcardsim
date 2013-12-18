@@ -441,13 +441,30 @@ public class SimulatorSystem {
 
     /**
      * Select applet by it's AID
-     * This method must be called before start working with applet instance
+     * This method or selectAppletWithResult() must be called before start working with applet instance
      * @param aid appletId
      * @return true if applet selection success
      * before
      */
     static boolean selectApplet(AID aid) {
-        return runtime.selectApplet(aid);
+        byte[] resp = runtime.selectApplet(aid);
+        if(resp != null && resp.length > 1) {
+        	int len = resp.length;
+        	if(resp[len - 2] == (byte)0x90 && resp[len - 1] == 0) {
+        		return true;
+        	}
+        }
+        return false;
+    }
+    
+    /**
+     * Select applet by It's AID
+     * This method or selectApplet() must be called before start working with applet instance
+     * @param aid appletId
+     * @return data from select operation
+     */
+    static byte[] selectAppletWithResult(AID aid) {
+    	return runtime.selectApplet(aid);
     }
 
     /**
@@ -459,9 +476,13 @@ public class SimulatorSystem {
         return runtime.transmitCommand(command);
     }
 
+    /**
+     * Return if the applet is currently being selected
+     * @param aThis applet
+     * @return true if applet is being selected
+     */
     public static boolean isAppletSelecting(Applet aThis) {
-        // TODO !!! rewrite
-        return false;
+    	return runtime.isAppletSelecting(aThis);
     }
     
     /**

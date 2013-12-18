@@ -205,6 +205,10 @@ public class Simulator implements JavaCardInterface {
     public boolean selectApplet(AID aid) throws SystemException {
         return SimulatorSystem.selectApplet(aid);
     }
+    
+    public byte[] selectAppletWithResult(AID aid) throws SystemException {
+    	return SimulatorSystem.selectAppletWithResult(aid);
+    }
 
     public byte[] transmitCommand(byte[] command)
             throws SystemException {
