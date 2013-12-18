@@ -22,6 +22,8 @@ import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 
 /**
  * Implementation <code>MessageDigest</code> based
@@ -50,6 +52,12 @@ public class MessageDigestImpl extends MessageDigest {
                 break;
             case ALG_SHA_256:
             	engine = new SHA256Digest();
+            	break;
+            case ALG_SHA_384:
+            	engine = new SHA384Digest();
+            	break;
+            case ALG_SHA_512:
+            	engine = new SHA512Digest();
             	break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
