@@ -21,6 +21,7 @@ import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.digests.SHA256Digest;
 
 /**
  * Implementation <code>MessageDigest</code> based
@@ -47,6 +48,9 @@ public class MessageDigestImpl extends MessageDigest {
             case ALG_RIPEMD160:
                 engine = new RIPEMD160Digest();
                 break;
+            case ALG_SHA_256:
+            	engine = new SHA256Digest();
+            	break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
