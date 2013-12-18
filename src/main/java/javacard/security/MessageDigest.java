@@ -27,7 +27,7 @@ import com.licel.jcardsim.crypto.MessageDigestImpl;
  * instance shall not participate in the transaction.
  */
 public abstract class MessageDigest {
-
+    
     /**
      * Message Digest algorithm SHA.
      */
@@ -46,7 +46,7 @@ public abstract class MessageDigest {
      */
     public static final byte ALG_SHA_256 = 4;
     /**
-     * Message Digest algorithm SHA-384. The block size used by this algorithm 
+     * Message Digest algorithm SHA-384. The block size used by this algorithm
      * is 128 bytes.
      */
     public static final byte ALG_SHA_384 = 5;
@@ -79,13 +79,13 @@ public abstract class MessageDigest {
      * Length of digest in bytes for SHA-512
      */
     public static final byte LENGTH_SHA_512 = 64;
-
+    
     /**
      * Protected Constructor
      */
     protected MessageDigest() {
     }
-
+    
     /**
      * Creates a <code>MessageDigest</code> object instance of the selected algorithm.
      * @param algorithm the desired message digest algorithm.
@@ -100,26 +100,26 @@ public abstract class MessageDigest {
      * or shared access mode is not supported.</ul>
      */
     public static final MessageDigest getInstance(byte algorithm, boolean externalAccess)
-            throws CryptoException {
+    throws CryptoException {
         if (externalAccess) {
             CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
         }
         MessageDigest instance = new MessageDigestImpl(algorithm);
         return instance;
     }
-
+    
     /**
      * Gets the Message digest algorithm.
      * @return the algorithm code defined above
      */
     public abstract byte getAlgorithm();
-
+    
     /**
      * Returns the byte length of the hash.
      * @return hash length
      */
     public abstract byte getLength();
-
+    
     /**
      * Generates a hash of all/last input data.
      * Completes and returns the hash computation after performing final operations such as padding.
@@ -133,7 +133,7 @@ public abstract class MessageDigest {
      * @return number of bytes of hash output in <code>outBuff</code>
      */
     public abstract short doFinal(byte[] inBuff, short inOffset, short inLength, byte[] outBuff, short outOffset);
-
+    
     /**
      * Accumulates a hash of the input data. This method requires temporary storage of
      * intermediate results. In addition, if the input data length is not block aligned
@@ -156,10 +156,10 @@ public abstract class MessageDigest {
      * See also: {@link #doFinal(byte[], short, short, byte[], short)}
      */
     public abstract void update(byte[] inBuff, short inOffset, short inLength);
-
+    
     /**
      * Resets the <code>MessageDigest</code> object to the initial state for further use.
      */
     public abstract void reset();
-
+    
 }
