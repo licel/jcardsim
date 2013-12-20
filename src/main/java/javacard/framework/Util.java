@@ -200,7 +200,9 @@ public class Util {
         }
         for (short i = 0; i < length; i++) {
             if (src[srcOff + i] != dest[destOff + i]) {
-                return ((byte) (src[srcOff + i] >= dest[destOff + i] ? 1 : -1));
+                short thisSrc = (short) (src[srcOff + i] & 0x00ff);
+                short thisDest = (short) (dest[destOff + i] & 0x00ff);
+                return (byte) (thisSrc >= thisDest ? 1 : -1);
             }
         }
 
