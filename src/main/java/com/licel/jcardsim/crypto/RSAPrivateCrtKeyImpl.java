@@ -35,7 +35,6 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
     protected ByteContainer dp1 = new ByteContainer();
     protected ByteContainer dq1 = new ByteContainer();
     protected ByteContainer pq = new ByteContainer();
-    protected ByteContainer publicExponent = new ByteContainer();
 
     /**
      * Construct not-initialized rsa private crt key
@@ -57,16 +56,11 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
     public RSAPrivateCrtKeyImpl(RSAPrivateCrtKeyParameters params) {
         super(new RSAKeyParameters(true, params.getModulus(), params.getExponent()));
         type = KeyBuilder.TYPE_RSA_CRT_PRIVATE;
-        publicExponent.setBigInteger(params.getPublicExponent());
         p.setBigInteger(params.getP());
         q.setBigInteger(params.getQ());
         dp1.setBigInteger(params.getDP());
         dq1.setBigInteger(params.getDQ());
         pq.setBigInteger(params.getQInv());
-    }
-
-    public void setPublicExponent(byte[] buffer, short offset, short length) throws CryptoException {
-        publicExponent.setBytes(buffer, offset, length);
     }
 
     public void setP(byte[] buffer, short offset, short length) throws CryptoException {
@@ -111,7 +105,6 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
 
     public void clearKey() {
         super.clearKey();
-        publicExponent.clear();
         p.clear();
         q.clear();
         dp1.clear();
@@ -120,8 +113,8 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
     }
 
     public boolean isInitialized() {
-        return (super.isInitialized() && p.isInitialized() && q.isInitialized()
-                && publicExponent.isInitialized() && dp1.isInitialized() && dq1.isInitialized()
+        return (p.isInitialized() && q.isInitialized()
+                && dp1.isInitialized() && dq1.isInitialized()
                 && pq.isInitialized());
     }
 
@@ -129,8 +122,9 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
         if (!isInitialized()) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
-        return new RSAPrivateCrtKeyParameters(modulus.getBigInteger(), publicExponent.getBigInteger(),
-                exponent.getBigInteger(), p.getBigInteger(), q.getBigInteger(),
+        // modulus = p * q;
+        return new RSAPrivateCrtKeyParameters(p.getBigInteger().multiply(q.getBigInteger()), null,
+                null, p.getBigInteger(), q.getBigInteger(),
                 dp1.getBigInteger(), dq1.getBigInteger(), pq.getBigInteger());
     }
 }

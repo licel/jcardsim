@@ -48,6 +48,11 @@ public class AsymmetricSignatureImplTest extends TestCase {
         "2BCBD3220787D8D621526FBF88E852158FB37B46A339EAAF64742548155C7A48DA3ED9D41B9A29BAB2582A81329411C9FB0FDE0BFCF962438440C68828C1FDC3B33A4F0FEE318FA9DA3802A5CBAA9E9D6EA3618A2626E9FDA6F5613335F868442E20B3EB2E5C0580CE6E999BBD33A9BD5C633FE18930916586D91527781F1081"
     };
 
+    // RSA 2048-bit public key data from card
+    final static String RSA_2048_MODULUS = "8D4E29049C1C1861557F78B399665AAF957B73EBCCF5A436ED204A3B2C88F7A73ACE693147A6A731FFC297FBDFEABBA3658FDA68F0C3A60C2D8A96F874293FADE00F6AF600091A59118E8388DC69FD2D737882FBBB624A1A8BBD89641CFE33FC9C85BBC99017FCFE5CD5D13A3FE70524BE870171B0DBC870CB2F123CA5540C3B0759B71871A08EE3521C66261DCC1BD8F95DC850B730D8B8F0CF80F19C71B35FCB0439F419E7BD8E7B6A55203EFC6191D79DEF46B8A8F47EDF38F9E618A885BDFB8B212919D41CA1AB2B9B48328A9F4CF552FC157B8A1361A5ACABEE27725E835622D633569291532384EE47817AEB75119294E8522444FCCCB4F54073C2E121";    
+    // RSA 2048-bit Signature
+    final static String RSA_2048_SIGNATURE = "27E3B9410C261BE66534B9FC8CB272902B8BFB06077CA973B39B512C48DD878FA4B00259E7B58ECD5F236127990DC6E10DAB1CAF4C967689C1D1A03A5C5EBD6EA617D5F0AEE09851207EC4BCE67287687F21AC450693B9B22CEC7EA87679FC6BCE1B2DA56F41BF9BD433932370379C103D269E9E529E46699E03E243B589DE5469B12E27B1F95E8FE6F872010A64126760AC51AEF44CDABE4D9FBC7568B12A077943E8CF3A4C3C1674B3600B1AA01CB2D290A0DC7968F1509BEB5ECC47C48789870D5279E675D67E262AF96CD8750D9C4CE450D64FDC8D135573B9BB0497B4A6F3F3034832707C116D2E3E51EC85D6BCF8AF681AC96245CD03D50CF5D391B0AF";
+
     public AsymmetricSignatureImplTest(String testName) {
         super(testName);
     }
@@ -71,6 +76,13 @@ public class AsymmetricSignatureImplTest extends TestCase {
         byte[] exponent = Hex.decode(RSA_ETALON_EXP);
         publicKey.setModulus(modulus, (short) 0, (short) modulus.length);
         publicKey.setExponent(exponent, (short) 0, (short) exponent.length);
+
+        RSAPublicKey publicKey2048 = (RSAPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC,
+                KeyBuilder.LENGTH_RSA_2048, false);
+        byte[] modulus2048 = Hex.decode(RSA_2048_MODULUS);
+        publicKey2048.setModulus(modulus2048, (short) 0, (short) modulus2048.length);
+        publicKey2048.setExponent(exponent, (short) 0, (short) exponent.length);
+        
         // verify signs
         Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_ISO9796, false);
         testEngineVerify(signature, publicKey, Hex.decode(MESSAGE),
@@ -80,6 +92,10 @@ public class AsymmetricSignatureImplTest extends TestCase {
         testEngineVerify(signature, publicKey, Hex.decode(MESSAGE),
                 Hex.decode(RSA_SIGNATURES[1]), (short) 0);
 
+        signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
+        testEngineVerify(signature, publicKey2048, new byte[24],
+                Hex.decode(RSA_2048_SIGNATURE), (short) 0);
+        
         signature = Signature.getInstance(Signature.ALG_RSA_MD5_PKCS1, false);
         testEngineVerify(signature, publicKey, Hex.decode(MESSAGE),
                 Hex.decode(RSA_SIGNATURES[2]), (short) 0);
@@ -94,6 +110,7 @@ public class AsymmetricSignatureImplTest extends TestCase {
         testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_PKCS1);
     }
 
+   
     /**
      * SelfTest of ECDSA sign/verify method, of class AsymmetricSignatureImpl.
      */
