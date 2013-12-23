@@ -116,6 +116,34 @@ public class KeyPairImplTest extends TestCase {
         publicKey.getExponent(generatedExponent, (short)0);
         assertEquals(Arrays.equals(customExponent, generatedExponent), true);
     }
+
+    /**
+     * Test of genKeyPair method, of class KeyPairImpl.
+     * algorithm EC - NXP JCOP not support this algorithm
+     * for on-card key generation
+     */
+    public void testGenKeyPairECWithCustomDomainParameters() {
+        System.out.println("genKeyPair EC (Custom Domain Parameters)");
+        KeyPair instance = new KeyPair(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_193);
+        instance.genKeyPair();
+        ECPublicKey ecPublicKey = (ECPublicKey)instance.getPublic();
+        KeyPair instance1 = new KeyPair(ecPublicKey, null);
+        instance1.genKeyPair();
+        ECPublicKey ecPublicKey1 = (ECPublicKey)instance1.getPublic();
+        byte[] a = new byte[266];
+        byte[] a1 = new byte[266];
+        ecPublicKey.getA(a, (short)0);
+        ecPublicKey1.getA(a1, (short)0);
+        assertEquals(Arrays.equals(a, a1), true);
+        KeyPair instance2 = new KeyPair(null, instance1.getPrivate());
+        instance2.genKeyPair();
+        ECPublicKey ecPublicKey2 = (ECPublicKey)instance2.getPublic();
+        byte[] b = new byte[266];
+        byte[] b2 = new byte[266];
+        ecPublicKey.getB(b, (short)0);
+        ecPublicKey2.getB(b2, (short)0);
+        assertEquals(Arrays.equals(b, b2), true);
+    }
     
     /**
      * Test of genKeyPair method, of class KeyPairImpl.
