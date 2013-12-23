@@ -177,7 +177,13 @@ public class SimulatorRuntime {
             previousAID = currentAID;
             currentAID = aid;
             selecting = true;
-            return this.transmitCommand(new byte[] {0, 0, 0, 0});
+            
+            byte[] selectCmd = new byte[128];
+            byte len = aid.getBytes(selectCmd, (short) 5);
+            selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
+            selectCmd[ISO7816.OFFSET_P1] = 0x04;
+            selectCmd[ISO7816.OFFSET_LC] = len;
+            return this.transmitCommand(selectCmd);
         } catch (Exception e) {
         } finally {
             if (SimulatorSystem.getTransactionDepth() != 0) {
