@@ -62,7 +62,7 @@ public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
     }
 
     public boolean isInitialized() {
-        return (super.isInitialized() && w.isInitialized());
+        return (isDomainParametersInitialized() && w.isInitialized());
     }
 
     public void clearKey() {
