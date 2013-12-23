@@ -91,10 +91,10 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
         e3 = 0;
     }
 
-    public boolean isInitialized() {
+    protected boolean isDomainParametersInitialized() {
         return (a.isInitialized() && b.isInitialized() && g.isInitialized() && r.isInitialized()
                 && isKInitialized && (fp.isInitialized() || k != 0));
-    }
+    }    
 
     public void setFieldFP(byte[] buffer, short offset, short length) throws CryptoException {
         fp.setBytes(buffer, offset, length);
@@ -166,7 +166,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
      * @see ECDomainParameters
      */
     public ECDomainParameters getDomainParameters() {
-        if (!isInitialized()) {
+        if (!isDomainParametersInitialized()) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
         ECCurve curve = null;
@@ -213,7 +213,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
      * @return parameters for use with BouncyCastle API
      */
     public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
-        if (isInitialized()) {
+        if (isDomainParametersInitialized()) {
             return new ECKeyGenerationParameters(getDomainParameters(), rnd);
         }
         return getDefaultKeyGenerationParameters(type, size, rnd);
