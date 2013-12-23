@@ -216,7 +216,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
         if (isDomainParametersInitialized()) {
             return new ECKeyGenerationParameters(getDomainParameters(), rnd);
         }
-        return getDefaultKeyGenerationParameters(type, size, rnd);
+        return new ECKeyGenerationParameters(getDefaultsDomainParameters(type, size), rnd);
     }
 
     /**
