@@ -20,8 +20,17 @@ import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacard.security.Signature;
+import javax.xml.bind.DatatypeConverter;
+import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Mac;
+import org.bouncycastle.crypto.digests.MD5Digest;
+import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.macs.CBCBlockCipherMac;
+import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.paddings.BlockCipherPadding;
 import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
@@ -39,6 +48,7 @@ public class SymmetricSignatureImpl extends Signature {
     byte algorithm;
     boolean isInitialized;
     BlockCipherPadding paddingEngine;
+    Digest digestEngine;
     short macSize;
 
     public SymmetricSignatureImpl(byte algorithm) {
@@ -80,6 +90,25 @@ public class SymmetricSignatureImpl extends Signature {
                 macSize = 128;
                 paddingEngine = null;
                 break;
+            case ALG_HMAC_SHA1:                
+                digestEngine = new SHA1Digest();
+                break;
+            case ALG_HMAC_SHA_256:                
+                digestEngine = new SHA256Digest();
+                break;
+            case ALG_HMAC_SHA_384:                
+                digestEngine = new SHA384Digest();
+                break;
+            case ALG_HMAC_SHA_512:                
+                digestEngine = new SHA512Digest();
+                break;
+            case ALG_HMAC_MD5:                
+                digestEngine = new MD5Digest();
+                break;
+            case ALG_HMAC_RIPEMD160:                
+                digestEngine = new RIPEMD160Digest();
+                break;
+                
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
@@ -97,7 +126,11 @@ public class SymmetricSignatureImpl extends Signature {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
         SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
-        engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
+        if(digestEngine == null) {
+            engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
+        } else {
+            engine = new HMac(digestEngine);
+        }
         engine.init(key.getParameters());
         isInitialized = true;
     }
@@ -116,7 +149,11 @@ public class SymmetricSignatureImpl extends Signature {
         if (bLen != key.getCipher().getBlockSize()) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
+        if(digestEngine == null) {
+            engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
+        } else {
+            engine = new HMac(digestEngine);
+        }
         // CBC-MAC iv == 0
         if (algorithm != ALG_AES_MAC_128_NOPAD) {
             engine.init(new ParametersWithIV(key.getParameters(), bArray, bOff, bLen));
@@ -165,7 +202,7 @@ public class SymmetricSignatureImpl extends Signature {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }
         engine.update(inBuff, inOffset, inLength);
-        byte[] sig = JCSystem.makeTransientByteArray((short) (macSize / 8), JCSystem.CLEAR_ON_RESET);
+        byte[] sig = JCSystem.makeTransientByteArray((short) (engine.getMacSize()), JCSystem.CLEAR_ON_RESET);
         engine.doFinal(sig, (short) 0);
         engine.reset();
         return Util.arrayCompare(sig, (short) 0, sigBuff, sigOffset, (short) sig.length) == 0;
