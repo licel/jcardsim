@@ -20,6 +20,7 @@ import javacard.framework.JCSystem;
 import javacard.security.AESKey;
 import javacard.security.CryptoException;
 import javacard.security.DESKey;
+import javacard.security.HMACKey;
 import javacard.security.KeyBuilder;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
@@ -34,7 +35,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
  * @see DESKey
  * @see AESKey
  */
-public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey {
+public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey {
 
     protected ByteContainer key;
 
@@ -50,14 +51,17 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey {
         switch (keyType) {
             case KeyBuilder.TYPE_DES_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_AES_TRANSIENT_DESELECT:
+            case KeyBuilder.TYPE_HMAC_TRANSIENT_DESELECT:
                 key = new ByteContainer(JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
                 break;
             case KeyBuilder.TYPE_DES_TRANSIENT_RESET:
             case KeyBuilder.TYPE_AES_TRANSIENT_RESET:
+            case KeyBuilder.TYPE_HMAC_TRANSIENT_RESET:
                 key = new ByteContainer(JCSystem.MEMORY_TYPE_TRANSIENT_RESET);
                 break;
             case KeyBuilder.TYPE_DES:
             case KeyBuilder.TYPE_AES:
+            case KeyBuilder.TYPE_HMAC:
                 key = new ByteContainer(JCSystem.MEMORY_TYPE_PERSISTENT);
                 break;
         }
@@ -77,6 +81,12 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey {
         key.setBytes(keyData, kOff, (short) (size / 8));
     }
 
+    /**
+     * Sets the <code>Key</code> data.
+     */
+    public void setKey(byte[] keyData, short kOff, short kLen) throws CryptoException, NullPointerException, ArrayIndexOutOfBoundsException {
+        key.setBytes(keyData, kOff, kLen);
+    }
     /**
      * Returns the <code>Key</code> data in plain text.
      */
@@ -99,7 +109,7 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey {
 
     /**
      * Return the BouncyCastle <code>BlockCipher</code> for using with this key
-     * @return <code>BlockCipher</code> for this key
+     * @return <code>BlockCipher</code> for this key, or null for HMACKey
      * @throws CryptoException if key not initialized
      * @see BlockCipher
      */
@@ -135,4 +145,5 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey {
     public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
         return null;
     }
+
 }
