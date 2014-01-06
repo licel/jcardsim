@@ -53,7 +53,10 @@ public class SymmetricSignatureImplTest extends TestCase {
         // ALG_DES_MAC8_ISO9797_M1
         "165DD117D24198B1",
         // ALG_DES_MAC8_ISO9797_M2
-        "C8D247D6209E2E44",};
+        "C8D247D6209E2E44",
+        // ALG_DES_MAC8_ISO9797_1_M2_ALG3
+        "706CAC8246DE7427",
+        };
     // MESSAGE_15 MAC by card (DES key) with non-zero IV
     String[] DES_MAC_15_IV = new String[]{
         // ALG_DES_MAC8_ISO9797_M1
@@ -316,6 +319,18 @@ public class SymmetricSignatureImplTest extends TestCase {
     }
 
     /**
+     * Test of sign/verify methods, of class SymmetricSignatureImpl with 2-key 3DES
+     */
+    public void testSignVerify2x3DES() {
+        SymmetricKeyImpl desKey = new SymmetricKeyImpl(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES3_2KEY);
+        desKey.setKey(Hex.decode(DES3_KEY), (short) 0);
+
+        Signature engine = Signature.getInstance(Signature.ALG_DES_MAC8_ISO9797_1_M2_ALG3, false);
+        testEngineSignVerify(engine, desKey, null, Hex.decode(MESSAGE_15), Hex.decode(DES3_MAC_15[2]));
+        
+    }
+    
+    /**
      * Test of sign/verifys methods, of class SymmetricSignatureImpl with DES Key
      */
     public void testSignVerifyDES() {
@@ -364,7 +379,7 @@ public class SymmetricSignatureImplTest extends TestCase {
 
         engine = Signature.getInstance(Signature.ALG_DES_MAC8_ISO9797_M2, false);
         testEngineSignVerify(engine, desKey, null, Hex.decode(msg15), Hex.decode(enc15[1]));
-
+      
         // test DES MAC CBC with non-zero IV
         byte[] iv = Hex.decode(IV);
         engine = Signature.getInstance(Signature.ALG_DES_MAC8_NOPAD, false);
