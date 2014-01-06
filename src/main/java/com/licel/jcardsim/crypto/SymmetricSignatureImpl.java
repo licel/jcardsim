@@ -20,16 +20,20 @@ import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacard.security.Signature;
+import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.Mac;
+import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.macs.CBCBlockCipherMac;
-import org.bouncycastle.crypto.paddings.BlockCipherPadding;
+import org.bouncycastle.crypto.macs.ISO9797Alg3Mac;
 import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.ZeroBytePadding;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 
 /**
- * Implementation <code>Signature</code> with symmetric keys based
+ * Implementation
+ * <code>Signature</code> with symmetric keys based
  * on BouncyCastle CryptoAPI
  * @see Signature
  */
@@ -38,68 +42,13 @@ public class SymmetricSignatureImpl extends Signature {
     Mac engine;
     byte algorithm;
     boolean isInitialized;
-    BlockCipherPadding paddingEngine;
-    short macSize;
 
     public SymmetricSignatureImpl(byte algorithm) {
         this.algorithm = algorithm;
-        switch (algorithm) {
-            case ALG_DES_MAC4_NOPAD:
-                macSize = 32;
-                paddingEngine = null;
-                break;
-            case ALG_DES_MAC8_NOPAD:
-                macSize = 64;
-                paddingEngine = null;
-                break;
-            case ALG_DES_MAC4_ISO9797_M1:
-                macSize = 32;
-                paddingEngine = new ZeroBytePadding();
-                break;
-            case ALG_DES_MAC8_ISO9797_M1:
-                macSize = 64;
-                paddingEngine = new ZeroBytePadding();
-                break;
-            case ALG_DES_MAC4_ISO9797_M2:
-                macSize = 32;
-                paddingEngine = new ISO7816d4Padding();
-                break;
-            case ALG_DES_MAC8_ISO9797_M2:
-                macSize = 64;
-                paddingEngine = new ISO7816d4Padding();
-                break;
-            case ALG_DES_MAC4_PKCS5:
-                macSize = 32;
-                paddingEngine = new PKCS7Padding();
-                break;
-            case ALG_DES_MAC8_PKCS5:
-                macSize = 64;
-                paddingEngine = new PKCS7Padding();
-                break;
-            case ALG_AES_MAC_128_NOPAD:
-                macSize = 128;
-                paddingEngine = null;
-                break;
-            default:
-                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
-                break;
-        }
     }
 
     public void init(Key theKey, byte theMode) throws CryptoException {
-        if (theKey == null) {
-            CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
-        }
-        if (!theKey.isInitialized()) {
-            CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
-        }
-        if (!(theKey instanceof SymmetricKeyImpl)) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-        }
-        SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
-        engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
-        engine.init(key.getParameters());
-        isInitialized = true;
+        init(theKey, theMode, null, (short) 0, (short) 0);
     }
 
     public void init(Key theKey, byte theMode, byte[] bArray, short bOff, short bLen) throws CryptoException {
@@ -112,15 +61,52 @@ public class SymmetricSignatureImpl extends Signature {
         if (!(theKey instanceof SymmetricKeyImpl)) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
-        if (bLen != key.getCipher().getBlockSize()) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
+        CipherParameters cipherParams = null;
+        BlockCipher cipher = ((SymmetricKeyImpl) theKey).getCipher();
+        if (bArray == null) {
+            cipherParams = ((SymmetricKeyImpl) theKey).getParameters();
+        } else {
+            if (bLen != cipher.getBlockSize()) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
+            }
+            cipherParams = new ParametersWithIV(((SymmetricKeyImpl) theKey).getParameters(), bArray, bOff, bLen);
         }
-        engine = new CBCBlockCipherMac(key.getCipher(), macSize, paddingEngine);
-        // CBC-MAC iv == 0
-        if (algorithm != ALG_AES_MAC_128_NOPAD) {
-            engine.init(new ParametersWithIV(key.getParameters(), bArray, bOff, bLen));
+        switch (algorithm) {
+            case ALG_DES_MAC4_NOPAD:
+                engine = new CBCBlockCipherMac(cipher, 32, null);
+                break;
+            case ALG_DES_MAC8_NOPAD:
+                engine = new CBCBlockCipherMac(cipher, 64, null);
+                break;
+            case ALG_DES_MAC4_ISO9797_M1:
+                engine = new CBCBlockCipherMac(cipher, 32, new ZeroBytePadding());
+                break;
+            case ALG_DES_MAC8_ISO9797_M1:
+                engine = new CBCBlockCipherMac(cipher, 64, new ZeroBytePadding());
+                break;
+            case ALG_DES_MAC4_ISO9797_M2:
+                engine = new CBCBlockCipherMac(cipher, 32, new ISO7816d4Padding());
+                break;
+            case ALG_DES_MAC8_ISO9797_M2:
+                engine = new CBCBlockCipherMac(cipher, 64, new ISO7816d4Padding());
+                break;
+            case ALG_DES_MAC8_ISO9797_1_M2_ALG3:
+                engine = new ISO9797Alg3Mac(new DESEngine(), 64, new ISO7816d4Padding());
+                break;
+            case ALG_DES_MAC4_PKCS5:
+                engine = new CBCBlockCipherMac(cipher, 32, new PKCS7Padding());
+                break;
+            case ALG_DES_MAC8_PKCS5:
+                engine = new CBCBlockCipherMac(cipher, 64, new PKCS7Padding());
+                break;
+            case ALG_AES_MAC_128_NOPAD:
+                engine = new CBCBlockCipherMac(cipher, 128, null);
+                break;
+            default:
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                break;
         }
+        engine.init(cipherParams);
         isInitialized = true;
     }
 
@@ -165,7 +151,7 @@ public class SymmetricSignatureImpl extends Signature {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }
         engine.update(inBuff, inOffset, inLength);
-        byte[] sig = JCSystem.makeTransientByteArray((short) (macSize / 8), JCSystem.CLEAR_ON_RESET);
+        byte[] sig = JCSystem.makeTransientByteArray(getLength(), JCSystem.CLEAR_ON_RESET);
         engine.doFinal(sig, (short) 0);
         engine.reset();
         return Util.arrayCompare(sig, (short) 0, sigBuff, sigOffset, (short) sig.length) == 0;
