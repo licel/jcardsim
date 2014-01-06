@@ -365,6 +365,7 @@ public abstract class Signature {
             case ALG_DES_MAC8_ISO9797_M1:
             case ALG_DES_MAC4_ISO9797_M2:
             case ALG_DES_MAC8_ISO9797_M2:
+            case ALG_DES_MAC8_ISO9797_1_M2_ALG3:
             case ALG_DES_MAC4_PKCS5:
             case ALG_DES_MAC8_PKCS5:
             case ALG_AES_MAC_128_NOPAD:
