@@ -16,6 +16,7 @@
 package com.licel.jcardsim.smartcardio;
 
 import com.licel.jcardsim.base.SimulatorSystem;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class JCardSimProviderTest extends TestCase {
         super.tearDown();
     }
 
-    public void testProvider() throws CardException, NoSuchAlgorithmException {
+    public void testProvider() throws CardException, NoSuchAlgorithmException, UnsupportedEncodingException {
         SimulatorSystem.resetRuntime();
         System.setProperty("com.licel.jcardsim.card.applet.0.AID", TEST_APPLET_AID);
         System.setProperty("com.licel.jcardsim.card.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
@@ -121,5 +122,14 @@ public class JCardSimProviderTest extends TestCase {
         response = jcsChannel.transmit(new CommandAPDU(0x01, 0x06, 0x00, 0x00));
         assertEquals(0x6107, response.getSW());
         assertEquals("Hello ", new String(response.getData()));
+        // test https://github.com/licel/jcardsim/issues/13
+        byte[] listObjectsCmd = new byte[5];
+        listObjectsCmd[0] = (byte) 0xb0;
+        listObjectsCmd[1] = (byte) 0x58;
+        listObjectsCmd[2] = (byte) 0x00;
+        listObjectsCmd[3] = (byte) 0x00;
+        listObjectsCmd[4] = (byte) 0x0E;
+        response = jcsChannel.transmit(new CommandAPDU(listObjectsCmd));
+        assertEquals(0x9C12, response.getSW());
     }
 }
