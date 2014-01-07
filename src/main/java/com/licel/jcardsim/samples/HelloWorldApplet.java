@@ -44,6 +44,10 @@ public class HelloWorldApplet extends Applet {
      */
     private final static byte SAY_CONTINUE_INS = (byte) 0x06;
     /**
+     * Instruction: CKYListObjects (http://pki.fedoraproject.org/images/7/7a/CoolKeyApplet.pdf 2.6.17)
+     */
+    private final static byte LIST_OBJECTS_INS = (byte) 0x58;
+    /**
      * Byte array representing "Hello Java Card world!" string.
      */
     private static byte[] helloMessage = new byte[]{
@@ -104,6 +108,9 @@ public class HelloWorldApplet extends Applet {
                 return;
             case SAY_CONTINUE_INS:
                 sayContinue(apdu);
+                return;
+            case LIST_OBJECTS_INS:
+                listObjects(apdu);
                 return;
             case NOP_INS:
                 return;
@@ -185,4 +192,22 @@ public class HelloWorldApplet extends Applet {
         apdu.sendBytesLong(echo, (short) 0, (short) echo.length);
         ISOException.throwIt((short) (ISO7816.SW_BYTES_REMAINING_00 | 0x07));
     }
+    
+    // prototype
+    private void listObjects(APDU apdu)
+    {
+        byte buffer[] = apdu.getBuffer();
+        
+	if (buffer[ISO7816.OFFSET_P2] != 0) {
+            ISOException.throwIt((short)0x9C11);
+        }
+	
+	byte expectedBytes = buffer[ISO7816.OFFSET_LC];
+	
+	if (expectedBytes < 14) {
+            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+        }
+	
+	ISOException.throwIt((short)0x9C12);
+    }    
 }
