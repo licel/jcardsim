@@ -21,7 +21,7 @@ import javacard.framework.*;
  * Basic HelloWorld JavaCard Applet
  * @author LICEL LLC
  */
-public class HelloWorldApplet extends Applet {
+public class HelloWorldApplet extends BaseApplet {
 
     /**
      * Instruction: say hello
