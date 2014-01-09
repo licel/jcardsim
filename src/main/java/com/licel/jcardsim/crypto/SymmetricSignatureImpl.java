@@ -22,10 +22,16 @@ import javacard.security.Key;
 import javacard.security.Signature;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Mac;
+import org.bouncycastle.crypto.digests.MD5Digest;
+import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.macs.CBCBlockCipherMac;
+import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.macs.ISO9797Alg3Mac;
 import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
@@ -102,6 +108,24 @@ public class SymmetricSignatureImpl extends Signature {
                 break;
             case ALG_AES_MAC_128_NOPAD:
                 engine = new CBCBlockCipherMac(cipher, 128, null);
+                break;
+            case ALG_HMAC_SHA1:                
+                engine = new HMac(new SHA1Digest());
+                break;
+            case ALG_HMAC_SHA_256:                
+                engine = new HMac(new SHA256Digest());
+                break;
+            case ALG_HMAC_SHA_384:                
+                engine = new HMac(new SHA384Digest());
+                break;
+            case ALG_HMAC_SHA_512:                
+                engine = new HMac(new SHA512Digest());
+                break;
+            case ALG_HMAC_MD5:                
+                engine = new HMac(new MD5Digest());
+                break;
+            case ALG_HMAC_RIPEMD160:                
+                engine = new HMac(new RIPEMD160Digest());
                 break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
