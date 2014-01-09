@@ -27,7 +27,6 @@ import javacard.framework.*;
  */
 public class SimulatorRuntime {
 
-    private static final byte[] DEFAULT_APPLET_AID = new byte[]{};
     // storage for registered applets
     private HashMap applets = new HashMap();
     // current selected applet
