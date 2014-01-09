@@ -111,10 +111,11 @@ public class Simulator implements JavaCardInterface {
         } catch (ClassNotFoundException ex) {
             SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
-        if (!(appletClass.getSuperclass() == Applet.class)) {
-            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        if (checkAppletSuperclass(appletClass)) {
+            return loadApplet(aid, appletClass);
         }
-        return loadApplet(aid, appletClass);
+        SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        return null;
     }
 
     /**
@@ -128,7 +129,7 @@ public class Simulator implements JavaCardInterface {
      * <code>javacard.framework.Applet</code>
      */
     public AID loadApplet(AID aid, Class appletClass) throws SystemException {
-        if (!(appletClass.getSuperclass() == Applet.class)) {
+        if (!checkAppletSuperclass(appletClass)) {
             SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
         SimulatorSystem.getRuntime().loadApplet(aid, appletClass);
@@ -147,7 +148,6 @@ public class Simulator implements JavaCardInterface {
                     new Class[]{byte[].class, short.class, byte.class});
             initMethod.invoke(null, new Object[]{bArray, new Short(bOffset), new Byte(bLength)});
         } catch (Exception ex) {
-            ex.printStackTrace();
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CRATION_FAILED);
         }
         return aid;
@@ -223,6 +223,18 @@ public class Simulator implements JavaCardInterface {
         return atr;
     }
 
+    // inspect class hierarchy
+    private boolean checkAppletSuperclass(Class appletClass) {
+        Class parent = appletClass;
+        while (parent != Object.class) {
+            if (parent == Applet.class) {
+                return true;
+            }
+            parent = parent.getSuperclass();
+        }
+        return false;
+    }
+    
     class AppletClassLoader extends URLClassLoader {
 
         AppletClassLoader(URL[] urls) {
