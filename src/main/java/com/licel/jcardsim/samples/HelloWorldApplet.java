@@ -48,6 +48,10 @@ public class HelloWorldApplet extends BaseApplet {
      */
     private final static byte LIST_OBJECTS_INS = (byte) 0x58;
     /**
+     * Instruction: "Hello Java Card world!" + Application Specific SW 9XYZ
+     */
+    private final static byte APPLICATION_SPECIFIC_SW_INS = (byte) 0x7;
+    /**
      * Byte array representing "Hello Java Card world!" string.
      */
     private static byte[] helloMessage = new byte[]{
@@ -98,7 +102,7 @@ public class HelloWorldApplet extends BaseApplet {
         // Now determine the requested instruction:
         switch (buffer[ISO7816.OFFSET_INS]) {
             case SAY_HELLO_INS:
-                sayHello(apdu);
+                sayHello(apdu, (short)0x9000);
                 return;
             case SAY_ECHO2_INS:
                 sayEcho2(apdu);
@@ -111,6 +115,9 @@ public class HelloWorldApplet extends BaseApplet {
                 return;
             case LIST_OBJECTS_INS:
                 listObjects(apdu);
+                return;
+            case APPLICATION_SPECIFIC_SW_INS:
+                sayHello(apdu, (short)0x9B00);
                 return;
             case NOP_INS:
                 return;
@@ -125,8 +132,9 @@ public class HelloWorldApplet extends BaseApplet {
      * Sends hello message to host using given APDU.
      *
      * @param apdu APDU that requested hello message
+     * @param sw response sw code
      */
-    private void sayHello(APDU apdu) {
+    private void sayHello(APDU apdu, short sw) {
         // Here all bytes of the APDU are stored
         byte[] buffer = apdu.getBuffer();
         // receive all bytes
@@ -146,6 +154,10 @@ public class HelloWorldApplet extends BaseApplet {
         apdu.setOutgoingLength((short) echo.length);
         // Send our message starting at 0 position
         apdu.sendBytesLong(echo, (short) 0, (short) echo.length);
+        // Set application specific sw
+        if(sw!=0x9000) {
+            ISOException.throwIt(sw);
+        }
     }
 
 
