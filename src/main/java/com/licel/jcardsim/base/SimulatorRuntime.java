@@ -211,7 +211,8 @@ public class SimulatorRuntime {
             }
             response = theSW;
         }
-        if(theSW[0] == 0x61 || theSW[0] == (byte)0x90) {
+        // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
+        if(theSW[0] == 0x61 || (theSW[0] >= (byte)0x90 && theSW[0]<=0x9F)) {
             response = JCSystem.makeTransientByteArray((short) (responseBufferSize + 2), JCSystem.CLEAR_ON_RESET);
             Util.arrayCopyNonAtomic(responseBuffer, (short) 0, response, (short) 0, responseBufferSize);
             Util.arrayCopyNonAtomic(theSW, (short) 0, response, responseBufferSize, (short) 2);
