@@ -131,5 +131,9 @@ public class JCardSimProviderTest extends TestCase {
         listObjectsCmd[4] = (byte) 0x0E;
         response = jcsChannel.transmit(new CommandAPDU(listObjectsCmd));
         assertEquals(0x9C12, response.getSW());
+        // application specific sw + data
+        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x07, 0x00, 0x00));
+        assertEquals(0x9B00, response.getSW());
+        assertEquals("Hello world !", new String(response.getData()));
     }
 }
