@@ -155,10 +155,12 @@ public class Util {
         if (bLen < 0) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        while (bLen-- > 0) {
+        while (bLen > 0) {
             bArray[bOff++] = bValue;
+            bLen--;
         }
-        return (short) (bOff + bLen);
+        // after loop bOff = bOff + bLen
+        return bOff;
     }
 
     /**
