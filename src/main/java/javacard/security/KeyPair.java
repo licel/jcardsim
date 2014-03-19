@@ -115,7 +115,7 @@ public final class KeyPair {
      * associated with the specified type, size of key is not supported.</ul>
      * @see KeyBuilder
      * @see Signature
-     * @see KeyEncryption
+     * @see javacardx.crypto.KeyEncryption
      * @see Cipher
      */
     public KeyPair(byte algorithm, short keyLength)

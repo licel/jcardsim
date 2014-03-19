@@ -26,7 +26,7 @@ package javacard.security;
  * @see KeyBuilder
  * @see Signature
  * @see Cipher
- * @see KeyEncryption
+ * @see javacardx.crypto.KeyEncryption
  *
  */
 public interface RSAPublicKey

@@ -109,6 +109,27 @@ public abstract class MessageDigest {
     }
     
     /**
+     * Creates a
+     * <code>InitializedMessageDigest</code> object instance of the selected algorithm.
+     * <p>
+     *
+     * @param algorithm the desired message digest algorithm. Valid codes listed in ALG_* constants above,
+     * for example, {@link #ALG_SHA}.
+     * @param externalAccess true indicates that the instance will be shared among multiple applet 
+     * instances and that the <code>InitializedMessageDigest</code> instance will also be accessed (via a <code>Shareable</code>. interface) 
+     * when the owner of the <code>InitializedMessageDigest</code> instance is not the currently selected applet. 
+     * If true the implementation must not allocate CLEAR_ON_DESELECT transient space for internal data.
+     * @return the <code>InitializedMessageDigest</code> object instance of the requested algorithm
+     * @throws CryptoException with the following reason codes: <code>CryptoException.NO_SUCH_ALGORITHM</code>
+     * if the requested algorithm or shared access mode is not supported.
+     * @since 2.2.2
+     */
+    public static final InitializedMessageDigest getInitializedMessageDigestInstance(byte algorithm,
+            boolean externalAccess) throws CryptoException {
+        return null;
+    }
+    
+    /**
      * Gets the Message digest algorithm.
      * @return the algorithm code defined above
      */
