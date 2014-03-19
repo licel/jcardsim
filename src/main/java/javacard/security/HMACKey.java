@@ -16,33 +16,60 @@
 package javacard.security;
 
 /**
- * HMACKey contains a key for HMAC operations. This key can be of any length,
- * but it is strongly recommended that the key is not shorter than the byte
- * length of the hash output used in the HMAC implementation. Keys with length
- * greater than the hash block length are first hashed with the hash algorithm
- * used for the HMAC implementation. Implementations must support an HMAC key
- * length equal to the length of the supported hash algorithm block size (e.g 64
- * bits for SHA-1) When the key data is set, the key is initialized and ready
- * for use.
- *
- * @see: KeyBuilder, Signature, javacardx.crypto.Cipher,
- * javacardx.crypto.KeyEncryption
+ * 
+ * <code>HMACKey</code> contains a key for HMAC operations. This key can be of
+ * any length, but it is strongly recommended that the key is not shorter than the
+ * byte length of the hash output used in the HMAC implementation.
+ * Keys with length greater than the hash block length are first hashed with the
+ * hash algorithm used for the HMAC implementation. <p>
+ * <p>Implementations must support an HMAC key length equal to the length of
+ * the supported hash algorithm block size (e.g 64 bits for SHA-1)
+ * <p>When the key data is set, the key is initialized and ready for use.
+ * <p>
+ * 
+ * @see KeyBuilder
+ * @see Signature 
+ * @see javacardx.crypto.Cipher
+ * @see javacardx.crypto.KeyEncryption
+ * @since 2.2.2
  */
+
 public interface HMACKey extends SecretKey {
-   /**
-     * Returns the Key data in plain text. The key can be any length, but should
-     * be longer than the byte length of the hash algorithm output used. The
-     * data format is big-endian and right-aligned (the least significant bit is
-     * the least significant bit of last byte).
-     */
-    public abstract byte getKey(byte[] keyData, short kOff);
+
     /**
-     * Sets the Key data. The data format is big-endian and right-aligned (the
-     * least significant bit is the least significant bit of last byte). Input
-     * key data is copied into the internal representation. Note: If the key
-     * object implements the javacardx.crypto.KeyEncryption interface and the
-     * Cipher object specified via setKeyCipher() is not null, keyData is
-     * decrypted using the Cipher object.
+     * Sets the
+     * <code>Key</code> data.
+     * The data format is big-endian and right-aligned (the least significant bit is the least significant
+     * bit of last byte). Input key data is copied into the internal representation.
+     * <p>Note:<ul>
+     * <li><em>If the key object implements the </em><code>javacardx.crypto.KeyEncryption</code><em>
+     * interface and the </em><code>Cipher</code><em> object specified via </em><code>setKeyCipher()</code><em>
+     * is not </em><code>null</code><em>, </em><code>keyData</code><em> is decrypted using the </em><code>Cipher</code><em> object.</em>
+     * </ul>
+     * <P>
+     *
+     * @param keyData byte array containing key initialization data
+     * @param kOff offset within keyData to start
+     * @param kLen the byte length of the key initialization data
+     * @throws CryptoException - with the following reason code: CryptoException.ILLEGAL_VALUE if input data decryption is required and fails.
+     * @throws ArrayIndexOutOfBoundsException - if kOff is negative or the keyData array is too short
+     * @throws NullPointerException - if the keyData parameter is null
      */
-    public abstract void setKey(byte[] keyData, short kOff, short kLen) throws CryptoException, NullPointerException, ArrayIndexOutOfBoundsException;
+    void setKey(byte[] keyData, short kOff, short kLen) throws CryptoException, NullPointerException, ArrayIndexOutOfBoundsException;
+
+    /**
+     * Returns the
+     * <code>Key</code> data in plain text. The key can be any length, but
+     * should be longer than the byte length of the hash algorithm output used. The data
+     * format is big-endian and right-aligned (the least significant bit is the least
+     * significant bit of last byte).
+     * <P>
+     *
+     * @param keyData byte array to return key data
+     * @param kOff offset within keyData to start
+     * @return the byte length of the key data returned
+     * @throws CryptoException - with the following reason code: CryptoException.UNINITIALIZED_KEY if the key data has not been successfully initialized since the time the initialized state of the key was set to false.
+     * @see Key
+     */
+    byte getKey(byte[] keyData, short kOff);
 }

@@ -26,7 +26,7 @@ package javacard.security;
  * @see DSAPrivateKey
  * @see KeyBuilder
  * @see Signature
- * @see KeyEncryption
+ * @see javacardx.crypto.KeyEncryption
  */
 public interface DSAPublicKey
         extends PublicKey, DSAKey {

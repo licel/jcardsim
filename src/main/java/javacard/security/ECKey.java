@@ -32,7 +32,7 @@ package javacard.security;
  * @see ECPrivateKey
  * @see KeyBuilder
  * @see Signature
- * @see KeyEncryption
+ * @see javacardx.crypto.KeyEncryption
  * @see KeyAgreement
  *
  */
