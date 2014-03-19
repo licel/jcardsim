@@ -399,6 +399,8 @@ public abstract class Signature {
      * <p>Note:<ul>
      * <li><em>AES, DES, and triple DES algorithms in CBC mode will use 0 for initial vector(IV) if this
      * method is used.</em>
+     * <li><em>For optimal performance, when the theKey parameter is a transient key, the implementation should,
+     * whenever possible, use transient space for internal storage.</em>
      * </ul>
      * @param theKey the key object to use for signing or verifying
      * @param theMode one of <code>MODE_SIGN</code> or <code>MODE_VERIFY</code>
@@ -425,6 +427,8 @@ public abstract class Signature {
      * <li><em>AES algorithms in CBC mode expect a 16-byte parameter value for
      * the initial vector(IV) in </em><code>bArray</code><em>.</em>
      * <li><em>ECDSA, RSA, and DSA algorithms throw </em><code>CryptoException.ILLEGAL_VALUE</code><em>.</em>
+     * <li><em>For optimal performance, when the theKey parameter is a transient key, the implementation should,
+     * whenever possible, use transient space for internal storage.</em>
      * </ul>
      * @param theKey the key object to use for signing
      * @param theMode one of <code>MODE_SIGN</code> or <code>MODE_VERIFY</code>

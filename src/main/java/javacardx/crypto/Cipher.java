@@ -160,6 +160,30 @@ public abstract class Cipher {
      * pads input data according to the PKCS#1-OAEP scheme (IEEE 1363-2000).
      */
     public static final byte ALG_RSA_PKCS1_OAEP = 15;
+    
+    /**
+     * Cipher algorithm ALG_KOREAN_SEED_ECB_NOPAD provides a cipher using the
+     * Korean SEED algorithm specified in the Korean SEED Algorithm
+     * specification provided by KISA, Korea Information Security Agency in ECB
+     * mode and does not pad input data. If the input data is not block aligned
+     * it throws CryptoException with the reason code ILLEGAL_USE.
+     *
+     * @since 2.2.2
+     */
+    public static final byte ALG_KOREAN_SEED_ECB_NOPAD = 16;
+    
+    /**
+     * Cipher algorithm ALG_KOREAN_SEED_CBC_NOPAD provides a cipher using the
+     * Korean SEED algorithm specified in the Korean SEED Algorithm
+     * specification provided by KISA, Korea Information Security Agency in ECB
+     * mode and does not pad input data. If the input data is not block aligned
+     * it throws CryptoException with the reason code ILLEGAL_USE.
+     *
+     *
+     * @since 2.2.2
+     */
+    public static final byte ALG_KOREAN_SEED_CBC_NOPAD = 17;
+
     /**
      * Used in <code>init()</code> methods to indicate decryption mode.
      */
@@ -236,6 +260,8 @@ public abstract class Cipher {
      * <ul>
      * <li><em>AES, DES, and triple DES algorithms in CBC mode will use 0 for initial vector(IV) if this
      * method is used.</em>
+     * <li><em>For optimal performance, when the theKey parameter is a transient key, the implementation should,
+     * whenever possible, use transient space for internal storage.</em>
      * </ul>
      * @param theKey the key object to use for encrypting or decrypting
      * @param theMode one of <code>MODE_DECRYPT</code> or <code>MODE_ENCRYPT</code>
@@ -264,6 +290,8 @@ public abstract class Cipher {
      * the initial vector(IV) in </em><code>bArray</code><em>.</em>
      * <li><em>AES algorithms in ECB mode, DES algorithms in ECB mode,
      * RSA and DSA algorithms throw </em><code>CryptoException.ILLEGAL_VALUE</code><em>.</em>
+     * <li><em>For optimal performance, when the theKey parameter is a transient key, the implementation should,
+     * whenever possible, use transient space for internal storage.</em>
      * </ul>
      * @param theKey the key object to use for encrypting or decrypting.
      * @param theMode one of <code>MODE_DECRYPT</code> or <code>MODE_ENCRYPT</code>
