@@ -23,7 +23,7 @@ package javacard.security;
  * <p>
  * @see KeyBuilder
  * @see Signature
- * @see Cipher
+ * @see javacardx.crypto.Cipher
  * @see javacardx.crypto.KeyEncryption
  */
 public interface AESKey

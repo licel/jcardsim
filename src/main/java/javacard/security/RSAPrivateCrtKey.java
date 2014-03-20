@@ -40,7 +40,7 @@ package javacard.security;
  * @see RSAPublicKey
  * @see KeyBuilder
  * @see Signature
- * @see Cipher
+ * @see javacardx.crypto.Cipher
  * @see javacardx.crypto.KeyEncryption
  *
  */

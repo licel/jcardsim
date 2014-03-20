@@ -152,8 +152,11 @@ public abstract class MessageDigest {
      * @param outBuff the output buffer, may be the same as the input buffer
      * @param outOffset the offset into the output buffer where the resulting hash value begins
      * @return number of bytes of hash output in <code>outBuff</code>
+     * @throws CryptoException with the following reason codes:<ul>
+     * <li><code>CryptoException.ILLEGAL_USE</code> if the accumulated message length is greater than the maximum length supported by the algorithm.
+     * </ul>
      */
-    public abstract short doFinal(byte[] inBuff, short inOffset, short inLength, byte[] outBuff, short outOffset);
+    public abstract short doFinal(byte[] inBuff, short inOffset, short inLength, byte[] outBuff, short outOffset) throws CryptoException;
     
     /**
      * Accumulates a hash of the input data. This method requires temporary storage of
@@ -174,9 +177,12 @@ public abstract class MessageDigest {
      * @param inBuff the input buffer of data to be hashed
      * @param inOffset the offset into the input buffer at which to begin hash generation
      * @param inLength the byte length to hash
-     * See also: {@link #doFinal(byte[], short, short, byte[], short)}
+     * @throws CryptoException with the following reason codes:<ul>
+     * <li><code>CryptoException.ILLEGAL_USE</code> if the accumulated message length is greater than the maximum length supported by the algorithm.
+     * </ul>
+     * @see #doFinal(byte[], short, short, byte[], short)
      */
-    public abstract void update(byte[] inBuff, short inOffset, short inLength);
+    public abstract void update(byte[] inBuff, short inOffset, short inLength) throws CryptoException;
     
     /**
      * Resets the <code>MessageDigest</code> object to the initial state for further use.

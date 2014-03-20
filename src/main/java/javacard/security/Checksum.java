@@ -138,7 +138,7 @@ public abstract class Checksum {
      * <p>This method requires temporary storage of intermediate results.
      * This may result in additional resource consumption and/or slow performance.
      * This method should only be used if all the input data required for the checksum
-     * is not available in one byte array. The {@link  Checksum.html#doFinal(byte[], short, short, byte[], short)}
+     * is not available in one byte array. The {@link  #doFinal(byte[], short, short, byte[], short)}
      * <CODE>doFinal(byte[], short, short, byte[], short)</CODE>  method is recommended whenever possible.
      * <p>Note:
      * <ul>

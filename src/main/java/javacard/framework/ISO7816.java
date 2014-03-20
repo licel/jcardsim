@@ -101,6 +101,14 @@ public interface ISO7816
      */
     public static final short SW_CLA_NOT_SUPPORTED = 28160;
     /**
+     * Response status : Command chaining not supported = 0x6884
+     */
+    static final short SW_COMMAND_CHAINING_NOT_SUPPORTED=26756;
+    /**
+     * Response status : Last command in chain expected = 0x6883
+     */
+    static final short SW_LAST_COMMAND_EXPECTED=26755;   
+    /**
      * Response status : No precise diagnosis = 0x6F00
      */
     public static final short SW_UNKNOWN = 28416;
@@ -109,7 +117,7 @@ public interface ISO7816
      */
     public static final short SW_FILE_FULL = 27268;
     /**
-     * Response status : Card does not support logical channels  = 0x6881
+     * Response status : Card does not support the operation on the specified logical channel = 0x6881
      */
     public static final short SW_LOGICAL_CHANNEL_NOT_SUPPORTED = 26753;
     /**

@@ -26,7 +26,7 @@ import javacard.framework.CardRuntimeException;
  * @see MessageDigest
  * @see Signature
  * @see RandomData
- * @see Cipher
+ * @see javacardx.crypto.Cipher
  */
 public class CryptoException extends CardRuntimeException {
 
