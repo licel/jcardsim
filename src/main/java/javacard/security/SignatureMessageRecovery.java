@@ -208,7 +208,8 @@ public interface SignatureMessageRecovery {
      * @param inOffset the offset into the input buffer where input data begins
      * @param inLength the byte length to sign/verify
      * @throws CryptoException with the following reason codes: CryptoException.UNINITIALIZED_KEY if key not initialized. CryptoException.INVALID_INIT if this Signature object is not initialized. CryptoException.ILLEGAL_USE if the mode set in the init() method is MODE_VERIFY and the beginVerify() method is not yet called.
-     * @see sign(byte[], short, short, byte[], short, short[], short), verify(byte[], short, short)
+     * @see #sign(byte[], short, short, byte[], short, short[], short)
+     * @see #verify(byte[], short, short)
      */
     void update(byte[] inBuff, short inOffset, short inLength) throws CryptoException;
 }

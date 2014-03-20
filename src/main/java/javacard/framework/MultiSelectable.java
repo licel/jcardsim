@@ -61,7 +61,7 @@ public interface MultiSelectable
      *   <li><em>The <code>javacard.framework.Applet.select(</code>) method is not
      *   called if this method is invoked.</em></li>
      *  </ul>
-     * @param appInstStillActive boolean flag is <code>true</code> when the same applet
+     * @param appInstAlreadyActive boolean flag is <code>true</code> when the same applet
      * instance is already active on another logical channel and <code>false</code> otherwise
      */
     public abstract boolean select(boolean appInstAlreadyActive);

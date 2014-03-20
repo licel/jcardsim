@@ -23,7 +23,10 @@ import com.licel.jcardsim.base.SimulatorSystem;
  * The <code>Applet</code> class must be extended by any applet that is intended to be
  * loaded onto, installed into and executed on a Java Card technology-compliant
  * smart card.<p>
- *
+ * A compliant Java Card platform may optionally support the ISO7816-4 defined extended
+ * length APDU protocol. The applet subclass must implement the
+ * <code>javacardx.apdu.ExtendedLength</code> interface to access this extended length APDU
+ * protocol capability of the <code>javacard.framework.APDU</code> object.
  * <p>
  * Example usage of <code>Applet</code>
  * <pre><code>
@@ -145,9 +148,9 @@ public abstract class Applet {
      * method the Java Card runtime environment sends the ISO 7816-4 defined success status (90 00) in APDU response.
      * If this method throws an <code>ISOException</code> the Java Card runtime environment sends the associated reason code as the
      * response status instead.<p>
-     * The Java Card runtime environment zeroes out the APDU buffer before receiving a new APDU command from the CAD.
-     * The five header bytes of the APDU command are available in APDU buffer[0..4] at the time
-     * this method is called.<p>
+     * The Java Card runtime environment zeroes out the APDU buffer before receiving a new APDU command from the CAD. 
+     * The five header bytes (or optionally the 7 extended header bytes) of the APDU command are available 
+     * in APDU buffer at the time this method is called.<p>
      * The <code>APDU</code> object parameter is a temporary Java Card runtime environment Entry Point Object.
      * A temporary Java Card runtime environment Entry Point Object can be accessed from any applet context. References
      * to these temporary objects cannot be stored in class variables or instance variables
