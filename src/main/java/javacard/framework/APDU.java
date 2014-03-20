@@ -7,39 +7,42 @@ package javacard.framework;
 import com.licel.jcardsim.base.SimulatorSystem;
 
 /**
+ * 
  * Application Protocol Data Unit (APDU) is
  * the communication format between the card and the off-card applications.
  * The format of the APDU is defined in ISO specification 7816-4.<p>
- *
+ * 
  * This class only supports messages which conform to the structure of
  * command and response defined in ISO 7816-4. The behavior of messages which
- * use proprietary structure of messages ( for example with header CLA byte in range 0xD0-0xFE ) is
- * undefined. This class does not support extended length fields.<p>
- *
+ * use proprietary structure of messages is
+ * undefined. This class optionally supports extended length fields but only when
+ * the currently selected applet implements the <code>javacardx.apdu.ExtendedLength</code> interface.<p>
+ * 
  * The <code>APDU</code> object is owned by the Java Card runtime environment. The <code>APDU</code> class maintains a byte array
  * buffer which is used to transfer incoming APDU header and data bytes as well as outgoing data.
  * The buffer length must be at least 133 bytes ( 5 bytes of header and 128 bytes of data ).
  * The Java Card runtime environment must zero out the APDU buffer before each new message received from the CAD.<p>
- *
+ * 
  * The Java Card runtime environment designates the <code>APDU</code> object as a temporary Java Card runtime environment Entry Point Object
- * (See <em>Runtime
+ * (See <em>Runtime Environment
  * Specification for the Java Card Platform</em>, section 6.2.1 for details).
  * A temporary Java Card runtime environment Entry Point Object can be accessed from any applet context. References
  * to these temporary objects cannot be stored in class variables or instance variables
  * or array components.
  * <p>The Java Card runtime environment similarly marks the APDU buffer as a global array
- * (See <em>Runtime
+ * (See <em>Runtime Environment
  * Specification for the Java Card Platform</em>, section 6.2.2 for details).
  * A global array
  * can be accessed from any applet context. References to global arrays
  * cannot be stored in class variables or instance variables or array components.
  * <p>
- *
+ * 
  * The applet receives the <code>APDU</code> instance to process from
  * the Java Card runtime environment in the <code>Applet.process(APDU)</code> method, and
- * the first five bytes [ CLA, INS, P1, P2, P3 ] are available
- * in the APDU buffer.<p>
- *
+ * the first five header bytes [ CLA, INS, P1, P2, P3 ] are available
+ * in the APDU buffer. (The header format is the ISO7816-4 defined 7 byte extended APDU format
+ * with a 3 byte Lc field when the Lc field in the incoming APDU header is 3 bytes long).<p>
+ * 
  * The <code>APDU</code> class API is designed to be transport protocol independent.
  * In other words, applets can use the same APDU methods regardless of whether
  * the underlying protocol in use is T=0 or T=1 (as defined in ISO 7816-3).<p>
@@ -48,53 +51,57 @@ import com.licel.jcardsim.base.SimulatorSystem;
  * outgoing response APDU data size may be bigger than the APDU buffer size and may
  * need to be written in portions by the applet. The <code>APDU</code> class has methods
  * to facilitate this.<p>
- *
+ * 
  * For sending large byte arrays as response data,
  * the <code>APDU</code> class provides a special method <code>sendBytesLong()</code> which
  * manages the APDU buffer.<p>
- *
+ * 
  * <pre>
  * // The purpose of this example is to show most of the methods
  * // in use and not to depict any particular APDU processing
- *
+ * 
+ * class MyApplet extends javacard.framework.Applet{
+ * // ...
  * public void process(APDU apdu){
- *  // ...
- *  byte[] buffer = apdu.getBuffer();
- *  byte cla = buffer[ISO7816.OFFSET_CLA];
- *  byte ins = buffer[ISO7816.OFFSET_INS];
- *  ...
- *  // assume this command has incoming data
- *  // Lc tells us the incoming apdu command length
- *  short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
- *  if (bytesLeft < (short)55) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
- *
- *  short readCount = apdu.setIncomingAndReceive();
- *  while ( bytesLeft > 0){
- *      // process bytes in buffer[5] to buffer[readCount+4];
- *      bytesLeft -= readCount;
- *      readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
- *      }
- *  //
- *  //...
- *  //
- *  // Note that for a short response as in the case illustrated here
- *  // the three APDU method calls shown : setOutgoing(),setOutgoingLength() & sendBytes()
- *  // could be replaced by one APDU method call : setOutgoingAndSend().
- *
- *  // construct the reply APDU
- *  short le = apdu.setOutgoing();
- *  if (le < (short)2) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
- *  apdu.setOutgoingLength( (short)3 );
- *
- *  // build response data in apdu.buffer[ 0.. outCount-1 ];
- *  buffer[0] = (byte)1; buffer[1] = (byte)2; buffer[3] = (byte)3;
- *  apdu.sendBytes ( (short)0 , (short)3 );
- *  // return good complete status 90 00
- *  }
+ * // ...
+ * byte[] buffer = apdu.getBuffer();
+ * byte cla = buffer[ISO7816.OFFSET_CLA];
+ * byte ins = buffer[ISO7816.OFFSET_INS];
+ * ...
+ * // assume this command has incoming data
+ * // Lc tells us the incoming apdu command length
+ * short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
+ * if (bytesLeft < (short)55) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+ * 
+ * short readCount = apdu.setIncomingAndReceive();
+ * while ( bytesLeft > 0){
+ * // process bytes in buffer[5] to buffer[readCount+4];
+ * bytesLeft -= readCount;
+ * readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
+ * }
+ * //
+ * //...
+ * //
+ * // Note that for a short response as in the case illustrated here
+ * // the three APDU method calls shown : setOutgoing(),setOutgoingLength() & sendBytes()
+ * // could be replaced by one APDU method call : setOutgoingAndSend().
+ * 
+ * // construct the reply APDU
+ * short le = apdu.setOutgoing();
+ * if (le < (short)2) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+ * apdu.setOutgoingLength( (short)3 );
+ * 
+ * // build response data in apdu.buffer[ 0.. outCount-1 ];
+ * buffer[0] = (byte)1; buffer[1] = (byte)2; buffer[3] = (byte)3;
+ * apdu.sendBytes ( (short)0 , (short)3 );
+ * // return good complete status 90 00
+ * }
+ * // ...
+ * }
  * </pre>
- *
+ * 
  * The <code>APDU</code> class also defines a set of <code>STATE_..</code> constants
- * which represent the various processing states of the <code>APDU</code>object based
+ * which represent the various processing states of the <code>APDU</code> object based
  * on the methods invoked and the state of the data transfers. The
  * <code>getCurrentState()</code> method returns the current state.
  * <p>
@@ -107,12 +114,21 @@ import com.licel.jcardsim.base.SimulatorSystem;
  * assignments :
  * STATE_ERROR_NO_T0_GETRESPONSE, STATE_ERROR_T1_IFD_ABORT, STATE_ERROR_IO and
  * STATE_ERROR_NO_T0_REISSUE.
+ * <p>Note:<ul>
+ * <li><em>The method descriptions use the ISO7816-4 notation
+ * for the various APDU I/O cases of input and output directions. For example -
+ * T=0 (Case 2S) protocol - refers to short length outbound only case
+ * using the T=0 protocol.
+ * The perspective of the notation used in the method descriptions
+ * is that of the card(ICC) as seen at the transport layer(TPDU). External
+ * transformations of the APDU I/O case may have occurred at the CAD
+ * and therefore not visible to the card.</em>
+ * </ul>
  * @see APDUException
  * @see ISOException
- *
- */
-public final class APDU {
+ */ 
 
+public final class APDU {
     /**
      * This is the state of a new <CODE>APDU</CODE> object when only the command
      * header is valid.
@@ -283,7 +299,7 @@ public final class APDU {
      * should account for this potential blocksize.</em>
      * </ul>
      * @return incoming block size setting
-     * @see APDU.receiveBytes(short)
+     * @see #receiveBytes(short)
      */
     public static short getInBlockSize() {
         return T0_IBS;
@@ -302,7 +318,7 @@ public final class APDU {
      * should account for this potential blocksize.</em>
      * </ul>
      * @return outgoing block size setting
-     * @see APDU.setOutgoingLength(short)
+     * @see #setOutgoingLength(short)
      */
     public static short getOutBlockSize() {
         return T0_OBS;
@@ -331,20 +347,29 @@ public final class APDU {
 
     /**
      * This method is used to set the data transfer direction to
-     * outbound and to obtain the expected length of response (Le).
-     * <p>Notes.
-     * <ul>
+     * outbound and to obtain the expected length of response (Le). This method
+     * should only be called on a case 2 or case 4 command, otherwise erroneous
+     * behavior may result.
+     * <p>Notes. <ul>
+     * <li><em>On a case 4 command, the </em><code>setIncomingAndReceive()</code><em> must
+     * be invoked prior to calling this method. Otherwise, erroneous
+     * behavior may result in T=0 protocol.</em>
      * <li><em>Any remaining incoming data will be discarded.</em>
-     * <li><em>In T=0 (Case 4) protocol, this method will return 256.</em>
-     * <li><em>This method sets the state of the <code>APDU</code> object to
-     * <code>STATE_OUTGOING</code>.</em>
+     * <li><em>In T=0 (Case 4S) protocol, this method will return 256 with normal
+     * semantics.</em>
+     * <li><em>In T=0 (Case 2E, 4S) protocol, this method will return 32767 when
+     * the currently selected applet implements the
+     * </em><code>javacardx.apdu.ExtendedLength</code><em> interface.</em>
+     * <li><em>In T=1 (Case 2E, 4E) protocol, this method will return 32767 when the
+     * Le field in the APDU command is 0x0000 and the currently selected applet implements the
+     * </em><code>javacardx.apdu.ExtendedLength</code><em> interface.</em>
+     * <li><em>This method sets the state of the </em><code>APDU</code><em> object to
+     * </em><code>STATE_OUTGOING</code><em>.</em>
      * </ul>
      * @return Le, the expected length of response
-     * @throws APDUException with the following reason codes:
-     * <ul>
+     * @throws APDUException with the following reason codes:<ul>
      * <li><code>APDUException.ILLEGAL_USE</code> if this method, or <code>setOutgoingNoChaining()</code> method already invoked.
      * <li><code>APDUException.IO_ERROR</code> on I/O error.
-     * </ul>
      */
     public short setOutgoing()
             throws APDUException {
@@ -359,27 +384,34 @@ public final class APDU {
     /**
      * This method is used to set the data transfer direction to
      * outbound without using BLOCK CHAINING (See ISO 7816-3/4) and to obtain the expected length of response (Le).
-     * This method should be used in place of the <code>setOutgoing()</code> method by applets which need
+     * This method should be used in place of the
+     * <code>setOutgoing()</code> method by applets which need
      * to be compatible with legacy CAD/terminals which do not support ISO 7816-3/4 defined block chaining.
-     * See <em>Runtime
+     * See <em>Runtime Environment
      * Specification for the Java Card Platform</em>, section 9.4 for details.
-     * <p>Notes.
-     * <ul>
+     * <p>Notes. <ul>
+     * <li><em>On a case 4 command, the </em><code>setIncomingAndReceive()</code><em> must
+     * be invoked prior to calling this method. Otherwise, erroneous
+     * behavior may result in T=0 protocol.</em>
      * <li><em>Any remaining incoming data will be discarded.</em>
-     * <li><em>In T=0 (Case 4) protocol, this method will return 256.</em>
+     * <li><em>In T=0 (Case 4S) protocol, this method will return 256 with normal
+     * semantics.</em>
+     * <li><em>In T=0 (Case 2E, 4S) protocol, this method will return 256 when
+     * the currently selected applet implements the
+     * </em><code>javacardx.apdu.ExtendedLength</code><em> interface.</em>
      * <li><em>When this method is used, the </em><code>waitExtension()</code><em> method cannot be used.</em>
      * <li><em>In T=1 protocol, retransmission on error may be restricted.</em>
      * <li><em>In T=0 protocol, the outbound transfer must be performed
-     * without using <code>(ISO7816.SW_BYTES_REMAINING_00+count)</code> response status chaining.</em>
+     * without using </em><code>(ISO7816.SW_BYTES_REMAINING_00+count)</code><em> response status chaining.</em>
      * <li><em>In T=1 protocol, the outbound transfer must not set the More(M) Bit in the PCB of the I block. See ISO 7816-3.</em>
-     * <li><em>This method sets the state of the <code>APDU</code> object to
-     * <code>STATE_OUTGOING</code>.</em>
+     * <li><em>This method sets the state of the </em><code>APDU</code><em> object to
+     * </em><code>STATE_OUTGOING</code><em>.</em>
      * </ul>
+     * 
      * @return Le, the expected length of response data
-     * @throws APDUException with the following reason codes:
-     * <ul>
-     * <li><code>APDUException.ILLEGAL_USE</code> if this method, or <code>setOutgoing()</code> method already invoked.
-     * <li><code>APDUException.IO_ERROR</code> on I/O error</ul>
+     * @throws APDUException with the following reason codes:<ul>
+     * <li><code>APDUException.ILLEGAL_USE</code> if this method, or <code>setOutgoingNoChaining()</code> method already invoked.
+     * <li><code>APDUException.IO_ERROR</code> on I/O error.
      */
     public short setOutgoingNoChaining()
             throws APDUException {
@@ -393,30 +425,33 @@ public final class APDU {
     }
 
     /**
-     * Sets the actual length of response data. If a length of <code>0</code> is specified, no data will be output.
+     * Sets the actual length of response data. If a length of
+     * <code>0</code> is specified, no data will be output.
      * <p>Note:<ul>
      * <li><em>In T=0 (Case 2&4) protocol, the length is used by the Java Card runtime environment to prompt the CAD for GET RESPONSE commands.</em>
-     * <li><em>This method sets the state of the <code>APDU</code> object to
+     * <li><em>This method sets the state of the
+     * <code>APDU</code> object to
      * <code>STATE_OUTGOING_LENGTH_KNOWN</code>.</em>
      * </ul>
+     * <P>
+     *
      * @param len the length of response data
-     * @throws APDUException  with the following reason codes:
-     * <ul>
-     * <li><code>APDUException.ILLEGAL_USE</code> if <code>setOutgoing()</code> not called or this method already invoked.
-     * <li><code>APDUException.BAD_LENGTH</code> if <code>len</code> is greater than 256 or
-     * if non BLOCK CHAINED data transfer is requested and <code>len</code> is greater than
-     * (IFSD-2), where IFSD is the Outgoing Block Size. The -2 accounts for the status bytes in T=1.
-     * * <li><code>APDUException.NO_GETRESPONSE</code> if T=0 protocol is in use and
-     * the CAD does not respond to <code>(ISO7816.SW_BYTES_REMAINING_00+count)</code> response status
-     * with GET RESPONSE command on the same origin logical channel number as that of the current
-     * APDU command.
-     * <li><code>APDUException.NO_T0_REISSUE</code> if T=0 protocol is in use and
-     * the CAD does not respond to <code>(ISO7816.SW_CORRECT_LENGTH_00+count)</code> response status
-     * by re-issuing same APDU command on the same origin logical channel number as that of the current
-     * APDU command with the corrected length.
-     * <li><code>APDUException.IO_ERROR</code> on I/O error.
+     * @throws APDUException with the following reason codes:<ul> 
+     * <li><code>APDUException.ILLEGAL_USE</code> if <code>setOutgoing()</code> or <code>setOutgoingNoChaining()</code> not called 
+     * or if <code>setOutgoingAndSend()</code> already invoked, or this method already invoked. 
+     * <li><code>APDUException.BAD_LENGTH</code> if any one of the following is true:<ul>
+     * <li><code>len</code> is negative.
+     * <li><code>len</code> is greater than 256 and the currently selected applet does not implement the <code>javacardx.apdu.ExtendedLength</code> interface. 
+     * <li>T=0 protocol is in use, non BLOCK CHAINED data transfer is requested and len is greater than 256. 
+     * <li>T=1 protocol is in use, non BLOCK CHAINED data transfer is requested and len is greater than (IFSD-2), where IFSD is the Outgoing Block Size. The -2 accounts for the status bytes in T=1.
      * </ul>
-     * @see APDU.getOutBlockSize()
+     * <li><code>APDUException.NO_T0_GETRESPONSE</code> if T=0 protocol is in use and the CAD does not respond to <code>(ISO7816.SW_BYTES_REMAINING_00+count)</code> response status 
+     * with GET RESPONSE command on the same origin logical channel number as that of the current APDU command. 
+     * <li><code>APDUException.NO_T0_REISSUE</code> if T=0 protocol 
+     * is in use and the CAD does not respond to <code>(ISO7816.SW_CORRECT_LENGTH_00+count)</code> response status by re-issuing same APDU command on the same origin 
+     * logical channel number as that of the current APDU command with the corrected length. 
+     * <li><code>APDUException.IO_ERROR</code> on I/O error.
+     * @see #getOutBlockSize()
      */
     public void setOutgoingLength(short len)
             throws APDUException {
@@ -476,17 +511,19 @@ public final class APDU {
      * This is the primary receive method.
      * Calling this method indicates that this APDU has incoming data. This method gets as many bytes
      * as will fit without buffer overflow in the APDU buffer following the header.
-     * It gets all the incoming bytes if they fit.
+     * It gets all the incoming bytes if they fit.<p>
+     * This method should only be called on a case 3 or case 4 command, otherwise erroneous behavior may result.
      * <p>Notes:
      * <ul>
      * <li><em>In T=0 ( Case 3&4 ) protocol, the P3 param is assumed to be Lc.</em>
-     * <li><em>Data is read into the buffer at offset 5.</em>
+     * <li><em>Data is read into the buffer at offset 5 for normal APDU semantics.</em>
+     * <li><em>Data is read into the buffer at offset 7 for an extended length APDU (Case 3E/4E).</em>
      * <li><em>In T=1 protocol, if all the incoming bytes do not fit in the buffer, this method may
      * return less bytes than the maximum incoming block size (IFSC).</em>
      * <li><em>In T=0 protocol, if all the incoming bytes do not fit in the buffer, this method may
      * return less than a full buffer of bytes to optimize and reduce protocol overhead.</em>
      * <li><em>This method sets the transfer direction to be inbound
-     * and calls </em><code>receiveBytes(5)</code><em>.</em>
+     * and calls <code>receiveBytes(5)</code> for normal semantics or <code>receiveBytes(7)</code> for extended semantics.</em>
      * <li><em>This method may only be called once in a </em><code>Applet.process()</code><em> method.</em>
      * <li><em>This method sets the state of the <code>APDU</code> object to
      * <code>STATE_PARTIAL_INCOMING</code> if all incoming bytes are not received.</em>
@@ -655,9 +692,9 @@ public final class APDU {
     }
 
     /**
-     * This method is called to obtain a reference to the current <CODE>APDU</CODE> object.
-     * This method can only be called in the context of the currently
-     * selected applet.
+     * This method is called during the <code>Applet.process(APDU)</code> method 
+     * to obtain a reference to the current APDU object. 
+     * This method can only be called in the context of the currently selected applet.  
      * <p>Note:
      * <ul>
      * <li><em>Do not call this method directly or indirectly from within a method
@@ -680,10 +717,9 @@ public final class APDU {
     }
 
     /**
-     * This method is called to obtain a reference to the current
-     * APDU buffer.
-     * This method can only be called in the context of the currently
-     * selected applet.
+     * This method is called during the <code>Applet.process(APDU)</code> method 
+     * to obtain a reference to the current APDU object. 
+     * This method can only be called in the context of the currently selected applet.  
      * <p>Note:<ul>
      * <li><em>Do not call this method directly or indirectly from within a method
      * invoked remotely via Java Card RMI method invocation from the client. The
@@ -706,10 +742,9 @@ public final class APDU {
 
     /**
      * Returns the logical channel number associated with the current <CODE>APDU</CODE> command
-     * based on the CLA byte. A number in the range 0-3 based on the least
-     * significant two bits of the CLA byte is returned if the command contains
-     * logical channel encoding. If the command does not contain logical channel
-     * information, 0 is returned.
+     * based on the CLA byte. A number in the range 0-19 based on the CLA byte encoding 
+     * is returned if the command contains logical channel encoding. 
+     * If the command does not contain logical channel information, 0 is returned.
      * See <em>Runtime
      * Specification for the Java Card Platform</em>, section
      * 4.3 for encoding details.
@@ -741,6 +776,90 @@ public final class APDU {
         }
     }
 
+    /**
+     * Returns whether the current
+     * <code>APDU</code> command is the first or
+     * part of a command chain. Bit b5 of the CLA byte if set, indicates
+     * that the
+     * <code>APDU</code> is the first or part of a chain of commands.
+     * See Runtime Environment Specification for the Java Card Platform, section 4.3 for encoding details.
+     * @return <code>true</code> if this APDU is not the last APDU of a command chain, <code>false</code> otherwise.
+     * @since 2.2.2
+     */
+    public boolean isCommandChainingCLA() {
+        return (buffer[ISO7816.OFFSET_CLA] & 0x10) == 0x10;
+    }
+
+    /**
+     * Returns
+     * <code>true</code> if the encoding of the current
+     * <code>APDU</code>
+     * command based on the
+     * CLA byte indicates secure messaging. The secure messaging information
+     * is in bits (b4,b3) for commands with origin channel numbers 0-3, and in bit
+     * b6 for origin channel numbers 4-19.
+     * See Runtime Environment Specification for the Java Card Platform, section 4.3 for encoding details.
+     * @return <code>true</code> if the secure messaging bit(s) is(are) nonzero, <code>false</code> otherwise
+     * @since 2.2.2
+     */
+    public boolean isSecureMessagingCLA() {
+        return (buffer[ISO7816.OFFSET_CLA] & 0x40) == 0x40 ? (buffer[ISO7816.OFFSET_CLA] & 0x20) == 0x20 : (buffer[ISO7816.OFFSET_CLA] & 0x0C) != 0;
+
+    }
+
+    /**
+     * Returns whether the current
+     * <code>APDU</code> command CLA byte corresponds
+     * to an interindustry command as defined in ISO 7816-4:2005 specification.
+     * Bit b8 of the CLA byte if
+     * <code>0</code>, indicates that the
+     * <code>APDU</code>
+     * is an interindustry command.
+     * @return <code>true</code> if this APDU CLA byte corresponds to an interindustry command, <code>false</code> otherwise.
+     * @since 2.2.2
+     */
+    public boolean isISOInterindustryCLA() {
+        return (buffer[ISO7816.OFFSET_CLA]& 0x80) != 0x80;
+    }
+
+    /**
+     * Returns the incoming data length(Lc). This method can be invoked
+     * whenever inbound data processing methods can be invoked during case 1, 3 or 4
+     * processing. It is most useful for an extended length enabled applet to avoid
+     * parsing the variable length Lc format in the APDU header.
+     * @return the incoming byte length indicated by the Lc field in the APDU header. Return 0 if no incoming data (Case 1)
+     * @throws APDUException with the following reason codes:<ul>
+     * <li><code>APDUException.ILLEGAL_USE</code> if <code>setIncomingAndReceive()</code> not called
+     * or if <code>setOutgoing()</code> or <code>setOutgoingNoChaining()</code> previously invoked.
+     * </ul>
+     * @see #getOffsetCdata()
+     * @since 2.2.2
+     */
+    public short getIncomingLength() {
+        // TODO ExtendedLength support
+        return buffer[ISO7816.OFFSET_LC];
+    }
+
+    /**
+     * Returns the offset within the APDU buffer for incoming command data.
+     * This method can be invoked whenever inbound data processing methods can be
+     * invoked during case 1, 3 or 4 processing. It is most useful for an extended
+     * length enabled applet to avoid parsing the variable length Lc format in the
+     * APDU header.
+     *
+     * @return the offset within the APDU buffer for incoming command data from the previous call to <code>setIncomingAndReceive()</code> method. The value returned is either 5 (Lc is 1 byte), or 7 (when Lc is 3 bytes)
+     * @throws APDUException with the following reason codes:<ul>
+     * <li><code>APDUException.ILLEGAL_USE</code> if <code>setIncomingAndReceive()</code> not called 
+     * or if <code>setOutgoing()</code> or <code>setOutgoingNoChaining()</code> previously invoked.
+     * </ul>
+     * @see #getIncomingLength()
+     * @since 2.2.2
+     */
+    public short getOffsetCdata() {
+        // TODO ExtendedLength support
+        return ISO7816.OFFSET_CDATA;
+    }
+    
     // return Le variable
     private short getLe() {
         if (ramVars[LE] == 0) {

@@ -22,7 +22,7 @@ package javacard.security;
  * <p>When the key data is set, the key is initialized and ready for use.
  * @see KeyBuilder
  * @see Signature
- * @see Cipher
+ * @see javacardx.crypto.Cipher
  * @see javacardx.crypto.KeyEncryption
  *
  */

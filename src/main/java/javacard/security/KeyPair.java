@@ -81,9 +81,9 @@ public final class KeyPair {
      * value parameter in RSA or the p, q, g parameter set in DSA or
      * the Field, A, B, G and R parameter set in EC is invalid.
      * </ul>
-     * @see APDU
+     * @see javacard.framework.APDU
      * @see Signature
-     * @see Cipher
+     * @see javacardx.crypto.Cipher
      * @see RSAPublicKey
      * @see ECKey
      * @see DSAKey
@@ -116,7 +116,7 @@ public final class KeyPair {
      * @see KeyBuilder
      * @see Signature
      * @see javacardx.crypto.KeyEncryption
-     * @see Cipher
+     * @see javacardx.crypto.Cipher
      */
     public KeyPair(byte algorithm, short keyLength)
             throws CryptoException {

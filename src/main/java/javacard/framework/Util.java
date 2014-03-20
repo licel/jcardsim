@@ -68,7 +68,7 @@ public class Util {
      * @throws ArrayIndexOutOfBoundsException if copying would cause access of data outside array bounds
      * @throws NullPointerException if either <code>src</code> or <code>dest</code> is <code>null</code>
      * @throws TransactionException f copying would cause the commit capacity to be exceeded
-     * @see JCSystem.getUnusedCommitCapacity()
+     * @see JCSystem#getUnusedCommitCapacity()
      */
     public static final short arrayCopy(byte src[], short srcOff, byte dest[], short destOff, short length)
             throws ArrayIndexOutOfBoundsException, NullPointerException, TransactionException {
@@ -114,7 +114,7 @@ public class Util {
      * @throws ArrayIndexOutOfBoundsException if copying would cause access of data outside array bounds
      * @throws NullPointerException if either <code>src</code> or <code>dest</code> is <code>null</code>
      * @throws TransactionException f copying would cause the commit capacity to be exceeded
-     * @see JCSystem.getUnusedCommitCapacity()
+     * @see JCSystem#getUnusedCommitCapacity()
      */
     public static final short arrayCopyNonAtomic(byte src[], short srcOff, byte dest[], short destOff, short length)
             throws ArrayIndexOutOfBoundsException, NullPointerException {
@@ -147,7 +147,7 @@ public class Util {
      * @return bOff+bLen
      * @throws ArrayIndexOutOfBoundsException if the fill operation would cause access of data outside array bounds
      * @throws NullPointerException if bArray is <code>null</code>
-     * @see JCSystem.getUnusedCommitCapacity()
+     * @see JCSystem#getUnusedCommitCapacity()
      */
     public static final short arrayFillNonAtomic(byte bArray[], short bOff, short bLen, byte bValue)
             throws ArrayIndexOutOfBoundsException, NullPointerException {
@@ -226,7 +226,7 @@ public class Util {
      * @param bArray byte array
      * @param bOff offset within byte array containing first byte (the high order byte)
      * @return the short value the concatenated result
-     * @throws ArrayIndexOutOfBoundsException if the <CODE>bOff</CODE> parameter is negative or if <CODE>bOff+1</CODE> is greater than the length
+     * @throws ArrayIndexOutOfBoundsException if the <CODE>bOff</CODE> parameter is negative or if <CODE>bOff+2</CODE> is greater than the length of <code>bArray</code>
      * @throws NullPointerException if the <CODE>bArray</CODE> parameter is <CODE>null</CODE>
      */
     public static final short getShort(byte bArray[], short bOff) throws ArrayIndexOutOfBoundsException, NullPointerException {
@@ -243,11 +243,11 @@ public class Util {
      * <li><em>If the byte array is persistent, this operation is performed atomically.
      * If the commit capacity is exceeded, no operation is performed and a </em><code>TransactionException</code><em>
      * exception is thrown.</em></li></ul>
-     * @throws ArrayIndexOutOfBoundsException if the <CODE>bOff</CODE> parameter is negative or if <CODE>bOff+1</CODE> is greater than the length
+     * @throws ArrayIndexOutOfBoundsException if the <CODE>bOff</CODE> parameter is negative or if <CODE>bOff+2</CODE> is greater than the length of <code>bArray</code>
      * of <CODE>bArray</CODE>
      * @throws NullPointerException if the <CODE>bArray</CODE> parameter is <CODE>null</CODE>
      * @throws TransactionException if the operation would cause the commit capacity to be exceeded
-     * @see JCSystem.getUnusedCommitCapacity()
+     * @see JCSystem#getUnusedCommitCapacity()
      */
     public static final short setShort(byte bArray[], short bOff, short sValue)
             throws TransactionException, ArrayIndexOutOfBoundsException, NullPointerException {

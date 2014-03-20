@@ -411,7 +411,7 @@ public final class JCSystem {
      * @param serverAID the AID of the server applet
      * @param parameter optional parameter data
      * @return the shareable interface object or <code>null</code>
-     * @see Applet.getShareableInterfaceObject(AID, byte)
+     * @see Applet#getShareableInterfaceObject(AID, byte)
      */
     public static Shareable getAppletShareableInterfaceObject(AID serverAID, byte parameter) {
         return SimulatorSystem.getSharedObject(serverAID, parameter);
