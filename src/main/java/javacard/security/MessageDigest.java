@@ -126,7 +126,11 @@ public abstract class MessageDigest {
      */
     public static final InitializedMessageDigest getInitializedMessageDigestInstance(byte algorithm,
             boolean externalAccess) throws CryptoException {
-        return null;
+        if (externalAccess) {
+            CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+        }
+        InitializedMessageDigest instance = new MessageDigestImpl(algorithm);
+        return instance;
     }
     
     /**
