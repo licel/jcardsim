@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.security.SecureRandom;
 import javacard.framework.JCSystem;
 import javacard.security.MessageDigest;
 import junit.framework.TestCase;
@@ -52,11 +53,14 @@ public class MessageDigestImplTest extends TestCase {
     static final String MD_256_NIST_SHA512 = "4551DEF2F9127386EEA8D4DAE1EA8D8E49B2ADD0509F27CCBCE7D9E950AC7DB01D5BCA579C271B9F2D806730D88F58252FD0C2587851C3AC8A0E72B4E1DC0DA6";
     
     
-    MessageDigest engineMD5 = new MessageDigestImpl(MessageDigest.ALG_MD5);
-    MessageDigest engineSHA1 = new MessageDigestImpl(MessageDigest.ALG_SHA);
-    MessageDigest engineSHA256 = new MessageDigestImpl(MessageDigest.ALG_SHA_256);
-    MessageDigest engineSHA384 = new MessageDigestImpl(MessageDigest.ALG_SHA_384);
-    MessageDigest engineSHA512 = new MessageDigestImpl(MessageDigest.ALG_SHA_512);
+    MessageDigestImpl engineMD5 = new MessageDigestImpl(MessageDigest.ALG_MD5);
+    MessageDigestImpl engineRIPEMD160 = new MessageDigestImpl(MessageDigest.ALG_RIPEMD160);
+    MessageDigestImpl engineSHA1 = new MessageDigestImpl(MessageDigest.ALG_SHA);
+    MessageDigestImpl engineSHA256 = new MessageDigestImpl(MessageDigest.ALG_SHA_256);
+    MessageDigestImpl engineSHA384 = new MessageDigestImpl(MessageDigest.ALG_SHA_384);
+    MessageDigestImpl engineSHA512 = new MessageDigestImpl(MessageDigest.ALG_SHA_512);
+    
+    SecureRandom rnd = new SecureRandom();
     
     public MessageDigestImplTest(String testName) {
         super(testName);
@@ -104,6 +108,8 @@ public class MessageDigestImplTest extends TestCase {
         System.out.println("getLength");
         // md5
         assertEquals(engineMD5.getLength(), MessageDigest.LENGTH_MD5);
+        // ripemd160
+        assertEquals(engineRIPEMD160.getLength(), MessageDigest.LENGTH_RIPEMD160);
         // sha1
         assertEquals(engineSHA1.getLength(), MessageDigest.LENGTH_SHA);
         // sha256
@@ -188,4 +194,36 @@ public class MessageDigestImplTest extends TestCase {
         engine.doFinal(msg, (short) 7, (short) (msg.length - 7), digest, (short) 0);
         assertEquals(true, Arrays.areEqual(etalonDigest, digest));
     }
+
+    /**
+     * Test of setInitialDigest method, of class MessageDigestImpl.
+     */
+    public void testSetInitialDigest() {
+        byte[] initialDigestBuf = JCSystem.makeTransientByteArray((short) 128, JCSystem.CLEAR_ON_RESET);
+        byte[] inputData = JCSystem.makeTransientByteArray((short) 254, JCSystem.CLEAR_ON_RESET);
+        rnd.nextBytes(inputData);
+
+        MessageDigestImpl[] digests = new MessageDigestImpl[]{engineSHA1, engineMD5, engineRIPEMD160,
+            engineSHA256, engineSHA384, engineSHA512};
+
+        for (short i = 0; i < digests.length; i++) {
+            System.out.println("testSetInitialDigest() - "+digests[i].getAlgorithm());
+            byte[] digest = JCSystem.makeTransientByteArray(digests[i].getLength(), JCSystem.CLEAR_ON_RESET);
+            byte[] etalonDigest = JCSystem.makeTransientByteArray(digests[i].getLength(), JCSystem.CLEAR_ON_RESET);
+            // calc first part
+            short part = digests[i].getBlockSize();
+            digests[i].update(inputData, (short) 0, part);
+            short initialDigestOff = (short) rnd.nextInt(initialDigestBuf.length - digests[i].getLength());
+            digests[i].getIntermediateDigest(initialDigestBuf, initialDigestOff);
+            // doFinal
+            digests[i].doFinal(inputData, part, (short) (inputData.length - part), digest, (short) 0);
+            // etalon
+            digests[i].reset();
+            digests[i].update(inputData, (short) 0, (short) part);
+            digests[i].doFinal(inputData, (short) part, (short) (inputData.length - part), etalonDigest, (short) 0);
+            assertEquals(true, Arrays.areEqual(etalonDigest, digest));
+        }
+    }
+    
+    
 }
