@@ -357,6 +357,7 @@ public abstract class Signature {
             case ALG_RSA_RIPEMD160_ISO9796:
             case ALG_RSA_RIPEMD160_PKCS1:
             case ALG_ECDSA_SHA:
+            case ALG_RSA_SHA_ISO9796_MR:    
                 instance = new AsymmetricSignatureImpl(algorithm);
                 break;
             case ALG_DES_MAC4_NOPAD:
