@@ -15,13 +15,16 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.lang.reflect.Field;
 import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacard.security.Signature;
+import javacard.security.SignatureMessageRecovery;
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.Signer;
+import org.bouncycastle.crypto.SignerWithRecovery;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -36,18 +39,25 @@ import org.bouncycastle.crypto.signers.RSADigestSigner;
  * on BouncyCastle CryptoAPI
  * @see Signature
  */
-public class AsymmetricSignatureImpl extends Signature {
+public class AsymmetricSignatureImpl extends Signature implements SignatureMessageRecovery{
 
     Signer engine;
     Key key;
     byte algorithm;
     boolean isInitialized;
+    boolean isRecovery;
+    byte[] preSig;
 
     public AsymmetricSignatureImpl(byte algorithm) {
         this.algorithm = algorithm;
+        isRecovery = false;
         switch (algorithm) {
             case ALG_RSA_SHA_ISO9796:
                 engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+                break;
+            case ALG_RSA_SHA_ISO9796_MR:    
+                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+                isRecovery = true;
                 break;
             case ALG_RSA_SHA_PKCS1:
                 engine = new RSADigestSigner(new SHA1Digest());
@@ -119,6 +129,9 @@ public class AsymmetricSignatureImpl extends Signature {
     }
 
     public short sign(byte[] inBuff, short inOffset, short inLength, byte[] sigBuff, short sigOffset) throws CryptoException {
+        if (isRecovery) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
         if (!isInitialized) {
             CryptoException.throwIt(CryptoException.INVALID_INIT);
         }
@@ -139,6 +152,9 @@ public class AsymmetricSignatureImpl extends Signature {
     }
 
     public boolean verify(byte[] inBuff, short inOffset, short inLength, byte[] sigBuff, short sigOffset, short sigLength) throws CryptoException {
+        if (isRecovery) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
         if (!isInitialized) {
             CryptoException.throwIt(CryptoException.INVALID_INIT);
         }
@@ -146,6 +162,78 @@ public class AsymmetricSignatureImpl extends Signature {
         byte[] sig = JCSystem.makeTransientByteArray(sigLength, JCSystem.CLEAR_ON_RESET);
         Util.arrayCopyNonAtomic(sigBuff, sigOffset, sig, (short) 0, sigLength);
         boolean b = engine.verifySignature(sig);
+        engine.reset();
+        return b;
+    }
+
+    public short beginVerify(byte[] sigAndRecDataBuff, short buffOffset, short sigLength) throws CryptoException {
+        if (!isRecovery) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
+        if (!isInitialized) {
+            CryptoException.throwIt(CryptoException.INVALID_INIT);
+        }
+        preSig = JCSystem.makeTransientByteArray(sigLength, JCSystem.CLEAR_ON_RESET);
+        Util.arrayCopyNonAtomic(sigAndRecDataBuff, buffOffset, preSig, (short) 0, sigLength);
+        try {
+            ((SignerWithRecovery) engine).updateWithRecoveredMessage(preSig);
+            return (short) ((SignerWithRecovery) engine).getRecoveredMessage().length;
+        } catch (Exception ex) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
+        }
+        return -1;
+    }
+
+    public short sign(byte[] inBuff, short inOffset, short inLength, byte[] sigBuff, short sigOffset, short[] recMsgLen,
+            short recMsgLenOffset) throws CryptoException {
+        if (!isRecovery) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
+        if (!isInitialized) {
+            CryptoException.throwIt(CryptoException.INVALID_INIT);
+        }
+        engine.update(inBuff, inOffset, inLength);
+        byte[] sig;
+        try {
+            sig = engine.generateSignature();
+            Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
+            // there is no direct way to obtain encoded message length
+            int keyBits = key.getSize();
+            Field messageLengthField = engine.getClass().getDeclaredField("messageLength");
+            messageLengthField.setAccessible(true);
+            int messageLength = messageLengthField.getInt(engine);
+            int digSize = 20;
+            int x = (digSize + messageLength) * 8 + 16 + 4 - keyBits;
+            int mR = messageLength;
+            if (x > 0) {
+                mR = messageLength - ((x + 7) / 8);
+            }
+            recMsgLen[recMsgLenOffset] = (short) mR;
+            return (short) sig.length;
+        } catch (org.bouncycastle.crypto.CryptoException ex) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        } catch (DataLengthException ex) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
+        } catch (Exception ex) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        } finally {
+            engine.reset();
+        }
+        return -1;
+    }
+
+    public boolean verify(byte[] inBuff, short inOffset, short inLength) throws CryptoException {
+        if(!isRecovery){
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
+        if(preSig == null){
+            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
+        if (!isInitialized) {
+            CryptoException.throwIt(CryptoException.INVALID_INIT);
+        }
+        engine.update(inBuff, inOffset, inLength);
+        boolean b = engine.verifySignature(preSig);
         engine.reset();
         return b;
     }

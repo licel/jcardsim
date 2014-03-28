@@ -106,7 +106,7 @@ public class AsymmetricSignatureImplTest extends TestCase {
      * SelfTest of RSA sign/verify method, of class AsymmetricSignatureImpl.
      */
     public void testSelfSignVerifyRSA() {
-        System.out.println("selft test sign/verify rsa");
+        System.out.println("self test sign/verify rsa");
         testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_PKCS1);
     }
 
@@ -115,7 +115,7 @@ public class AsymmetricSignatureImplTest extends TestCase {
      * SelfTest of ECDSA sign/verify method, of class AsymmetricSignatureImpl.
      */
     public void testSelfSignVerifyECDSA() {
-        System.out.println("selft test sign/verify ecdsa");
+        System.out.println("self test sign/verify ecdsa");
         // ecf2m keys
         testSelfSignVerify(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, Signature.ALG_ECDSA_SHA);
         // ecfp keys
@@ -180,5 +180,5 @@ public class AsymmetricSignatureImplTest extends TestCase {
         boolean result = engine.verify(etalonMsg, (short) 0, (short) etalonMsg.length,
                 etalonSign, etalonSignOffset, (short)(etalonSignLength!=0?etalonSignLength:etalonSign.length));
         assertEquals(true, result);
-    }
+    }    
 }
