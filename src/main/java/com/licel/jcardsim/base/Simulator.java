@@ -203,7 +203,14 @@ public class Simulator implements JavaCardInterface {
     }
 
     public boolean selectApplet(AID aid) throws SystemException {
-        return SimulatorSystem.selectApplet(aid);
+    	byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
+    	if(resp != null && resp.length > 1) {
+        	int len = resp.length;
+        	if(resp[len - 2] == (byte)0x90 && resp[len - 1] == 0) {
+        		return true;
+        	}
+        }
+        return false;
     }
     
     public byte[] selectAppletWithResult(AID aid) throws SystemException {

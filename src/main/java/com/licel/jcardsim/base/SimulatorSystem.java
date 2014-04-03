@@ -438,24 +438,6 @@ public class SimulatorSystem {
             throws SystemException {
         runtime.registerApplet(new AID(bArray, bOffset, bLength), applet);
     }
-
-    /**
-     * Select applet by it's AID
-     * This method or selectAppletWithResult() must be called before start working with applet instance
-     * @param aid appletId
-     * @return true if applet selection success
-     * before
-     */
-    static boolean selectApplet(AID aid) {
-        byte[] resp = runtime.selectApplet(aid);
-        if(resp != null && resp.length > 1) {
-        	int len = resp.length;
-        	if(resp[len - 2] == (byte)0x90 && resp[len - 1] == 0) {
-        		return true;
-        	}
-        }
-        return false;
-    }
     
     /**
      * Select applet by It's AID
