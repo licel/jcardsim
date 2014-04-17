@@ -162,6 +162,18 @@ public class SimulatorTest extends TestCase {
         instance.installApplet(TEST_APPLET_AID, TEST_APPLET_CLASS);
         assertEquals(instance.selectApplet(TEST_APPLET_AID), true);
     }
+    
+    /**
+     * Test of selectAppletWithResult method, of class Simulator.
+     */
+    public void testSelectAppletWithResult() {
+        System.out.println("selectApplet");
+        Simulator instance = new Simulator();
+        instance.installApplet(TEST_APPLET_AID, TEST_APPLET_CLASS);
+        byte[] result = instance.selectAppletWithResult(TEST_APPLET_AID);
+        assertEquals(result[0], (byte)0x90);
+        assertEquals(result[1], 0x00);
+    }
 
     /**
      * Test of transmitCommand method, of class Simulator.
