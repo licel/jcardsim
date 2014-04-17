@@ -27,6 +27,7 @@ import javacard.framework.AID;
 import javacard.framework.Applet;
 import javacard.framework.JCSystem;
 import javacard.framework.SystemException;
+import javax.xml.bind.DatatypeConverter;
 import org.bouncycastle.util.encoders.Hex;
 
 /**

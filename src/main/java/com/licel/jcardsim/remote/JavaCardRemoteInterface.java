@@ -37,6 +37,8 @@ public interface JavaCardRemoteInterface extends Remote {
 
     public boolean selectApplet(SerializableAID aid) throws RemoteException;
 
+    public byte[] selectAppletWithResult(SerializableAID aid) throws RemoteException;
+    
     public void reset() throws RemoteException;
 
     public byte[] getATR() throws RemoteException;
