@@ -128,4 +128,8 @@ public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject
         return sim.getATR();
     }
 
+    public byte[] selectAppletWithResult(SerializableAID aid) throws RemoteException {
+        return sim.selectAppletWithResult(aid.getAID());
+    }
+
 }

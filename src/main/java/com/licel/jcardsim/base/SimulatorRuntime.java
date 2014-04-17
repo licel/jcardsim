@@ -114,7 +114,11 @@ public class SimulatorRuntime {
         if (aid == null) {
             return null;
         }
-        return lookupApplet(aid).getAppletClass();
+        AppletHolder a = lookupApplet(aid);
+        if (a == null) {
+            return null;
+        }
+        return a.getAppletClass();
     }   
     /**
      * Load applet

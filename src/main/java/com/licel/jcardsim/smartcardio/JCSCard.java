@@ -15,11 +15,8 @@
  */
 package com.licel.jcardsim.smartcardio;
 
+import com.licel.jcardsim.base.CardManager;
 import com.licel.jcardsim.io.JavaCardInterface;
-import javacard.framework.AID;
-import javacard.framework.ISO7816;
-import javacard.framework.SystemException;
-import javacard.framework.Util;
 import javax.smartcardio.*;
 
 /**
@@ -94,59 +91,6 @@ public class JCSCard extends Card {
     }
 
     ResponseAPDU transmitCommand(CommandAPDU capdu) {
-        byte[] theSW = new byte[2];
-        // handles select applet command
-        if (((byte) capdu.getCLA()) == ISO7816.CLA_ISO7816
-                && ((byte) capdu.getINS()) == ISO7816.INS_SELECT) {
-            byte[] aidBytes = capdu.getData();
-            if (aidBytes.length < 5 || aidBytes.length > 16) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_DATA_INVALID);
-                return new ResponseAPDU(theSW);
-            }
-            AID aid = new AID(aidBytes, (short) 0, (byte) aidBytes.length);
-            boolean appletSelectionResult = false;
-            try {
-                appletSelectionResult = cardInterface.selectApplet(aid);
-            } catch (Throwable t) {
-            }
-            if (!appletSelectionResult) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_APPLET_SELECT_FAILED);
-            } else {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_NO_ERROR);
-            }
-            return new ResponseAPDU(theSW);
-        } else if (capdu.getCLA() == 0x80 && capdu.getINS() == 0xb8) {
-            // handle CREATE APPLTE command
-            // command format:
-            // CLA    INS  P0    P1
-            // 0x8x, 0xb8, 0x00, 0x00
-            // Lc field
-            // AID length field
-            // AID field
-            // parameter length field
-            // [parameters]
-            // Le field          
-            byte[] data = capdu.getData();
-            // aid 
-            if (data[0] < 5 || data[0] > 16) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_DATA_INVALID);
-                return new ResponseAPDU(theSW);
-            }
-            AID aid = new AID(data, (short) 1, data[0]);
-            // parameters
-            try {
-                cardInterface.createApplet(aid, data, (short) 0, (byte) data.length);
-                byte[] response = new byte[data[0] + 2];
-                aid.getBytes(response, (short) 0);
-                Util.setShort(response, (short) (response.length - 2), ISO7816.SW_NO_ERROR);
-                ResponseAPDU resp = new ResponseAPDU(response);
-                return new ResponseAPDU(response);
-            } catch (SystemException e) {
-                Util.setShort(theSW, (short) 0, e.getReason());
-            }
-            return new ResponseAPDU(theSW);
-        } else {
-            return new ResponseAPDU(cardInterface.transmitCommand(capdu.getBytes()));
-        }
+        return new ResponseAPDU(CardManager.dispatchApdu(cardInterface, capdu.getBytes()));
     }
 }
