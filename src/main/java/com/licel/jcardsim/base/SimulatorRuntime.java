@@ -43,6 +43,8 @@ public class SimulatorRuntime {
     short responseBufferSize = 0;
     // SW
     byte[] theSW = JCSystem.makeTransientByteArray((short) 2, JCSystem.CLEAR_ON_RESET);
+    // if the applet is currently being selected
+	private boolean selecting = false;
 
     /**
      * Return current applet context AID or null
@@ -112,7 +114,11 @@ public class SimulatorRuntime {
         if (aid == null) {
             return null;
         }
-        return lookupApplet(aid).getAppletClass();
+        AppletHolder a = lookupApplet(aid);
+        if (a == null) {
+            return null;
+        }
+        return a.getAppletClass();
     }   
     /**
      * Load applet
@@ -148,9 +154,9 @@ public class SimulatorRuntime {
     /**
      * Select applet for using
      * @param aid applet aid
-     * @return true if select sucess
+     * @return data from select command
      */
-    boolean selectApplet(AID aid) {
+    byte[] selectApplet(AID aid) {
         Applet newApplet = getApplet(aid);
         // deselect previous selected applet
         if (currentAID != null) {
@@ -166,22 +172,42 @@ public class SimulatorRuntime {
             }
         }
         if (newApplet == null) {
-            return false;
+            return null;
         }
         // select new applet
         try {
             newApplet.select();
             previousAID = currentAID;
             currentAID = aid;
-            return true;
+            selecting = true;
+            
+            byte[] selectCmd = new byte[128];
+            byte len = aid.getBytes(selectCmd, (short) 5);
+            selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
+            selectCmd[ISO7816.OFFSET_P1] = 0x04;
+            selectCmd[ISO7816.OFFSET_LC] = len;
+            return this.transmitCommand(selectCmd);
         } catch (Exception e) {
         } finally {
             if (SimulatorSystem.getTransactionDepth() != 0) {
                 SimulatorSystem.abortTransaction();
             }
+            selecting  = false;
         }
-        return false;
+        return null;
     }
+
+    /**
+     * Check if applet is currently being selected
+     * @param aThis applet
+     * @return true if applet is being selected
+     */
+	public boolean isAppletSelecting(Applet aThis) {
+		if(aThis.equals(getApplet(getAID()))) {
+			return selecting;
+		}
+		return false;
+	}
 
     /**
      * Transmit APDU to previous selected applet
