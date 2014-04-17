@@ -114,4 +114,13 @@ public class JavaCardRemoteClient implements JavaCardInterface {
             SystemException.throwIt(SystemException.NO_RESOURCE);
         }
     }
+
+    public byte[] selectAppletWithResult(AID aid) {
+        try {
+            return remote.selectAppletWithResult(new SerializableAID(aid));
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+        return null;
+    }
 }
