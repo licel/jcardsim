@@ -37,15 +37,23 @@ assertEquals(0x9000, response.getSW());
 
 *JavaDoc*: https://jcardsim.googlecode.com/svn/trunk/javadoc/index.html
 
-*Latest stable release*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar
+*Latest stable release 2.2.1*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar
 
-*Snapshot Maven Repository*: https://oss.sonatype.org
+*Latest stable release 2.2.2*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar
 
+*Maven Central Repository*
 ```xml
 <dependency>
   <groupId>com.licel</groupId>
   <artifactId>jcardsim</artifactId>
-  <version>2.2.1-SNAPSHOT</version>
+  <version>2.2.1</version>
+</dependency>
+```
+```xml
+<dependency>
+  <groupId>com.licel</groupId>
+  <artifactId>jcardsim</artifactId>
+  <version>2.2.2</version>
 </dependency>
 ```
 
