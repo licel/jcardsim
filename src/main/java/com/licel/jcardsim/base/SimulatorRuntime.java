@@ -53,6 +53,32 @@ public class SimulatorRuntime {
         return currentAID;
     }
 
+	/**
+     * uninstall applet
+     * @param aid - applet to be uninstalled
+     * @throws SystemException
+     */
+    protected void callUniinstall(AID aid) throws SystemException {
+		try {
+			
+			currentAID = aid;
+			
+			AppletEvent applet = (AppletEvent) SimulatorSystem.getRuntime()
+					.getApplet(aid);
+
+			//call applets uninstall method
+			applet.uninstall();
+			
+			//if applet is not instance of AppletEvent
+		} catch (ClassCastException ex) {
+		}
+		finally
+		{
+			applets.remove(aid);
+			
+		}
+		
+	}
     /**
      * Lookup applet by aid contains in byte array
      */
