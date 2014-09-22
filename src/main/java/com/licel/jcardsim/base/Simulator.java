@@ -105,6 +105,20 @@ public class Simulator implements JavaCardInterface {
         }
     }
 
+    /**
+     * Uninstall applet
+     * @param aid - AID of applet to be uninstalled
+     * @throws SystemException
+     */
+	public void uninstallApplet(AID aid) throws SystemException {
+
+		if (SimulatorSystem.getRuntime().lookupApplet(aid) == null) {
+			SystemException.throwIt(SystemException.ILLEGAL_AID);
+		}
+		SimulatorSystem.getRuntime().callUniinstall(aid);
+
+	}
+	
     public AID loadApplet(AID aid, String appletClassName) throws SystemException {
         Class appletClass = null;
         try {
