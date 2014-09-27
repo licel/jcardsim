@@ -34,7 +34,7 @@ public class DSAPublicKeyImpl extends DSAKeyImpl implements DSAPublicKey {
 
     /**
      * Construct not-initialized dsa public key
-     * @param size key size it bits
+     * @param keySize key size it bits
      * @see KeyBuilder
      */
     public DSAPublicKeyImpl(short keySize) {
@@ -44,7 +44,7 @@ public class DSAPublicKeyImpl extends DSAKeyImpl implements DSAPublicKey {
     /**
      * Construct and initialize ecc key with DSAPublicKeyParameters.
      * Use in KeyPairImpl
-     * @see KeyPair
+     * @see javacard.security.KeyPair
      * @see DSAPublicKeyParameters
      * @param params key params from BouncyCastle API
      */

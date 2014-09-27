@@ -31,7 +31,7 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
  * on BouncyCastle CryptoAPI
  * @see KeyAgreement
  * @see ECDHBasicAgreement
- * @see ECHDCBasicAgreement
+ * @see ECDHCBasicAgreement
  */
 public class KeyAgreementImpl extends KeyAgreement {
 

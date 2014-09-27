@@ -42,12 +42,12 @@ public interface JavaCardInterface extends CardInterface {
      * <code>Applet</code> into Simulator
      *
      * @param aid applet aid
-     * @param appletClassName fully qualified applet class name Strin
+     * @param appletClassName fully qualified applet class name String
      * @return applet <code>AID</code>
      * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
-    public AID loadApplet(AID aid, String appletClass);
+    public AID loadApplet(AID aid, String appletClassName);
 
     /**
      * Create
