@@ -94,12 +94,12 @@ public final class KeyPairImpl {
      * <li><code>CryptoException.ILLEGAL_VALUE</code> if the exponent value
      * parameter in RSA or the p, q, g parameter set in DSA or the Field, A, B,
      * G and R parameter set in EC is invalid. </ul>
-     * @see APDU
-     * @see Signature
-     * @see Cipher
-     * @see RSAPublicKey
-     * @see ECKey
-     * @see DSAKey
+     * @see javacard.framework.APDU
+     * @see javacard.security.Signature
+     * @see javacardx.crypto.Cipher
+     * @see javacard.security.RSAPublicKey
+     * @see javacard.security.ECKey
+     * @see javacard.security.DSAKey
      */
     public final void genKeyPair()
             throws CryptoException {
@@ -153,9 +153,9 @@ public final class KeyPairImpl {
      * algorithm associated with the specified type, size of key is not
      * supported.</ul>
      * @see KeyBuilder
-     * @see Signature
-     * @see KeyEncryption
-     * @see Cipher
+     * @see javacard.security.Signature
+     * @see javacardx.crypto.KeyEncryption
+     * @see javacardx.crypto.Cipher
      */
     public KeyPairImpl(byte algorithm, short keyLength)
             throws CryptoException {

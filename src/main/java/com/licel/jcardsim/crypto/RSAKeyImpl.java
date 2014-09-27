@@ -57,7 +57,7 @@ public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey {
      * Construct and initialize rsa key with RSAKeyParameters. Use in
      * KeyPairImpl
      *
-     * @see KeyPair
+     * @see javacard.security.KeyPair
      * @see RSAKeyParameters
      * @param params key params from BouncyCastle API
      */
