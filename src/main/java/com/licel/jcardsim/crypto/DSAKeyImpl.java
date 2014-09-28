@@ -43,20 +43,20 @@ public class DSAKeyImpl extends KeyImpl implements DSAKey {
      * Construct not-initialized dsa key
      * @param keyType - key type
      * @param keySize - key size in bits
-     * @see KeyPair
+     * @see javacard.security.KeyPair
      * @see KeyBuilder
      */
-    public DSAKeyImpl(byte keyType, short size) {
-        this.size = size;
+    public DSAKeyImpl(byte keyType, short keySize) {
+        this.size = keySize;
         type = keyType;
     }
 
     /**
      * Construct and initialize dsa key with DSAKeyParameters.
      * Use in KeyPairImpl
-     * @see KeyPair
+     * @see javacard.security.KeyPair
      * @see DSAKeyParameters
-     * @parameters params key params from BouncyCastle API
+     * @param params key params from BouncyCastle API
      */
     public DSAKeyImpl(DSAKeyParameters params) {
         this(params.isPrivate() ? KeyBuilder.TYPE_DSA_PRIVATE : KeyBuilder.TYPE_DSA_PUBLIC, (short) params.getParameters().getP().bitLength());
