@@ -68,7 +68,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
      *
      * @see KeyPair
      * @see ECKeyParameters
-     * @parameters params key params from BouncyCastle API
+     * @param parameters key params from BouncyCastle API
      */
     public ECKeyImpl(ECKeyParameters parameters) {
         boolean isPrivate = parameters.isPrivate();

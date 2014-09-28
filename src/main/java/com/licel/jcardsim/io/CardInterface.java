@@ -37,9 +37,9 @@ public interface CardInterface {
      *
      * @param commandAPDU command apdu
      * @return response apdu
-     * @see CommandAPDU
-     * @see ResponseAPDU
-     * @throws SystemException.ILLEGAL_USE if appplet not selected before
+     * @see javax.smartcardio.CommandAPDU
+     * @see javax.smartcardio.ResponseAPDU
+     * @throws javacard.framework.SystemException <code>SystemException.ILLEGAL_USE</code> if appplet not selected before
      */
-    public byte[] transmitCommand(byte[] data);
+    public byte[] transmitCommand(byte[] commandAPDU);
 }

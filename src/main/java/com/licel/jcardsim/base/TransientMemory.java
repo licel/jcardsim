@@ -116,7 +116,7 @@ public class TransientMemory {
      * </ul>
      * @param theObj the object being queried
      * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
-     * @see #makeTransientBooleanArray(short, byte)
+     * @see #makeBooleanArray(short, byte)
      * @see #makeByteArray(short, byte)
      * @see #makeObjectArray(short, byte)
      * @see #makeShortArray(short, byte)

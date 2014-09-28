@@ -34,8 +34,8 @@ public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
 
     /**
      * Construct not-initialized ecc public key
-     * @param size key size it bits
-     * @see KeyBuilder
+     * @param keySize key size it bits
+     * @see javacard.security.KeyBuilder
      */
     public ECPublicKeyImpl(byte keyType, short keySize) {
         super(keyType, keySize);
@@ -44,7 +44,7 @@ public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
     /**
      * Construct and initialize ecc key with ECPublicKeyParameters.
      * Use in KeyPairImpl
-     * @see KeyPair
+     * @see javacard.security.KeyPair
      * @see ECPublicKeyParameters
      * @param params key params from BouncyCastle API
      */

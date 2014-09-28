@@ -38,7 +38,7 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
 
     /**
      * Construct not-initialized rsa private crt key
-     * @param size key size it bits (modulus size)
+     * @param keySize key size it bits (modulus size)
      * @see KeyBuilder
      */
     public RSAPrivateCrtKeyImpl(short keySize) {
@@ -49,7 +49,7 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
     /**
      * Construct and initialize rsa key with RSAPrivateCrtKeyParameters.
      * Use in KeyPairImpl
-     * @see KeyPair
+     * @see javacard.security.KeyPair
      * @see RSAPrivateCrtKeyParameters
      * @param params key params from BouncyCastle API
      */

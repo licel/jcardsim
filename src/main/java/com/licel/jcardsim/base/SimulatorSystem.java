@@ -19,7 +19,7 @@ import javacard.framework.*;
 
 /**
  * Base implementation of <code>JCSystem</code>
- * @see JCsystem
+ * @see JCSystem
  */
 public class SimulatorSystem {
     
@@ -62,9 +62,9 @@ public class SimulatorSystem {
      * @param theObj the object being queried
      * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
      * @see #makeTransientBooleanArray(short, byte)
-     * @see #makeByteArray(short, byte)
-     * @see #makeObjectArray(short, byte)
-     * @see #makeShortArray(short, byte)
+     * @see #makeTransientByteArray(short, byte)
+     * @see #makeTransientObjectArray(short, byte)
+     * @see #makeTransientShortArray(short, byte)
      */
     public static byte isTransient(Object theObj) {
         return transientMemory.isTransient(theObj);
@@ -351,7 +351,7 @@ public class SimulatorSystem {
      * @param serverAID the AID of the server applet
      * @param parameter optional parameter data
      * @return the shareable interface object or <code>null</code>
-     * @see Applet.getShareableInterfaceObject(AID, byte)
+     * @see Applet#getShareableInterfaceObject(AID, byte)
      */
     public static Shareable getSharedObject(AID serverAID, byte parameter) {
         Applet serverApplet = runtime.getApplet(serverAID);
@@ -454,8 +454,8 @@ public class SimulatorSystem {
      * @param commandAPDU
      * @return responseAPDU
      */
-    static byte[] transmitCommand(byte[] command) {
-        return runtime.transmitCommand(command);
+    static byte[] transmitCommand(byte[] commandAPDU) {
+        return runtime.transmitCommand(commandAPDU);
     }
 
     /**
