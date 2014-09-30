@@ -52,6 +52,10 @@ public class HelloWorldApplet extends BaseApplet {
      */
     private final static byte APPLICATION_SPECIFIC_SW_INS = (byte) 0x7;
     /**
+     * Instruction: return maximum data.
+     */
+    private final static byte MAXIMUM_DATA_INS = (byte) 0x8;
+    /**
      * Byte array representing "Hello Java Card world!" string.
      */
     private static byte[] helloMessage = new byte[]{
@@ -118,6 +122,9 @@ public class HelloWorldApplet extends BaseApplet {
                 return;
             case APPLICATION_SPECIFIC_SW_INS:
                 sayHello(apdu, (short)0x9B00);
+                return;
+            case MAXIMUM_DATA_INS:
+                maximumData(apdu);
                 return;
             case NOP_INS:
                 return;
@@ -203,6 +210,20 @@ public class HelloWorldApplet extends BaseApplet {
         apdu.setOutgoingLength((short) echo.length);
         apdu.sendBytesLong(echo, (short) 0, (short) echo.length);
         ISOException.throwIt((short) (ISO7816.SW_BYTES_REMAINING_00 | 0x07));
+    }
+
+
+    /**
+     * send the maximum amount of data the apdu will accept
+     *
+     * @param apdu APDU that requested hello message
+     */
+    private void maximumData(APDU apdu) {
+        short maxData = apdu.getOutBlockSize();
+        byte[] data = JCSystem.makeTransientByteArray(maxData, JCSystem.CLEAR_ON_RESET);
+        apdu.setOutgoing();
+        apdu.setOutgoingLength(maxData);
+        apdu.sendBytesLong(data, (short) 0, (short) data.length);
     }
     
     // prototype
