@@ -38,7 +38,7 @@ public class SimulatorRuntime {
     // inbound command byte array buffer
     byte[] commandBuffer;
     // outbound response byte array buffer
-    byte[] responseBuffer = JCSystem.makeTransientByteArray((short) 255, JCSystem.CLEAR_ON_RESET);
+    byte[] responseBuffer = JCSystem.makeTransientByteArray((short) 258, JCSystem.CLEAR_ON_RESET);
     // outbound response byte array buffer size
     short responseBufferSize = 0;
     // SW

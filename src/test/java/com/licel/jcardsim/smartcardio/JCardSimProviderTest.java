@@ -135,5 +135,8 @@ public class JCardSimProviderTest extends TestCase {
         response = jcsChannel.transmit(new CommandAPDU(0x01, 0x07, 0x00, 0x00));
         assertEquals(0x9B00, response.getSW());
         assertEquals("Hello world !", new String(response.getData()));
+        // sending maximum data
+        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x08, 0x00, 0x00));
+        assertEquals(0x9000, response.getSW());
     }
 }
