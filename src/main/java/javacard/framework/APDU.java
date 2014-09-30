@@ -236,15 +236,15 @@ public final class APDU {
     // LR variable offset in ramVars
     private static final byte LR = 1;
     // LC variable offset in ramVars
-    private static final byte LC = 2;
+    private static final byte LC = 3;
     // PRE_READ_LENGTH variable offset in ramVars
-    private static final byte PRE_READ_LENGTH = 3;
+    private static final byte PRE_READ_LENGTH = 4;
     // CURRENT_STATE variable offset in ramVars
-    private static final byte CURRENT_STATE = 4;
+    private static final byte CURRENT_STATE = 5;
     // LOGICAL_CHN variable offset in ramVars
-    private static final byte LOGICAL_CHN = 5;
+    private static final byte LOGICAL_CHN = 6;
     // total length ramVars
-    private static final byte RAM_VARS_LENGTH = 6;
+    private static final byte RAM_VARS_LENGTH = 7;
     // transient array to store boolean flags
     private boolean[] flags;
     // outgoingFlag;
@@ -461,12 +461,12 @@ public final class APDU {
         if (flags[OUTGOING_LEN_SET_FLAG]) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
-        if (len > 255 || len < 0) {
+        if (len > T0_OBS || len < 0) {
             APDUException.throwIt(APDUException.BAD_LENGTH);
         }
         flags[OUTGOING_LEN_SET_FLAG] = true;
         ramVars[CURRENT_STATE] = STATE_OUTGOING_LENGTH_KNOWN;
-        ramVars[LR] = (byte) len;
+        Util.setShort(ramVars, LR, len);
     }
 
     public short receiveBytes(short bOff)
@@ -557,7 +557,7 @@ public final class APDU {
 
     public void sendBytes(short bOff, short len)
             throws APDUException {
-        if (bOff < 0 || len < 0 || (short) (bOff + len) > 255) {
+        if (bOff < 0 || len < 0 || (short) (bOff + len) > T0_OBS) {
             APDUException.throwIt(APDUException.BUFFER_BOUNDS);
         }
         if (!flags[OUTGOING_LEN_SET_FLAG] || flags[NO_GET_RESPONSE_FLAG]) {
@@ -583,7 +583,7 @@ public final class APDU {
             ramVars[CURRENT_STATE] = STATE_PARTIAL_OUTGOING;
         }
         ramVars[LE] = (byte) Le;
-        ramVars[LR] = (byte) Lr;
+        Util.setShort(ramVars, LR, Lr);
     }
 
     /**
@@ -871,7 +871,7 @@ public final class APDU {
 
     // return Lr variable
     private short getLr() {
-        return (short) (ramVars[LR] & 0xff);
+        return Util.getShort(ramVars, LR);
     }
 
     /**
