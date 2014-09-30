@@ -15,36 +15,18 @@
  */
 package com.licel.jcardsim.crypto;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import javacard.security.CryptoException;
 import javacard.security.KeyBuilder;
 import javacard.security.KeyPair;
 import javacard.security.PrivateKey;
 import javacard.security.PublicKey;
-import org.bouncycastle.asn1.sec.SECNamedCurves;
-import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
 import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
-import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.crypto.params.DSAKeyGenerationParameters;
-import org.bouncycastle.crypto.params.DSAKeyParameters;
-import org.bouncycastle.crypto.params.DSAParameters;
-import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
-import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
-import org.bouncycastle.crypto.params.DSAValidationParameters;
-import org.bouncycastle.crypto.params.ECDomainParameters;
-import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
-import org.bouncycastle.crypto.params.ECKeyParameters;
-import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
-import org.bouncycastle.crypto.params.ECPublicKeyParameters;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 
 /**
  * Implementation
@@ -104,26 +86,10 @@ public final class KeyPairImpl {
     public final void genKeyPair()
             throws CryptoException {
         initEngine();        
+        createKeys();
         AsymmetricCipherKeyPair kp = engine.generateKeyPair();
-        // rsa
-        if (kp.getPublic() instanceof RSAKeyParameters) {
-            publicKey = new RSAKeyImpl((RSAKeyParameters) kp.getPublic());
-            if (kp.getPrivate() instanceof RSAPrivateCrtKeyParameters) {
-                privateKey = new RSAPrivateCrtKeyImpl((RSAPrivateCrtKeyParameters) kp.getPrivate());
-            } else if (kp.getPrivate() instanceof RSAKeyParameters) {
-                privateKey = new RSAKeyImpl((RSAKeyParameters) kp.getPrivate());
-            }
-        } else // dsa
-        if (kp.getPublic() instanceof DSAPublicKeyParameters) {
-            publicKey = new DSAPublicKeyImpl((DSAPublicKeyParameters) kp.getPublic());
-            privateKey = new DSAPrivateKeyImpl((DSAPrivateKeyParameters) kp.getPrivate());
-        } else // ecc
-        if (kp.getPublic() instanceof ECPublicKeyParameters) {
-            publicKey = new ECPublicKeyImpl((ECPublicKeyParameters) kp.getPublic());
-            privateKey = new ECPrivateKeyImpl((ECPrivateKeyParameters) kp.getPrivate());
-        } else {
-            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
-        }
+        ((KeyWithParameters)publicKey).setParameters(kp.getPublic());
+        ((KeyWithParameters)privateKey).setParameters(kp.getPrivate());
     }
 
     /**
@@ -161,6 +127,7 @@ public final class KeyPairImpl {
             throws CryptoException {
         this.algorithm = algorithm;
         this.keyLength = keyLength;
+        createKeys();
     }
 
     /**
@@ -248,8 +215,9 @@ public final class KeyPairImpl {
      * Init key pair generation engine
      */
     private void initEngine() {
-        if (publicKey != null || privateKey != null) {
-            keyGenerationParameters = ((KeyImpl) (privateKey == null ? publicKey : privateKey)).getKeyGenerationParameters(rnd);
+        // only public key params, see specification
+        if (publicKey != null) {
+            keyGenerationParameters = ((KeyImpl) publicKey).getKeyGenerationParameters(rnd);
         }
         switch (algorithm) {
             case KeyPair.ALG_RSA:
@@ -285,5 +253,47 @@ public final class KeyPairImpl {
         }
         engine.init(keyGenerationParameters);
 
+    }
+    
+    /*
+     * Create uninitialized keys
+     */
+    private void createKeys() {
+        byte privateKeyType = 0;
+        byte publicKeyType = 0;
+        switch (algorithm) {
+            case KeyPair.ALG_RSA:
+                publicKeyType = KeyBuilder.TYPE_RSA_PUBLIC;
+                privateKeyType = KeyBuilder.TYPE_RSA_PRIVATE;
+                break;
+            case KeyPair.ALG_RSA_CRT:
+                publicKeyType = KeyBuilder.TYPE_RSA_PUBLIC;
+                privateKeyType = KeyBuilder.TYPE_RSA_CRT_PRIVATE;
+                break;
+            case KeyPair.ALG_EC_FP:
+                publicKeyType = KeyBuilder.TYPE_EC_FP_PUBLIC;
+                privateKeyType = KeyBuilder.TYPE_EC_FP_PRIVATE;
+                break;
+            case KeyPair.ALG_EC_F2M:
+                publicKeyType = KeyBuilder.TYPE_EC_F2M_PUBLIC;
+                privateKeyType = KeyBuilder.TYPE_EC_F2M_PRIVATE;
+                break;
+            case KeyPair.ALG_DSA:
+                publicKeyType = KeyBuilder.TYPE_DSA_PUBLIC;
+                privateKeyType = KeyBuilder.TYPE_DSA_PRIVATE;
+                break;
+            default:
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                break;
+        }
+        if(publicKey!=null && keyLength == 0){
+            keyLength = publicKey.getSize();
+        }
+        if(publicKey == null){
+            publicKey = (PublicKey) KeyBuilder.buildKey(publicKeyType, keyLength, false);
+        }    
+        if(privateKey == null){
+            privateKey = (PrivateKey) KeyBuilder.buildKey(privateKeyType, keyLength, false);
+        }
     }
 }

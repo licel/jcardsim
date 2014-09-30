@@ -20,6 +20,7 @@ import javacard.security.DSAPublicKey;
 import javacard.security.KeyBuilder;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.params.DSAKeyParameters;
+import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
 
 /**
@@ -50,9 +51,13 @@ public class DSAPublicKeyImpl extends DSAKeyImpl implements DSAPublicKey {
      */
     public DSAPublicKeyImpl(DSAPublicKeyParameters params) {
         super(params);
-        y.setBigInteger(params.getY());
+        setParameters(params);
     }
 
+    public void setParameters(CipherParameters params) {
+        y.setBigInteger(((DSAPublicKeyParameters) params).getY());
+    }
+    
     public void setY(byte[] buffer, short offset, short length) throws CryptoException {
         y.setBytes(buffer, offset, length);
     }
@@ -75,5 +80,5 @@ public class DSAPublicKeyImpl extends DSAKeyImpl implements DSAPublicKey {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
         return new DSAPublicKeyParameters(y.getBigInteger(), ((DSAKeyParameters) super.getParameters()).getParameters());
-    }
+    }   
 }

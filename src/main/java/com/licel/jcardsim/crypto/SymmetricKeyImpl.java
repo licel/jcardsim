@@ -94,6 +94,10 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey
         return (byte) key.getBytes(keyData, kOff);
     }
 
+     public void setParameters(CipherParameters params){
+       key.setBytes(((KeyParameter)params).getKey());
+    }
+    
     /**
      * Return the BouncyCastle <code>KeyParameter</code> of the key
      * @return parameter of the key

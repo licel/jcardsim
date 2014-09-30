@@ -56,13 +56,17 @@ public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey
     public RSAPrivateCrtKeyImpl(RSAPrivateCrtKeyParameters params) {
         super(new RSAKeyParameters(true, params.getModulus(), params.getExponent()));
         type = KeyBuilder.TYPE_RSA_CRT_PRIVATE;
-        p.setBigInteger(params.getP());
-        q.setBigInteger(params.getQ());
-        dp1.setBigInteger(params.getDP());
-        dq1.setBigInteger(params.getDQ());
-        pq.setBigInteger(params.getQInv());
+        setParameters(params);
     }
 
+     public void setParameters(CipherParameters params){
+        p.setBigInteger(((RSAPrivateCrtKeyParameters)params).getP());
+        q.setBigInteger(((RSAPrivateCrtKeyParameters)params).getQ());
+        dp1.setBigInteger(((RSAPrivateCrtKeyParameters)params).getDP());
+        dq1.setBigInteger(((RSAPrivateCrtKeyParameters)params).getDQ());
+        pq.setBigInteger(((RSAPrivateCrtKeyParameters)params).getQInv());
+    }
+   
     public void setP(byte[] buffer, short offset, short length) throws CryptoException {
         p.setBytes(buffer, offset, length);
     }

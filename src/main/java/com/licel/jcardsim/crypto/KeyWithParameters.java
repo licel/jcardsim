@@ -38,4 +38,9 @@ public interface KeyWithParameters {
      */
     public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd);
 
+    /**
+     * Set cipher key for use with BouncyCastle Crypto API
+     * @param params key parameters
+     */
+    public void setParameters(CipherParameters params);
 }

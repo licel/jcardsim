@@ -60,11 +60,15 @@ public class DSAKeyImpl extends KeyImpl implements DSAKey {
      */
     public DSAKeyImpl(DSAKeyParameters params) {
         this(params.isPrivate() ? KeyBuilder.TYPE_DSA_PRIVATE : KeyBuilder.TYPE_DSA_PUBLIC, (short) params.getParameters().getP().bitLength());
-        p.setBigInteger(params.getParameters().getP());
-        q.setBigInteger(params.getParameters().getQ());
-        g.setBigInteger(params.getParameters().getG());
+        setParameters(params);
     }
 
+     public void setParameters(CipherParameters params){
+        p.setBigInteger(((DSAKeyParameters)params).getParameters().getP());
+        q.setBigInteger(((DSAKeyParameters)params).getParameters().getQ());
+        g.setBigInteger(((DSAKeyParameters)params).getParameters().getG());
+    }
+    
     public void clearKey() {
         p.clear();
         q.clear();
@@ -188,5 +192,4 @@ public class DSAKeyImpl extends KeyImpl implements DSAKey {
                 new DSAParameters(p, q, g, new DSAValidationParameters(seed.toByteArray(), counter)));
 
     }    
-
 }
