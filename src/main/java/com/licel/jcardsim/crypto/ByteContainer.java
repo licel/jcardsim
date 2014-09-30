@@ -27,8 +27,8 @@ import javacard.security.CryptoException;
 public final class ByteContainer {
 
     private byte[] data;
-    private boolean isInitialized;
     private byte memoryType;
+    private short length = 0;
 
     /**
      * Construct <code>ByteContainer</code>
@@ -44,7 +44,6 @@ public final class ByteContainer {
      * @param memoryType  memoryType from JCSystem.MEMORY_..
      */
     public ByteContainer(byte memoryType) {
-        isInitialized = false;
         this.memoryType = memoryType;
     }
 
@@ -107,7 +106,8 @@ public final class ByteContainer {
             }
         }
         Util.arrayCopy(buff, offset, data, (short) 0, length);
-        isInitialized = true;
+        // current length
+        this.length = length;
     }
 
     /**
@@ -115,7 +115,7 @@ public final class ByteContainer {
      * @return BigInteger
      */
     public BigInteger getBigInteger() {
-        if (!isInitialized) {
+        if (length == 0) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
         return new BigInteger(1, data);
@@ -127,10 +127,10 @@ public final class ByteContainer {
      * @return plain byte array
      */
     public byte[] getBytes(byte event) {
-        if (!isInitialized) {
+        if (length == 0) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
-        byte[] result = JCSystem.makeTransientByteArray((short) data.length, event);
+        byte[] result = JCSystem.makeTransientByteArray(length, event);
         getBytes(result, (short) 0);
         return result;
     }
@@ -142,15 +142,15 @@ public final class ByteContainer {
      * @return bytes copies
      */
     public short getBytes(byte[] dest, short offset) {
-        if (!isInitialized) {
+        if (length == 0) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
-        if (dest.length - offset < data.length) {
+        if (dest.length - offset < length) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        Util.arrayCopy(data, (short) 0, dest, offset, (short) data.length);
+        Util.arrayCopy(data, (short) 0, dest, offset, length);
         // https://code.google.com/p/jcardsim/issues/detail?id=14
-        return (short)data.length;
+        return length;
     }
 
     /**
@@ -160,10 +160,14 @@ public final class ByteContainer {
         if (data != null) {
             Util.arrayFillNonAtomic(data, (short) 0, (short) data.length, (byte) 0);
         }
-        isInitialized = false;
+        length = 0;
     }
 
+    /**
+     * Reports the initialized state of the container.
+     * @return <code>true</code> if the container has been initialized
+     */
     public boolean isInitialized() {
-        return isInitialized;
+        return length > 0;
     }
 }

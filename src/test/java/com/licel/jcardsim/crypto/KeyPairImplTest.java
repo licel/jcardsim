@@ -16,6 +16,7 @@ package com.licel.jcardsim.crypto;
  */
 
 import java.util.Arrays;
+import javacard.framework.Util;
 import javacard.security.DSAPrivateKey;
 import javacard.security.DSAPublicKey;
 import javacard.security.ECPrivateKey;
@@ -62,6 +63,32 @@ public class KeyPairImplTest extends TestCase {
         super.tearDown();
     }
 
+    
+    public void testConstructor(){
+        testConstructorRSA(KeyPair.ALG_RSA);
+        testConstructorRSA(KeyPair.ALG_RSA_CRT);
+    }
+    /**
+     * Test of constructor RSA/RSA_CRT
+     */
+    private void testConstructorRSA(byte algo){
+        KeyPair instance = null;
+        byte[] expBuf = new byte[3];
+        byte[] customExp = new byte[]{0x03};
+        for (int i = 0; i < RSA_SIZES.length; i++) {
+            instance = new KeyPair(algo, RSA_SIZES[i]);
+            // https://github.com/licel/jcardsim/issues/42
+            PublicKey publicKey = instance.getPublic();
+            assertEquals(true, publicKey!=null);
+            assertEquals(true, publicKey instanceof RSAPublicKey);
+            ((RSAPublicKey)publicKey).setExponent(customExp, (short)0, (short)customExp.length);
+            instance.genKeyPair();
+            short expSize = ((RSAPublicKey)publicKey).getExponent(expBuf, (short) 0);
+            assertEquals(customExp.length, expSize);
+            assertEquals(0, Util.arrayCompare(expBuf, (short)0, customExp, (short) 0, expSize));
+        }
+    }
+    
     /**
      * Test of genKeyPair method, of class KeyPairImpl.
      * algorithm RSA - NXP JCOP not support this algorithm
@@ -135,14 +162,6 @@ public class KeyPairImplTest extends TestCase {
         ecPublicKey.getA(a, (short)0);
         ecPublicKey1.getA(a1, (short)0);
         assertEquals(Arrays.equals(a, a1), true);
-        KeyPair instance2 = new KeyPair(null, instance1.getPrivate());
-        instance2.genKeyPair();
-        ECPublicKey ecPublicKey2 = (ECPublicKey)instance2.getPublic();
-        byte[] b = new byte[266];
-        byte[] b2 = new byte[266];
-        ecPublicKey.getB(b, (short)0);
-        ecPublicKey2.getB(b2, (short)0);
-        assertEquals(Arrays.equals(b, b2), true);
     }
     
     /**

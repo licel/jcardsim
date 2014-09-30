@@ -63,8 +63,12 @@ public class RSAKeyImpl extends KeyImpl implements RSAPrivateKey, RSAPublicKey {
      */
     public RSAKeyImpl(RSAKeyParameters params) {
         this(params.isPrivate(), (short) params.getModulus().bitLength());
-        modulus.setBigInteger(params.getModulus());
-        exponent.setBigInteger(params.getExponent());
+        setParameters(params);
+    }
+    
+    public void setParameters(CipherParameters params){
+        modulus.setBigInteger(((RSAKeyParameters)params).getModulus());
+        exponent.setBigInteger(((RSAKeyParameters)params).getExponent());
     }
 
     public short getExponent(byte[] buffer, short offset) {

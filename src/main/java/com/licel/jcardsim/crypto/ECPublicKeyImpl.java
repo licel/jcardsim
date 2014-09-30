@@ -50,8 +50,13 @@ public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
      */
     public ECPublicKeyImpl(ECPublicKeyParameters params) {
         super(params);
-        w.setBytes(params.getQ().getEncoded());
+        setParameters(params);
     }
+ 
+     public void setParameters(CipherParameters params){
+        w.setBytes(((ECPublicKeyParameters)params).getQ().getEncoded());
+    }
+    
 
     public void setW(byte[] buffer, short offset, short length) throws CryptoException {
         w.setBytes(buffer, offset, length);

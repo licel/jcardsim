@@ -50,9 +50,13 @@ public class DSAPrivateKeyImpl extends DSAKeyImpl implements DSAPrivateKey {
      */
     public DSAPrivateKeyImpl(DSAPrivateKeyParameters params) {
         super(params);
-        x.setBigInteger(params.getX());
+        setParameters(params);
     }
 
+    public void setParameters(CipherParameters params) {
+        x.setBigInteger(((DSAPrivateKeyParameters) params).getX());
+    }
+    
     public void setX(byte[] buffer, short offset, short length) throws CryptoException {
         x.setBytes(buffer, offset, length);
     }
