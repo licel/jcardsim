@@ -204,6 +204,10 @@ public class KeyBuilder {
      */
     public static final short LENGTH_EC_F2M_193 = 193;
     /**
+     * EC Key Length <CODE>LENGTH_EC_FP_256</CODE> = 256.
+     */
+    public static final short LENGTH_EC_FP_256 = 256;
+    /**
      * AES Key Length <code>LENGTH_AES_128</code> = 128.
      */
     public static final short LENGTH_AES_128 = 128;
@@ -342,13 +346,13 @@ public class KeyBuilder {
                 break;
 
             case TYPE_EC_FP_PUBLIC:
-                if (keyLength != 112 && keyLength != 128 && keyLength != 160 && keyLength != 192) {
+                if (keyLength != 112 && keyLength != 128 && keyLength != 160 && keyLength != 192 && keyLength != 256) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
                 key = new ECPublicKeyImpl(keyType, keyLength);
                 break;
             case TYPE_EC_FP_PRIVATE:
-                if (keyLength != 112 && keyLength != 128 && keyLength != 160 && keyLength != 192) {
+                if (keyLength != 112 && keyLength != 128 && keyLength != 160 && keyLength != 192 && keyLength != 256) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
                 key = new ECPrivateKeyImpl(keyType, keyLength);
