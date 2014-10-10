@@ -28,23 +28,21 @@ import javacard.framework.*;
 public class SimulatorRuntime {
 
     // storage for registered applets
-    private HashMap applets = new HashMap();
+    private final HashMap applets = new HashMap();
     // current selected applet
     private AID currentAID;
     // previous selected applet
     private AID previousAID;
     // applet in INSTALL phase
     private AID appletToInstallAID;
-    // inbound command byte array buffer
-    byte[] commandBuffer;
     // outbound response byte array buffer
-    byte[] responseBuffer = JCSystem.makeTransientByteArray((short) 258, JCSystem.CLEAR_ON_RESET);
+    final byte[] responseBuffer = JCSystem.makeTransientByteArray((short) 258, JCSystem.CLEAR_ON_RESET);
     // outbound response byte array buffer size
     short responseBufferSize = 0;
     // SW
-    byte[] theSW = JCSystem.makeTransientByteArray((short) 2, JCSystem.CLEAR_ON_RESET);
+    final byte[] theSW = JCSystem.makeTransientByteArray((short) 2, JCSystem.CLEAR_ON_RESET);
     // if the applet is currently being selected
-	private boolean selecting = false;
+    private boolean selecting = false;
 
     /**
      * Return current applet context AID or null
@@ -211,13 +209,13 @@ public class SimulatorRuntime {
 
     /**
      * Transmit APDU to previous selected applet
-     * @param commandAPDU command apdu
+     * @param command command apdu
      * @return response apdu
-     * @throws SystemException.ILLEGAL_USE if appplet not selected before
+     * @throws SystemException <code>SystemException.ILLEGAL_USE</code> if appplet not selected before
      */
     byte[] transmitCommand(byte[] command) throws SystemException {
         Applet applet = getApplet(getAID());
-        byte[] response = null;
+        byte[] response;
         Util.arrayFillNonAtomic(theSW, (short) 0, (short) 2, (byte) 0);
         if (applet == null) {
             SystemException.throwIt(SystemException.ILLEGAL_USE);
@@ -235,13 +233,16 @@ public class SimulatorRuntime {
             } else if (e instanceof CardRuntimeException) {
                 Util.setShort(theSW, (short) 0, ((CardRuntimeException) e).getReason());
             }
-            response = theSW;
         }
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
         if(theSW[0] == 0x61 || (theSW[0] >= (byte)0x90 && theSW[0]<=0x9F)) {
-            response = JCSystem.makeTransientByteArray((short) (responseBufferSize + 2), JCSystem.CLEAR_ON_RESET);
+            response = new byte[responseBufferSize + 2];
             Util.arrayCopyNonAtomic(responseBuffer, (short) 0, response, (short) 0, responseBufferSize);
             Util.arrayCopyNonAtomic(theSW, (short) 0, response, responseBufferSize, (short) 2);
+        }
+        else {
+            response = new byte[2];
+            Util.arrayCopyNonAtomic(theSW, (short) 0, response, (short) 0, (short) 2);
         }
         APDU.getCurrentAPDU().reset();
         Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) 255, (byte) 0);
