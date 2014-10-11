@@ -82,12 +82,6 @@ public final class JCSystem {
     public static final byte CLEAR_ON_DESELECT = 2;
     // implementaion api version
     private static final short API_VERSION = 0x0202;
-    // APDU for I/O
-    private static APDU apdu;
-    
-    static {
-        apdu = new APDU();
-    }
 
     /**
      * Checks if the specified object is transient.

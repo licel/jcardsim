@@ -15,10 +15,13 @@
  */
 package com.licel.jcardsim.base;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import javacard.framework.*;
+import javacardx.apdu.ExtendedLength;
 
 /**
  * Base implementation of Java Card Runtime
@@ -29,6 +32,7 @@ public class SimulatorRuntime {
 
     // storage for registered applets
     private final HashMap applets = new HashMap();
+    private final Method apduPrivateResetMethod;
     // current selected applet
     private AID currentAID;
     // previous selected applet
@@ -36,13 +40,22 @@ public class SimulatorRuntime {
     // applet in INSTALL phase
     private AID appletToInstallAID;
     // outbound response byte array buffer
-    final byte[] responseBuffer = JCSystem.makeTransientByteArray((short) 258, JCSystem.CLEAR_ON_RESET);
+    final byte[] responseBuffer = SimulatorSystem.makeInternalBuffer(Short.MAX_VALUE + 2);
     // outbound response byte array buffer size
     short responseBufferSize = 0;
     // SW
-    final byte[] theSW = JCSystem.makeTransientByteArray((short) 2, JCSystem.CLEAR_ON_RESET);
+    final byte[] theSW = SimulatorSystem.makeInternalBuffer(2);
     // if the applet is currently being selected
     private boolean selecting = false;
+
+    public SimulatorRuntime() {
+        try {
+            apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte[].class);
+            apduPrivateResetMethod.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Return current applet context AID or null
@@ -178,12 +191,17 @@ public class SimulatorRuntime {
             previousAID = currentAID;
             currentAID = aid;
             selecting = true;
-            
-            byte[] selectCmd = new byte[128];
-            byte len = aid.getBytes(selectCmd, (short) 5);
+
+            byte[] aidBuffer = new byte[16];
+            byte len = aid.getBytes(aidBuffer, (short) 0);
+
+            byte[] selectCmd = new byte[len + ISO7816.OFFSET_CDATA];
+            selectCmd[ISO7816.OFFSET_CLA] = 0x00;
             selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
             selectCmd[ISO7816.OFFSET_P1] = 0x04;
+            selectCmd[ISO7816.OFFSET_P2] = 0x00;
             selectCmd[ISO7816.OFFSET_LC] = len;
+            System.arraycopy(aidBuffer, 0, selectCmd, ISO7816.OFFSET_CDATA, len);
             return this.transmitCommand(selectCmd);
         } catch (Exception e) {
         } finally {
@@ -218,13 +236,28 @@ public class SimulatorRuntime {
         byte[] response;
         Util.arrayFillNonAtomic(theSW, (short) 0, (short) 2, (byte) 0);
         if (applet == null) {
-            SystemException.throwIt(SystemException.ILLEGAL_USE);
+            throw new SystemException(SystemException.ILLEGAL_USE);
         }
+        if (isExtendedAPDU(command)) {
+            if (applet instanceof ExtendedLength) {
+                SimulatorSystem.setExtendedApduMode(true);
+            }
+            else {
+                Util.setShort(theSW, (short) 0, ISO7816.SW_WRONG_LENGTH);
+                response = new byte[2];
+                Util.arrayCopyNonAtomic(theSW, (short) 0, response, (short) 0, (short) 2);
+                return response;
+            }
+        }
+        else {
+            SimulatorSystem.setExtendedApduMode(false);
+        }
+
         try {
             // set apdu
-            Util.arrayCopyNonAtomic(command, (short) 0, APDU.getCurrentAPDUBuffer(),
-                    (short) 0, (short) command.length);
-            applet.process(APDU.getCurrentAPDU());
+            APDU apdu = SimulatorSystem.getCurrentAPDU();
+            apduPrivateResetMethod.invoke(apdu, command);
+            applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
             Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
@@ -244,12 +277,15 @@ public class SimulatorRuntime {
             response = new byte[2];
             Util.arrayCopyNonAtomic(theSW, (short) 0, response, (short) 0, (short) 2);
         }
-        APDU.getCurrentAPDU().reset();
+
         Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) 255, (byte) 0);
         responseBufferSize = 0;
         return response;
     }
 
+    private boolean isExtendedAPDU(byte[] command) {
+        return ApduCase.getCase(command).isExtended();
+    }
 
     /**
      * Copy response bytes to internal buffer
@@ -278,7 +314,7 @@ public class SimulatorRuntime {
             applets.remove(aidsToTrash.get(i));
         }
 
-        Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) responseBuffer.length, (byte) 0);
+        Arrays.fill(responseBuffer, (byte) 0);
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
@@ -296,7 +332,7 @@ public class SimulatorRuntime {
             applets.remove(aidsToTrash.get(i));
         }
 
-        Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) responseBuffer.length, (byte) 0);
+        Arrays.fill(responseBuffer, (byte) 0);
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
