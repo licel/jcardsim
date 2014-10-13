@@ -6,6 +6,8 @@ package javacard.framework;
 
 import com.licel.jcardsim.base.SimulatorSystem;
 
+import java.util.Arrays;
+
 /**
  * 
  * Application Protocol Data Unit (APDU) is
@@ -223,14 +225,17 @@ public final class APDU {
     public static final byte PROTOCOL_MEDIA_USB = -96;
     // buffer size
     private static final short BUFFER_SIZE = 260;
+    // buffer size (extended APDU) + (CLA,INS,P1,P2,0,Lc_Hi,Lc_Low,CData,Le_Hi,Le_Lo)
+    private static final int BUFFER_EXTENDED_SIZE = Short.MAX_VALUE + 10;
     // input block size, for T0 protocol = 1
     private static final short T0_IBS = 1;
     // output block size, for T0 protocol = 258
     private static final short T0_OBS = 258;
     // NAD, for T0 protocol = 9
     private static final byte T0_NAD = 0;
+    private final boolean extended;
     // transient array to store variables
-    private byte[] ramVars;
+    private short[] ramVars;
     // LE variable offset in ramVars
     private static final byte LE = 0;
     // LR variable offset in ramVars
@@ -261,14 +266,12 @@ public final class APDU {
     private static final byte FLAGS_LENGTH = 5;
     //
     private byte[] buffer;
-    // reference to this
-    private static APDU thisAPDU;
 
-    APDU() {
-        buffer = JCSystem.makeTransientByteArray(BUFFER_SIZE, JCSystem.CLEAR_ON_RESET);
-        ramVars = JCSystem.makeTransientByteArray(RAM_VARS_LENGTH, JCSystem.CLEAR_ON_RESET);
+    APDU(boolean extended) {
+        this.extended = extended;
+        buffer = SimulatorSystem.makeInternalBuffer(extended ? BUFFER_EXTENDED_SIZE : BUFFER_SIZE);
+        ramVars = JCSystem.makeTransientShortArray(RAM_VARS_LENGTH, JCSystem.CLEAR_ON_RESET);
         flags = JCSystem.makeTransientBooleanArray(FLAGS_LENGTH, JCSystem.CLEAR_ON_RESET);
-        thisAPDU = this;
     }
 
     /**
@@ -455,18 +458,19 @@ public final class APDU {
      */
     public void setOutgoingLength(short len)
             throws APDUException {
+        final short max = extended ? Short.MAX_VALUE : T0_OBS;
         if (!flags[OUTGOING_FLAG]) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
         if (flags[OUTGOING_LEN_SET_FLAG]) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
-        if (len > T0_OBS || len < 0) {
+        if (len > max || len < 0) {
             APDUException.throwIt(APDUException.BAD_LENGTH);
         }
         flags[OUTGOING_LEN_SET_FLAG] = true;
         ramVars[CURRENT_STATE] = STATE_OUTGOING_LENGTH_KNOWN;
-        Util.setShort(ramVars, LR, len);
+        ramVars[LR] = len;
     }
 
     public short receiveBytes(short bOff)
@@ -474,13 +478,13 @@ public final class APDU {
         if (!flags[INCOMING_FLAG] || flags[OUTGOING_FLAG]) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
-        short Lc = (short) (ramVars[LC] & 0xff);
-        if (bOff < 0 || Lc >= 1 && (short) (bOff + 1) > 260) {
+        short Lc = ramVars[LC];
+        if (bOff < 0 || Lc >= 1 && (bOff + 1) > buffer.length) {
             APDUException.throwIt(APDUException.BUFFER_BOUNDS);
         }
         short pre = (short) (ramVars[PRE_READ_LENGTH] & 0xff);
         if (pre != 0) {
-            ramVars[PRE_READ_LENGTH]=(byte) 0;
+            ramVars[PRE_READ_LENGTH] = 0;
             if (Lc == 0) {
                 ramVars[CURRENT_STATE]= STATE_FULL_INCOMING;
             } else {
@@ -489,12 +493,9 @@ public final class APDU {
             return pre;
         }
         if (Lc != 0) {
-            short len = 0;
-            if(buffer[ISO7816.OFFSET_LC] != 0) {
-                len = (short) (buffer[ISO7816.OFFSET_LC] & 0xff);
-            }
+            short len = getIncomingLength();
             Lc -= len;
-            ramVars[LC] = (byte) Lc;
+            ramVars[LC] = Lc;
             if (Lc == 0) {
                 ramVars[CURRENT_STATE]= STATE_FULL_INCOMING;
             } else {
@@ -548,16 +549,19 @@ public final class APDU {
                 APDUException.throwIt(APDUException.ILLEGAL_USE);
             }
             flags[INCOMING_FLAG] = true;
-            byte Lc = (byte) (buffer[ISO7816.OFFSET_LC]);
+            short Lc = (short) (0xFF & buffer[ISO7816.OFFSET_LC]);
+            if (extended) {
+                Lc = Util.getShort(buffer, (short) (ISO7816.OFFSET_LC + 1));
+            }
             ramVars[LC] = Lc;
-            ramVars[LE] = (byte) 0;
         }
-        return receiveBytes(ISO7816.OFFSET_CDATA);
+        return receiveBytes(getOffsetCdata());
     }
 
     public void sendBytes(short bOff, short len)
             throws APDUException {
-        if (bOff < 0 || len < 0 || (short) (bOff + len) > T0_OBS) {
+        final short max = extended ? Short.MAX_VALUE : T0_OBS;
+        if (bOff < 0 || len < 0 || (short) (bOff + len) > max) {
             APDUException.throwIt(APDUException.BUFFER_BOUNDS);
         }
         if (!flags[OUTGOING_LEN_SET_FLAG] || flags[NO_GET_RESPONSE_FLAG]) {
@@ -566,24 +570,20 @@ public final class APDU {
         if (len == 0) {
             return;
         }
-        short Lr = getLr();
+        short Lr = ramVars[LR];
         if (len > Lr) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
-        short Le = getLe();
         SimulatorSystem.sendAPDU(buffer, bOff, len);
 
-        bOff += len;
         Lr -= len;
-        Le = Lr;
-
         if (Lr == 0) {
             ramVars[CURRENT_STATE] = STATE_FULL_OUTGOING;
         } else {
             ramVars[CURRENT_STATE] = STATE_PARTIAL_OUTGOING;
         }
-        ramVars[LE] = (byte) Le;
-        Util.setShort(ramVars, LR, Lr);
+
+        ramVars[LR] = Lr;
     }
 
     /**
@@ -688,7 +688,7 @@ public final class APDU {
      * @return the current processing state of the APDU
      */
     public byte getCurrentState() {
-        return ramVars[CURRENT_STATE];
+        return (byte) ramVars[CURRENT_STATE];
     }
 
     /**
@@ -713,7 +713,7 @@ public final class APDU {
      */
     public static APDU getCurrentAPDU()
             throws SecurityException {
-        return thisAPDU;
+        return SimulatorSystem.getCurrentAPDU();
     }
 
     /**
@@ -737,7 +737,7 @@ public final class APDU {
      */
     public static byte[] getCurrentAPDUBuffer()
             throws SecurityException {
-        return thisAPDU.getBuffer();
+        return getCurrentAPDU().getBuffer();
     }
 
     /**
@@ -751,7 +751,7 @@ public final class APDU {
      * @return logical channel number, if present, within the CLA byte, 0 otherwise
      */
     public static byte getCLAChannel() {
-        return thisAPDU.ramVars[LOGICAL_CHN];
+        return (byte) getCurrentAPDU().ramVars[LOGICAL_CHN];
     }
 
     /**
@@ -771,7 +771,7 @@ public final class APDU {
      */
     public static void waitExtension()
             throws APDUException {
-        if (thisAPDU.flags[NO_CHAINING_FLAG]) {
+        if (getCurrentAPDU().flags[NO_CHAINING_FLAG]) {
             APDUException.throwIt((short) 1);
         }
     }
@@ -836,7 +836,9 @@ public final class APDU {
      * @since 2.2.2
      */
     public short getIncomingLength() {
-        // TODO ExtendedLength support
+        if (extended) {
+            return Util.getShort(buffer, (short) (ISO7816.OFFSET_LC + 1));
+        }
         return buffer[ISO7816.OFFSET_LC];
     }
 
@@ -856,31 +858,39 @@ public final class APDU {
      * @since 2.2.2
      */
     public short getOffsetCdata() {
-        // TODO ExtendedLength support
+        if (extended) {
+            return ISO7816.OFFSET_CDATA + 2;
+        }
         return ISO7816.OFFSET_CDATA;
     }
     
     // return Le variable
     private short getLe() {
-        if (ramVars[LE] == 0) {
-            return 256;
-        } else {
-            return (short) (ramVars[LE] & 0xff);
+        short le = ramVars[LE];
+        if (le == 0) {
+            return extended ? Short.MAX_VALUE : 256;
         }
-    }
-
-    // return Lr variable
-    private short getLr() {
-        return Util.getShort(ramVars, LR);
+        return le;
     }
 
     /**
      * clear internal state of the APDU
+     * called by SimulatorRuntime via reflection
      */
-    public void reset(){
-        Util.arrayFillNonAtomic(buffer, (short)0, (short) buffer.length, (byte)0);
-        Util.arrayFillNonAtomic(ramVars, (short)0, (short) ramVars.length, (byte)0);
+    @SuppressWarnings("unused")
+    private void internalReset(byte[] inputBuffer) {
+        Arrays.fill(buffer, (byte) 0);
+        Arrays.fill(ramVars, (short) 0);
         for(byte i=0;i<flags.length;i++) {flags[i]=false;}
-    }
+        System.arraycopy(inputBuffer, 0, buffer, 0, inputBuffer.length);
 
+        int offset = getOffsetCdata() + getIncomingLength();
+        short le;
+        if (extended) {
+            le = (short) (((short) buffer[offset] << 8) + ((short) buffer[offset + 1] & 0xff));
+        } else {
+            le = (short) (0xFF & buffer[offset]);
+        }
+        ramVars[LE] = le;
+    }
 }

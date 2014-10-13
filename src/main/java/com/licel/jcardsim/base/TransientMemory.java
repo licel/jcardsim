@@ -61,7 +61,7 @@ public class TransientMemory {
      * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
      * </ul>
      */
-    byte[] makeByteArray(short length, byte event) {
+    byte[] makeByteArray(int length, byte event) {
         byte[] array = new byte[length];
         storeArray(array, event);
         return array;

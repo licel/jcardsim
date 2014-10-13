@@ -17,6 +17,8 @@ package com.licel.jcardsim.base;
 
 import javacard.framework.*;
 
+import java.lang.reflect.Constructor;
+
 /**
  * Base implementation of <code>JCSystem</code>
  * @see JCSystem
@@ -46,6 +48,21 @@ public class SimulatorSystem {
     
     public static NullPointerException nullPointerException;
     public static SecurityException securityException;
+
+    private static final APDU shortAPDU = createAPDU(false);
+    private static final APDU extendedAPDU = createAPDU(true);
+    private static boolean enableExtendApdu = false;
+
+    private static APDU createAPDU(boolean extended) {
+        try {
+            Constructor<?> ctor = APDU.class.getDeclaredConstructors()[0];
+            ctor.setAccessible(true);
+            return (APDU) ctor.newInstance(extended);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private SimulatorSystem() {
         nullPointerException = new NullPointerException();
@@ -104,6 +121,10 @@ public class SimulatorSystem {
      */
     public static byte[] makeTransientByteArray(short length, byte event) {
         return transientMemory.makeByteArray(length, event);
+    }
+
+    public static byte[] makeInternalBuffer(int length) {
+        return transientMemory.makeByteArray(length, JCSystem.CLEAR_ON_RESET);
     }
 
     /**
@@ -488,5 +509,13 @@ public class SimulatorSystem {
     
     public static short getJavaContext(Object obj) {
         return 0;
+    }
+
+    protected static void setExtendedApduMode(boolean enabled) {
+        enableExtendApdu = enabled;
+    }
+
+    public static APDU getCurrentAPDU() {
+        return enableExtendApdu ? extendedAPDU : shortAPDU;
     }
 }
