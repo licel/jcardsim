@@ -15,13 +15,11 @@
  */
 package com.licel.jcardsim.base;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
+
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * Base implementation of Java Card Runtime
@@ -31,20 +29,20 @@ import javacardx.apdu.ExtendedLength;
 public class SimulatorRuntime {
 
     // storage for registered applets
-    private final HashMap applets = new HashMap();
+    private final SortedMap<AID, AppletHolder> applets = new TreeMap<AID, AppletHolder>(new AidComparator());
+    // method for resetting APDUs
     private final Method apduPrivateResetMethod;
+    // outbound response byte array buffer
+    private final byte[] responseBuffer = SimulatorSystem.makeInternalBuffer(Short.MAX_VALUE + 2);
+
     // current selected applet
     private AID currentAID;
     // previous selected applet
     private AID previousAID;
     // applet in INSTALL phase
     private AID appletToInstallAID;
-    // outbound response byte array buffer
-    final byte[] responseBuffer = SimulatorSystem.makeInternalBuffer(Short.MAX_VALUE + 2);
     // outbound response byte array buffer size
-    short responseBufferSize = 0;
-    // SW
-    final byte[] theSW = SimulatorSystem.makeInternalBuffer(2);
+    private short responseBufferSize = 0;
     // if the applet is currently being selected
     private boolean selecting = false;
 
@@ -69,9 +67,7 @@ public class SimulatorRuntime {
      */
     public AID lookupAID(byte buffer[], short offset, byte length) {
         // no construct new AID, iterate applets
-        Iterator aids = applets.keySet().iterator();
-        while (aids.hasNext()) {
-            AID aid = (AID) aids.next();
+        for (AID aid : applets.keySet()) {
             if (aid.equals(buffer, offset, length)) {
                 return aid;
             }
@@ -83,11 +79,9 @@ public class SimulatorRuntime {
      * Lookup applet by aid
      */
     public AppletHolder lookupApplet(AID lookupAid) {
-        Iterator aids = applets.keySet().iterator();
-        while (aids.hasNext()) {
-            AID aid = (AID) aids.next();
+        for (AID aid : applets.keySet()) {
             if (aid.equals(lookupAid)) {
-                return (AppletHolder) applets.get(aid);
+                return applets.get(aid);
             }
         }
         return null;
@@ -130,7 +124,8 @@ public class SimulatorRuntime {
             return null;
         }
         return a.getAppletClass();
-    }   
+    }
+
     /**
      * Load applet
      */
@@ -140,6 +135,35 @@ public class SimulatorRuntime {
             SystemException.throwIt(SystemException.ILLEGAL_AID);
         }
         applets.put(aid, new AppletHolder(appletClass));
+    }
+
+    /**
+     * Delete applet
+     */
+    protected void deleteApplet(AID aid) {
+        AppletHolder appletHolder = lookupApplet(aid);
+        if (appletHolder == null) {
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
+
+        applets.remove(aid);
+        Applet applet = appletHolder.getApplet();
+        if (applet == null) {
+            return;
+        }
+
+        if (getApplet(currentAID) == applet) {
+            deselect(appletHolder);
+        }
+
+        if (applet instanceof AppletEvent) {
+            try {
+                ((AppletEvent) applet).uninstall();
+            }
+            catch (Exception e) {
+                // ignore all
+            }
+        }
     }
 
     /**
@@ -154,7 +178,7 @@ public class SimulatorRuntime {
             ah = lookupApplet(aid);
         }
         if (ah == null) {
-            SystemException.throwIt(SystemException.ILLEGAL_AID);
+            throw new SystemException(SystemException.ILLEGAL_AID);
         }
         ah.setApplet(applet);
         ah.register();
@@ -163,54 +187,27 @@ public class SimulatorRuntime {
     }
 
     /**
-     * Select applet for using
-     * @param aid applet aid
+     * Select applet
+     * @param aid Applet AID
      * @return data from select command
      */
     byte[] selectApplet(AID aid) {
-        Applet newApplet = getApplet(aid);
-        // deselect previous selected applet
-        if (currentAID != null) {
-            try {
-                Applet applet = getApplet(currentAID);
-                applet.deselect();
-            } catch (Exception e) {
-                // ignore all
-            } finally {
-                if (SimulatorSystem.getTransactionDepth() != 0) {
-                    SimulatorSystem.abortTransaction();
-                }
-            }
+        if (aid == null) {
+            throw new NullPointerException("aid");
         }
-        if (newApplet == null) {
-            return null;
-        }
-        // select new applet
-        try {
-            newApplet.select();
-            previousAID = currentAID;
-            currentAID = aid;
-            selecting = true;
 
-            byte[] aidBuffer = new byte[16];
-            byte len = aid.getBytes(aidBuffer, (short) 0);
+        byte[] aidBuffer = new byte[16];
+        byte length = aid.getBytes(aidBuffer, (short) 0);
 
-            byte[] selectCmd = new byte[len + ISO7816.OFFSET_CDATA];
-            selectCmd[ISO7816.OFFSET_CLA] = 0x00;
-            selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
-            selectCmd[ISO7816.OFFSET_P1] = 0x04;
-            selectCmd[ISO7816.OFFSET_P2] = 0x00;
-            selectCmd[ISO7816.OFFSET_LC] = len;
-            System.arraycopy(aidBuffer, 0, selectCmd, ISO7816.OFFSET_CDATA, len);
-            return this.transmitCommand(selectCmd);
-        } catch (Exception e) {
-        } finally {
-            if (SimulatorSystem.getTransactionDepth() != 0) {
-                SimulatorSystem.abortTransaction();
-            }
-            selecting  = false;
-        }
-        return null;
+        byte[] selectCmd = new byte[length + ISO7816.OFFSET_CDATA];
+        selectCmd[ISO7816.OFFSET_CLA] = ISO7816.CLA_ISO7816;
+        selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
+        selectCmd[ISO7816.OFFSET_P1] = 0x04;
+        selectCmd[ISO7816.OFFSET_P2] = 0x00;
+        selectCmd[ISO7816.OFFSET_LC] = length;
+        System.arraycopy(aidBuffer, 0, selectCmd, ISO7816.OFFSET_CDATA, length);
+
+        return transmitCommand(selectCmd);
     }
 
     /**
@@ -218,12 +215,9 @@ public class SimulatorRuntime {
      * @param aThis applet
      * @return true if applet is being selected
      */
-	public boolean isAppletSelecting(Applet aThis) {
-		if(aThis.equals(getApplet(getAID()))) {
-			return selecting;
-		}
-		return false;
-	}
+    public boolean isAppletSelecting(Applet aThis) {
+        return aThis == getApplet(getAID()) && selecting;
+    }
 
     /**
      * Transmit APDU to previous selected applet
@@ -232,21 +226,39 @@ public class SimulatorRuntime {
      * @throws SystemException <code>SystemException.ILLEGAL_USE</code> if appplet not selected before
      */
     byte[] transmitCommand(byte[] command) throws SystemException {
-        Applet applet = getApplet(getAID());
+        final ApduCase apduCase = ApduCase.getCase(command);
+        final byte[] theSW = new byte[2];
         byte[] response;
-        Util.arrayFillNonAtomic(theSW, (short) 0, (short) 2, (byte) 0);
+
+        Applet applet = getApplet(getAID());
+
+        selecting = false;
+        // check if there is an applet to be selected
+        if (!apduCase.isExtended() && isAppletSelectionApdu(command)) {
+            AID newAid = findAppletForSelectApdu(command, apduCase);
+            if (newAid != null) {
+                deselect(lookupApplet(getAID()));
+                currentAID = newAid;
+                applet = getApplet(getAID());
+                selecting = true;
+            }
+            else if (applet == null) {
+                Util.setShort(theSW, (short) 0, ISO7816.SW_APPLET_SELECT_FAILED);
+                return theSW;
+            }
+        }
+
         if (applet == null) {
             throw new SystemException(SystemException.ILLEGAL_USE);
         }
-        if (isExtendedAPDU(command)) {
+
+        if (apduCase.isExtended()) {
             if (applet instanceof ExtendedLength) {
                 SimulatorSystem.setExtendedApduMode(true);
             }
             else {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_WRONG_LENGTH);
-                response = new byte[2];
-                Util.arrayCopyNonAtomic(theSW, (short) 0, response, (short) 0, (short) 2);
-                return response;
+                Util.setShort(theSW, (short)0, ISO7816.SW_WRONG_LENGTH);
+                return theSW;
             }
         }
         else {
@@ -254,6 +266,19 @@ public class SimulatorRuntime {
         }
 
         try {
+            if (selecting) {
+                boolean success;
+                try {
+                    success = applet.select();
+                }
+                catch (Exception e) {
+                    success = false;
+                }
+                if (!success) {
+                    throw new ISOException(ISO7816.SW_APPLET_SELECT_FAILED);
+                }
+            }
+
             // set apdu
             APDU apdu = SimulatorSystem.getCurrentAPDU();
             apduPrivateResetMethod.invoke(apdu, command);
@@ -267,6 +292,10 @@ public class SimulatorRuntime {
                 Util.setShort(theSW, (short) 0, ((CardRuntimeException) e).getReason());
             }
         }
+        finally {
+            selecting = false;
+        }
+
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
         if(theSW[0] == 0x61 || (theSW[0] >= (byte)0x90 && theSW[0]<=0x9F)) {
             response = new byte[responseBufferSize + 2];
@@ -274,8 +303,7 @@ public class SimulatorRuntime {
             Util.arrayCopyNonAtomic(theSW, (short) 0, response, responseBufferSize, (short) 2);
         }
         else {
-            response = new byte[2];
-            Util.arrayCopyNonAtomic(theSW, (short) 0, response, (short) 0, (short) 2);
+            response = theSW;
         }
 
         Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) 255, (byte) 0);
@@ -283,8 +311,41 @@ public class SimulatorRuntime {
         return response;
     }
 
-    private boolean isExtendedAPDU(byte[] command) {
-        return ApduCase.getCase(command).isExtended();
+    protected AID findAppletForSelectApdu(byte[] selectApdu, ApduCase apduCase) {
+        if (apduCase == ApduCase.Case1 || apduCase == ApduCase.Case2) {
+            // on a regular Smartcard we would select the CardManager applet
+            // in this case we just select the first applet
+            return applets.isEmpty() ? null : applets.firstKey();
+        }
+
+        for (AID aid : applets.keySet()) {
+            if (aid.equals(selectApdu, ISO7816.OFFSET_CDATA, selectApdu[ISO7816.OFFSET_LC])) {
+                return aid;
+            }
+        }
+
+        for (AID aid : applets.keySet()) {
+            if (aid.partialEquals(selectApdu, ISO7816.OFFSET_CDATA, selectApdu[ISO7816.OFFSET_LC])) {
+                return aid;
+            }
+        }
+
+        return null;
+    }
+
+    protected void deselect(AppletHolder appletHolder) {
+        if (appletHolder != null) {
+            try {
+                Applet applet = appletHolder.getApplet();
+                applet.deselect();
+            } catch (Exception e) {
+                // ignore all
+            }
+        }
+        if (SimulatorSystem.getTransactionDepth() != 0) {
+            SimulatorSystem.abortTransaction();
+        }
+        // TODO perform CLEAR_ON_DESELECT
     }
 
     /**
@@ -301,17 +362,17 @@ public class SimulatorRuntime {
      * powerdown/powerup
      */
     void reset() {
-        Iterator aids = applets.keySet().iterator();
-        ArrayList aidsToTrash = new ArrayList();
+        Iterator<AID> aids = applets.keySet().iterator();
+        ArrayList<AID> aidsToTrash = new ArrayList<AID>();
         while (aids.hasNext()) {
-            AID aid = (AID) aids.next();
+            AID aid = aids.next();
             AppletHolder ah = lookupApplet(aid);
             if (ah.getState() != AppletHolder.INSTALLED) {
                 aidsToTrash.add(aid);
             }
         }
-        for(int i=0;i<aidsToTrash.size();i++) {
-            applets.remove(aidsToTrash.get(i));
+        for (AID anAidsToTrash : aidsToTrash) {
+            deleteApplet(anAidsToTrash);
         }
 
         Arrays.fill(responseBuffer, (byte) 0);
@@ -322,14 +383,14 @@ public class SimulatorRuntime {
     }
 
     void resetRuntime() {
-        Iterator aids = applets.keySet().iterator();
-        ArrayList aidsToTrash = new ArrayList();
+        Iterator<AID> aids = applets.keySet().iterator();
+        ArrayList<AID> aidsToTrash = new ArrayList<AID>();
         while (aids.hasNext()) {
-            AID aid = (AID) aids.next();
+            AID aid = aids.next();
             aidsToTrash.add(aid);
         }
-        for(int i=0;i<aidsToTrash.size();i++) {
-            applets.remove(aidsToTrash.get(i));
+        for (AID anAidsToTrash : aidsToTrash) {
+            deleteApplet(anAidsToTrash);
         }
 
         Arrays.fill(responseBuffer, (byte) 0);
@@ -338,7 +399,20 @@ public class SimulatorRuntime {
         previousAID = null;
         appletToInstallAID = null;
     }
-    
+
+    static boolean isAppletSelectionApdu(byte[] apdu) {
+        final byte channelMask = (byte) 0xFC; // mask out %b000000xx
+        final byte p2Mask = (byte) 0xE3; // mask out %b000xxx00
+
+        final byte cla = (byte) (apdu[ISO7816.OFFSET_CLA] & channelMask);
+        final byte ins = apdu[ISO7816.OFFSET_INS];
+        final byte p1 = apdu[ISO7816.OFFSET_P1];
+        final byte p2 = (byte) (apdu[ISO7816.OFFSET_P2] & p2Mask);
+
+        return cla == ISO7816.CLA_ISO7816 && ins == ISO7816.INS_SELECT &&
+                p1 == 4 && p2 == 0;
+    }
+
     // internal class which is holds Applet instance and it's state
     class AppletHolder {
         final static byte DOWNLOADING = 0;
@@ -382,6 +456,11 @@ public class SimulatorRuntime {
         Class getAppletClass(){
             return appletClass;
         }
-    
+    }
+
+    protected static class AidComparator implements Comparator<AID> {
+        public int compare(AID aid, AID aid2) {
+            return aid.toString().compareTo(aid2.toString());
+        }
     }
 }

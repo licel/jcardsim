@@ -16,6 +16,12 @@
 
 package javacard.framework;
 
+import org.bouncycastle.util.Strings;
+import org.bouncycastle.util.encoders.Hex;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+
 /**
  * This class encapsulates the Application Identifier (AID) associated with an applet.
  * An AID is defined in ISO 7816-5 to be a sequence of bytes between 5 and 16 bytes in length.
@@ -42,6 +48,7 @@ package javacard.framework;
  *
  */
 public class AID {
+    private static final char[] hexArray = "0123456789abcdef".toCharArray();
 
     byte aid[];
 
@@ -209,5 +216,21 @@ public class AID {
         }
         Util.arrayCopy(aid, aidOffset, dest, oOffset, copyLen);
         return (byte) copyLen;
+    }
+
+    @Override
+    public String toString() {
+        return bytesToHex(aid);
+    }
+
+    // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }

@@ -33,7 +33,7 @@ public class SimulatorSystem {
      * Response status : Exception occured = 0x6424
      */
     public static final short SW_EXCEPTION_OCCURED = 0x6424;
-    
+
     // current depth of transaction
     private static byte transactionDepth = 0;
     // implementaion api version
