@@ -86,4 +86,17 @@ public class SystemException extends CardRuntimeException {
             throws SystemException {
         throw new SystemException(reason);
     }
+
+    @Override
+    public String getMessage() {
+        switch (getReason()) {
+            case ILLEGAL_VALUE: return "ILLEGAL_VALUE";
+            case NO_TRANSIENT_SPACE: return "NO_TRANSIENT_SPACE";
+            case ILLEGAL_TRANSIENT: return "ILLEGAL_TRANSIENT";
+            case ILLEGAL_AID: return "ILLEGAL_AID";
+            case NO_RESOURCE: return "NO_RESOURCE";
+            case ILLEGAL_USE: return "ILLEGAL_USE";
+            default: return String.format("Unknown reason (%d)", (int)getReason());
+        }
+    }
 }
