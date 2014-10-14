@@ -52,9 +52,10 @@ public final class ByteContainer {
      * with memory type <code>JCSystem.MEMORY_TYPE_PERSISTENT</code>
      * and fills it by byte representation of <code>BigInteger</code>
      * @param bInteger <code>BigInteger</code> object
+     * @throws java.lang.IllegalArgumentException if bInteger is negative
      */
     public ByteContainer(BigInteger bInteger) {
-        this(bInteger.toByteArray(), (short) 0, (short) bInteger.toByteArray().length);
+        setBigInteger(bInteger);
     }
 
     /**
@@ -71,10 +72,23 @@ public final class ByteContainer {
 
     /**
      * Fills <code>ByteContainer</code>by byte representation of <code>BigInteger</code>
-     * @param bInteger
+     * @param bInteger <code>BigInteger</code> object
+     * @throws java.lang.IllegalArgumentException if bInteger is negative
      */
     public void setBigInteger(BigInteger bInteger) {
-        setBytes(bInteger.toByteArray());
+        if (bInteger.signum() < 0) {
+            throw new IllegalArgumentException("Negative bInteger");
+        }
+
+        byte[] array = bInteger.toByteArray();
+        if (array[0] == 0 && array.length > 1) {
+            byte[] trimmedArray = new byte[array.length - 1];
+            System.arraycopy(array, 1, trimmedArray, 0, trimmedArray.length);
+            setBytes(trimmedArray);
+        }
+        else {
+            setBytes(array);
+        }
     }
 
     /**
