@@ -116,7 +116,7 @@ public interface JavaCardInterface extends CardInterface {
      * Select applet by it's AID
      * It's method must be called before start working with applet instance
      * @param aid appletId
-     * @return byte array or null
+     * @return byte array
      */
     public byte[] selectAppletWithResult(AID aid);
     
