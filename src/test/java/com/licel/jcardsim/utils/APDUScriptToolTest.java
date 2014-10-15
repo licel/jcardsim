@@ -15,11 +15,14 @@
  */
 package com.licel.jcardsim.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Properties;
-import junit.framework.TestCase;
 import com.licel.jcardsim.base.SimulatorSystem;
+import junit.framework.TestCase;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.Properties;
 
 /**
  * Test class APDUScriptTool.
@@ -52,7 +55,7 @@ public class APDUScriptToolTest extends TestCase {
         sb.append("//CREATE APPLET CMD\n");
         sb.append("0x80 0xb8 0x00 0x00 0x10 0x9 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x8 0x09 0x05 0x00 0x00 0x02 0xF 0xF 0x7f;\n");
         sb.append("// SELECT APPLET CMD\n");
-        sb.append("0x00 0xa4 0x00 0x00 0x09 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x8 0x09 0x7f;\n");
+        sb.append("0x00 0xa4 0x04 0x00 0x09 0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x8 0x09 0x7f;\n");
         sb.append("// TEST NOP\n");
         sb.append("0x01 0x02 0x00 0x00 0x00 0x2; \n");
         sb.append("// TEST SW_INS_NOT_SUPPORTED\n");
@@ -66,14 +69,31 @@ public class APDUScriptToolTest extends TestCase {
         sb.append("powerdown;\n");
         InputStream commandsStream = new ByteArrayInputStream(sb.toString().replaceAll("\n", System.getProperty("line.separator")).getBytes());     
         boolean isException = true;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             SimulatorSystem.resetRuntime();
-            APDUScriptTool.executeCommands(cfg, commandsStream, null);
+            APDUScriptTool.executeCommands(cfg, commandsStream, new PrintStream(baos));
             isException = false;
         } catch (Throwable t) {
             t.printStackTrace();
         }
+        finally {
+            commandsStream.close();
+        }
         assertEquals(isException, false);
-        commandsStream.close();
+
+        String expectedOutput =
+        "CLA: 80, INS: b8, P1: 00, P2: 00, Lc: 10, 09, 01, 02, 03, 04, 05, 06, 07, 08, 09, 05, 00, 00, 02, 0f, 0f, Le: 09, 01, 02, 03, 04, 05, 06, 07, 08, 09, SW1: 90, SW2: 00\n" +
+        "CLA: 00, INS: a4, P1: 04, P2: 00, Lc: 09, 01, 02, 03, 04, 05, 06, 07, 08, 09, Le: 00, SW1: 90, SW2: 00\n" +
+        "CLA: 01, INS: 02, P1: 00, P2: 00, Lc: 00, Le: 00, SW1: 90, SW2: 00\n" +
+        "CLA: 01, INS: 05, P1: 00, P2: 00, Lc: 00, Le: 00, SW1: 6d, SW2: 00\n" +
+        "CLA: 01, INS: 01, P1: 00, P2: 00, Lc: 00, Le: 0d, 48, 65, 6c, 6c, 6f, 20, 77, 6f, 72, 6c, 64, 20, 21, SW1: 90, SW2: 00\n" +
+        "CLA: 01, INS: 01, P1: 01, P2: 00, Lc: 0d, 48, 65, 6c, 6c, 6f, 20, 77, 6f, 72, 6c, 64, 20, 21, Le: 0d, 48, 65, 6c, 6c, 6f, 20, 77, 6f, 72, 6c, 64, 20, 21, SW1: 90, SW2: 00\n" +
+        "CLA: 01, INS: 03, P1: 01, P2: 02, Lc: 05, 01, 02, 03, 04, 05, Le: 05, 01, 02, 03, 04, 05, SW1: 90, SW2: 00\n";
+
+        String output = baos.toString("UTF-8");
+        System.out.print(output);
+        assertEquals(expectedOutput, output.replace("\r\n","\n"));
     }
 }
