@@ -16,6 +16,8 @@
 
 package javacard.framework;
 
+import com.licel.jcardsim.utils.ByteUtil;
+
 /**
  * This class encapsulates the Application Identifier (AID) associated with an applet.
  * An AID is defined in ISO 7816-5 to be a sequence of bytes between 5 and 16 bytes in length.
@@ -42,7 +44,6 @@ package javacard.framework;
  *
  */
 public class AID {
-
     byte aid[];
 
     /**
@@ -209,5 +210,10 @@ public class AID {
         }
         Util.arrayCopy(aid, aidOffset, dest, oOffset, copyLen);
         return (byte) copyLen;
+    }
+
+    @Override
+    public String toString() {
+        return ByteUtil.hexString(aid);
     }
 }
