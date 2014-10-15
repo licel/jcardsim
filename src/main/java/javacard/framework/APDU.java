@@ -5,6 +5,7 @@
 package javacard.framework;
 
 import com.licel.jcardsim.base.SimulatorSystem;
+import com.licel.jcardsim.utils.ByteUtil;
 
 import java.util.Arrays;
 
@@ -887,7 +888,7 @@ public final class APDU {
         int offset = getOffsetCdata() + getIncomingLength();
         short le;
         if (extended) {
-            le = (short) (((short) buffer[offset] << 8) + ((short) buffer[offset + 1] & 0xff));
+            le = ByteUtil.getShort(buffer, offset);
         } else {
             le = (short) (0xFF & buffer[offset]);
         }

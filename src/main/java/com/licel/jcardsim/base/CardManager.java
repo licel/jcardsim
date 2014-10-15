@@ -29,23 +29,7 @@ public class CardManager {
     // basic impl
     public static byte[] dispatchApdu(JavaCardInterface sim, byte[] capdu) {
         byte[] theSW = new byte[2];
-        // handles select applet command
-        if (capdu[ISO7816.OFFSET_CLA] == ISO7816.CLA_ISO7816
-                && capdu[ISO7816.OFFSET_INS] == ISO7816.INS_SELECT) {
-            byte[] appletSelectionResult = null;
-            try {
-                AID aid = new AID(capdu, ISO7816.OFFSET_CDATA, capdu[ISO7816.OFFSET_LC]);
-                appletSelectionResult = sim.selectAppletWithResult(aid);
-            } catch (Throwable t) {
-            }
-            if (appletSelectionResult == null) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_APPLET_SELECT_FAILED);
-                return theSW;
-            } else {
-                return appletSelectionResult;
-            }
-        
-        } else if (capdu[ISO7816.OFFSET_CLA] == (byte)0x80 && capdu[ISO7816.OFFSET_INS] == (byte)0xb8) {
+        if (capdu[ISO7816.OFFSET_CLA] == (byte)0x80 && capdu[ISO7816.OFFSET_INS] == (byte)0xb8) {
             // handle CREATE APPLTE command
             // command format:
             // CLA    INS  P0    P1

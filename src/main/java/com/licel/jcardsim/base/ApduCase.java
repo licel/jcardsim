@@ -7,7 +7,7 @@ public enum ApduCase {
     Case1(false),
     Case2(false), Case2Extended(true),
     Case3(false), Case3Extended(true),
-    Case4(false), Case4Extended(true), CaseUnkown(false), Unkown(false);
+    Case4(false), Case4Extended(true);
 
     private final boolean extended;
 
