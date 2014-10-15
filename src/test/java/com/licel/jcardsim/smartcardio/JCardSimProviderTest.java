@@ -92,7 +92,7 @@ public class JCardSimProviderTest extends TestCase {
         assertEquals(response.getSW(), 0x9000);
         assertEquals(true, Arrays.equals(response.getData(), aidBytes));
         // select applet
-        CommandAPDU selectApplet = new CommandAPDU(ISO7816.CLA_ISO7816, ISO7816.INS_SELECT, 0, 0, Hex.decode(TEST_APPLET_AID));
+        CommandAPDU selectApplet = new CommandAPDU(ISO7816.CLA_ISO7816, ISO7816.INS_SELECT, 4, 0, Hex.decode(TEST_APPLET_AID));
         response = jcsChannel.transmit(selectApplet);
         assertEquals(response.getSW(), 0x9000);
         // test NOP
