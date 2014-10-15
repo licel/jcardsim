@@ -203,6 +203,14 @@ public class Simulator implements JavaCardInterface {
         return createApplet(aid, bArray, bOffset, bLength);
     }
 
+    /**
+     * Delete an applet
+     * @param aid applet aid
+     */
+    public void deleteApplet(AID aid) {
+        SimulatorSystem.getRuntime().deleteApplet(aid);
+    }
+
     public boolean selectApplet(AID aid) throws SystemException {
     	byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
     	if(resp != null && resp.length > 1) {
