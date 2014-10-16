@@ -2,6 +2,7 @@ package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.samples.MultiInstanceApplet;
 import com.licel.jcardsim.utils.AIDUtil;
+import com.licel.jcardsim.utils.ByteUtil;
 import javacard.framework.*;
 import junit.framework.TestCase;
 import org.bouncycastle.util.encoders.Hex;
@@ -101,7 +102,7 @@ public class SelectTest extends TestCase {
 
         // should select 010203040506070809
         simulator.transmitCommand(new byte[]{0, ISO7816.INS_SELECT, 4, 0});
-        byte[] actual = simulator.transmitCommand(new byte[]{CLA,INS_GET_FULL_AID,0,0});
+        byte[] actual = simulator.transmitCommand(new byte[]{CLA,INS_GET_FULL_AID, 0, 0});
         assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 
         // should select 010203040506070809
@@ -121,5 +122,20 @@ public class SelectTest extends TestCase {
         assertEquals(2, result.length);
         assertEquals(ISO7816.SW_APPLET_SELECT_FAILED, Util.getShort(result, (short)0));
         assertTrue(selectedCalled);
+    }
+
+    public void testApduWithoutSelectedAppletFails() {
+        Simulator simulator = new Simulator();
+        byte[] cmd = new byte[]{CLA, INS_GET_FULL_AID, 0, 0};
+        try {
+            simulator.transmitCommand(cmd);
+            fail("No exception");
+        }
+        catch (SystemException ex) {
+            assertEquals(SystemException.ILLEGAL_USE, ex.getReason());
+        }
+
+        byte[] result = CardManager.dispatchApdu(simulator, new byte[]{CLA,INS_GET_FULL_AID, 0, 0});
+        assertEquals(ISO7816.SW_COMMAND_NOT_ALLOWED, ByteUtil.getSW(result));
     }
 }
