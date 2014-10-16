@@ -56,7 +56,7 @@ public abstract class MessageDigest {
      */
     public static final byte ALG_SHA_512 = 6;
     /**
-     * Length of digest in bytes for SHA
+     * Length of digest in bytes for MD5
      */
     public static final byte LENGTH_MD5 = 16;
     /**
@@ -64,11 +64,11 @@ public abstract class MessageDigest {
      */
     public static final byte LENGTH_RIPEMD160 = 20;
     /**
-     * Length of digest in bytes for SHA-256
+     * Length of digest in bytes for SHA
      */
     public static final byte LENGTH_SHA = 20;
     /**
-     * Length of digest in bytes for MD5
+     * Length of digest in bytes for SHA-256
      */
     public static final byte LENGTH_SHA_256 = 32;
     /**
