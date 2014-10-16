@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.security.KeyBuilder;
 import javacard.security.KeyPair;
 import javacard.security.RandomData;
@@ -50,14 +49,14 @@ public class AssymetricCipherImplTest extends TestCase {
         kp.genKeyPair();
 
         cipher.init(kp.getPublic(), Cipher.MODE_ENCRYPT);
-        byte[] msg = JCSystem.makeTransientByteArray((short) 127, JCSystem.CLEAR_ON_RESET);
-        byte[] encryptedMsg = JCSystem.makeTransientByteArray((short) 128, JCSystem.CLEAR_ON_RESET);
+        byte[] msg = new byte[127];
+        byte[] encryptedMsg = new byte[128];
         RandomData rnd = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
         rnd.generateData(msg, (short) 0, (short) msg.length);
         cipher.doFinal(msg, (short) 0, (short) msg.length, encryptedMsg, (short) 0);
 
         cipher.init(kp.getPrivate(), Cipher.MODE_DECRYPT);
-        byte[] decryptedMsg = JCSystem.makeTransientByteArray((short) msg.length, JCSystem.CLEAR_ON_RESET);
+        byte[] decryptedMsg = new byte[msg.length];
         cipher.doFinal(encryptedMsg, (short) 0, (short) encryptedMsg.length, decryptedMsg, (short) 0);
 
         assertEquals(true, Arrays.areEqual(msg, decryptedMsg));

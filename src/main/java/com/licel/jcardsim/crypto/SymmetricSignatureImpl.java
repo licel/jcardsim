@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
@@ -176,7 +175,7 @@ public class SymmetricSignatureImpl extends Signature {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }
         engine.update(inBuff, inOffset, inLength);
-        byte[] sig = JCSystem.makeTransientByteArray(getLength(), JCSystem.CLEAR_ON_RESET);
+        byte[] sig = new byte[getLength()];
         engine.doFinal(sig, (short) 0);
         engine.reset();
         return Util.arrayCompare(sig, (short) 0, sigBuff, sigOffset, (short) sig.length) == 0;

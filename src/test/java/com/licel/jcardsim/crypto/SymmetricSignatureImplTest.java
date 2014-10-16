@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.security.HMACKey;
 import javacard.security.Key;
 import javacard.security.KeyBuilder;
@@ -408,7 +407,7 @@ public class SymmetricSignatureImplTest extends TestCase {
         } else {
             engine.init(key, Signature.MODE_SIGN, iv, (short) 0, (short) iv.length);
         }
-        byte[] mac = JCSystem.makeTransientByteArray((short) macEtalon.length, JCSystem.CLEAR_ON_RESET);
+        byte[] mac = new byte[macEtalon.length];
         //
         engine.sign(msg, (short) 0, (short) msg.length, mac, (short) 0);
         assertEquals(true, Arrays.areEqual(mac, macEtalon));

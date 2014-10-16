@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.security.RandomData;
 import junit.framework.TestCase;
 
@@ -41,7 +40,7 @@ public class RandomDataImplTest extends TestCase {
      */
     public void testGenerateData() {
         System.out.println("generateData");
-        byte[] buffer = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] buffer = new byte[8];
         RandomData instance = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
         instance.generateData(buffer, (short) 0, (short) buffer.length);
         instance = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
@@ -53,7 +52,7 @@ public class RandomDataImplTest extends TestCase {
      */
     public void testSetSeed() {
         System.out.println("setSeed");
-        byte[] buffer = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] buffer = new byte[8];
         RandomData instance = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
         instance.setSeed(buffer, (short) 0, (short) buffer.length);
         instance.generateData(buffer, (short) 0, (short) buffer.length);

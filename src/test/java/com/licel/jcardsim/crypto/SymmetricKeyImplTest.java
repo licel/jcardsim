@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.AESKey;
 import javacard.security.KeyBuilder;
@@ -47,7 +46,7 @@ public class SymmetricKeyImplTest extends TestCase {
     public void testClearKey() {
         System.out.println("clearKey");
         SymmetricKeyImpl desKey = new SymmetricKeyImpl(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES);
-        byte[] key = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] key = new byte[8];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         desKey.setKey(key, (short) 0);
         desKey.clearKey();
@@ -60,7 +59,7 @@ public class SymmetricKeyImplTest extends TestCase {
     public void testSetKey() {
         System.out.println("setKey");
         SymmetricKeyImpl desKey = new SymmetricKeyImpl(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES);
-        byte[] key = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] key = new byte[8];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         desKey.setKey(key, (short) 0);
         assertEquals(true, desKey.isInitialized());
@@ -72,10 +71,10 @@ public class SymmetricKeyImplTest extends TestCase {
     public void testGetKey() {
         System.out.println("getKey");
         SymmetricKeyImpl desKey = new SymmetricKeyImpl(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES);
-        byte[] key = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] key = new byte[8];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         desKey.setKey(key, (short) 0);
-        byte[] testKey = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] testKey = new byte[8];
         desKey.getKey(testKey, (short) 0);
         assertEquals(true, Arrays.areEqual(testKey, key));
     }
@@ -87,31 +86,31 @@ public class SymmetricKeyImplTest extends TestCase {
         System.out.println("getCipher");
         // des key
         SymmetricKeyImpl desKey = new SymmetricKeyImpl(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES);
-        byte[] key = JCSystem.makeTransientByteArray((short) 8, JCSystem.CLEAR_ON_RESET);
+        byte[] key = new byte[8];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         desKey.setKey(key, (short) 0);
         boolean isValidCipher = (desKey.getCipher() instanceof DESEngine);
         assertEquals(true, isValidCipher);
         // 3des key
         SymmetricKeyImpl des3Key = new SymmetricKeyImpl(KeyBuilder.TYPE_DES, KeyBuilder.LENGTH_DES3_3KEY);
-        key = JCSystem.makeTransientByteArray((short) 24, JCSystem.CLEAR_ON_RESET);
+        key = new byte[24];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         des3Key.setKey(key, (short) 0);
         isValidCipher = (des3Key.getCipher() instanceof DESedeEngine);
         assertEquals(true, isValidCipher);
         // aes key - 128
         AESKey aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
-        key = JCSystem.makeTransientByteArray((short) 16, JCSystem.CLEAR_ON_RESET);
+        key = new byte[16];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         aesKey.setKey(key, (short) 0);
         // aes key - 192
         aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_192, false);
-        key = JCSystem.makeTransientByteArray((short) 24, JCSystem.CLEAR_ON_RESET);
+        key = new byte[24];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         aesKey.setKey(key, (short) 0);
         // aes key - 256
         aesKey = (AESKey)KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
-        key = JCSystem.makeTransientByteArray((short) 32, JCSystem.CLEAR_ON_RESET);
+        key = new byte[32];
         Util.arrayFillNonAtomic(key, (short) 0, (short) key.length, (byte) 7);
         aesKey.setKey(key, (short) 0);
         // aes key - 256
