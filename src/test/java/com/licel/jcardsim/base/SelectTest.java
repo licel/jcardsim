@@ -50,10 +50,16 @@ public class SelectTest extends TestCase {
                 aid("0100CAFE01"),
                 aid("0200888888")
         };
+        Arrays.sort(input, AIDUtil.comparator());
+
+        String[] tmp = new String[input.length];
+        for (int i = 0; i < input.length; i++) {
+            tmp[i] = AIDUtil.toString(input[i]);
+        }
         String expected = "[0100CAFE01, 0200888888, A000008812, " +
                 "D0000CAFE000, D0000CAFE00001, D0000CAFE00023, D0000CAFE001, FF00066767]";
-        Arrays.sort(input, AIDUtil.comparator());
-        assertEquals(expected, Arrays.toString(input));
+
+        assertEquals(expected, Arrays.toString(tmp));
     }
 
     private Simulator prepareSimulator() {
