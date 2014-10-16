@@ -477,4 +477,6 @@ public final class JCSystem {
     public static boolean isAppletActive(AID theApplet) {
         return SimulatorSystem.isAppletActive(theApplet);
     }
+
+    private JCSystem() {}
 }
