@@ -219,8 +219,8 @@ public class MessageDigestImplTest extends TestCase {
             digests[i].doFinal(inputData, part, (short) (inputData.length - part), digest, (short) 0);
             // etalon
             digests[i].reset();
-            digests[i].update(inputData, (short) 0, (short) part);
-            digests[i].doFinal(inputData, (short) part, (short) (inputData.length - part), etalonDigest, (short) 0);
+            digests[i].update(inputData, (short) 0, part);
+            digests[i].doFinal(inputData, part, (short) (inputData.length - part), etalonDigest, (short) 0);
             assertEquals(true, Arrays.areEqual(etalonDigest, digest));
         }
     }

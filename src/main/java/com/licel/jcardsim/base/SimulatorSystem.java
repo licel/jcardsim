@@ -472,7 +472,7 @@ public class SimulatorSystem {
 
     /**
      * Transmit <code>commandAPDU</code> to previous selected applet
-     * @param commandAPDU
+     * @param commandAPDU commandAPDU
      * @return responseAPDU
      */
     static byte[] transmitCommand(byte[] commandAPDU) {
