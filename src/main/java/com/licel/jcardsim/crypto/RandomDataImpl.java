@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.RandomData;
@@ -41,7 +40,7 @@ public class RandomDataImpl extends RandomData {
     }
 
     public void setSeed(byte[] buffer, short offset, short length) {
-        byte[] seed = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_RESET);
+        byte[] seed = new byte[length];
         Util.arrayCopyNonAtomic(buffer, offset, seed, (short) 0, length);
         engine.addSeedMaterial(seed);
     }

@@ -159,7 +159,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             CryptoException.throwIt(CryptoException.INVALID_INIT);
         }
         engine.update(inBuff, inOffset, inLength);
-        byte[] sig = JCSystem.makeTransientByteArray(sigLength, JCSystem.CLEAR_ON_RESET);
+        byte[] sig = new byte[sigLength];
         Util.arrayCopyNonAtomic(sigBuff, sigOffset, sig, (short) 0, sigLength);
         boolean b = engine.verifySignature(sig);
         engine.reset();

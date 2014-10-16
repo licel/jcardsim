@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.KeyAgreement;
@@ -74,7 +73,7 @@ public class KeyAgreementImpl extends KeyAgreement {
             short publicLength,
             byte[] secret,
             short secretOffset) throws CryptoException {
-        byte[] publicKey = JCSystem.makeTransientByteArray(publicLength, JCSystem.CLEAR_ON_RESET);
+        byte[] publicKey = new byte[publicLength];
         Util.arrayCopyNonAtomic(publicData, publicOffset, publicKey, (short) 0, publicLength);
         ECPublicKeyParameters ecp = new ECPublicKeyParameters(
                 ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters().getCurve().decodePoint(publicKey), ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters());
