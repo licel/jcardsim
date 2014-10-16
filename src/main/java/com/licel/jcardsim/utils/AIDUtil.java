@@ -6,6 +6,14 @@ import org.bouncycastle.util.encoders.Hex;
 import java.util.Comparator;
 
 public final class AIDUtil {
+    private static final Comparator<AID> aidComparator = new Comparator<AID>() {
+        public int compare(AID aid1, AID aid2) {
+            String s1 = (aid1 != null) ? AIDUtil.toString(aid1) : "";
+            String s2 = (aid1 != null) ? AIDUtil.toString(aid2) : "";
+            return s1.compareTo(s2);
+        }
+    };
+
     /**
      * Create an AID from a byte array
      * @param aidBytes AID bytes
@@ -38,14 +46,25 @@ public final class AIDUtil {
     }
 
     /**
+     * Convert AID to hex-string
+     * @param aid AID to convert
+     * @return hex string
+     * @throws java.lang.NullPointerException if <code>aid</code> is null
+     */
+    public static String toString(AID aid) {
+        if (aid == null) {
+            throw new NullPointerException("aid");
+        }
+        byte[] buffer = new byte[16];
+        short len = aid.getBytes(buffer, (short) 0);
+        return ByteUtil.hexString(buffer, 0, len);
+    }
+
+    /**
      * @return a Comparator for AIDs
      */
     public static Comparator<AID> comparator() {
-        return new Comparator<AID>() {
-            public int compare(AID aid, AID aid2) {
-                return aid.toString().compareTo(aid2.toString());
-            }
-        };
+        return aidComparator;
     }
 
     private AIDUtil() {}

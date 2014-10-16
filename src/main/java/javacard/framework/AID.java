@@ -211,9 +211,4 @@ public class AID {
         Util.arrayCopy(aid, aidOffset, dest, oOffset, copyLen);
         return (byte) copyLen;
     }
-
-    @Override
-    public String toString() {
-        return ByteUtil.hexString(aid);
-    }
 }
