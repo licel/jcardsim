@@ -20,7 +20,6 @@ import javacard.security.DSAPublicKey;
 import javacard.security.KeyBuilder;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.params.DSAKeyParameters;
-import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
 import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
 
 /**

@@ -5,7 +5,6 @@ import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.ByteUtil;
 import javacard.framework.AID;
 import javacard.framework.ISO7816;
-import javacard.framework.Util;
 import junit.framework.TestCase;
 
 public class DeleteTest extends TestCase {

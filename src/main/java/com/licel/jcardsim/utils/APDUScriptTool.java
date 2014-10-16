@@ -117,7 +117,7 @@ public class APDUScriptTool {
     }
 
     private static ArrayList<CommandAPDU> parseAPDUStream(InputStreamReader in) throws IOException, ParseException {
-        ArrayList<CommandAPDU> apduCommands = new ArrayList();
+        ArrayList<CommandAPDU> apduCommands = new ArrayList<CommandAPDU>();
         BufferedReader br = new BufferedReader(in);
         String line = br.readLine();
         StringBuilder command = new StringBuilder();
