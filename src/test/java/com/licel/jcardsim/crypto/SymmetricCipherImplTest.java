@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.AESKey;
 import javacard.security.Key;
@@ -243,7 +242,7 @@ public class SymmetricCipherImplTest extends TestCase {
         } else {
             engine.init(key, Cipher.MODE_ENCRYPT, iv, (short) 0, (short) iv.length);
         }
-        byte[] encrypted = JCSystem.makeTransientByteArray((short) encryptedEtalonMsg.length, JCSystem.CLEAR_ON_RESET);
+        byte[] encrypted = new byte[encryptedEtalonMsg.length];
         short processedBytes = engine.doFinal(msg, (short) 0, (short) msg.length, encrypted, (short) 0);
         assertEquals(true, Arrays.areEqual(encrypted, encryptedEtalonMsg));
         assertEquals(processedBytes, encryptedEtalonMsg.length);
@@ -253,7 +252,7 @@ public class SymmetricCipherImplTest extends TestCase {
         } else {
             engine.init(key, Cipher.MODE_DECRYPT, iv, (short) 0, (short) iv.length);
         }
-        byte[] decrypted = JCSystem.makeTransientByteArray((short) msg.length, JCSystem.CLEAR_ON_RESET);
+        byte[] decrypted = new byte[msg.length];
         processedBytes = engine.doFinal(encryptedEtalonMsg, (short) 0, (short) encryptedEtalonMsg.length, decrypted, (short) 0);
         assertEquals(processedBytes, msg.length);
         assertEquals(true, Arrays.areEqual(decrypted, msg));

@@ -65,6 +65,7 @@ public class HelloWorldApplet extends BaseApplet {
 
     private byte[] echoBytes;
     private byte[] initParamsBytes;
+    private final byte[] transientMemory;
     private static final short LENGTH_ECHO_BYTES = 256;
 
     /**
@@ -81,6 +82,7 @@ public class HelloWorldApplet extends BaseApplet {
             initParamsBytes = new byte[aLen];
             Util.arrayCopyNonAtomic(bArray, (short) (bOffset + 1), initParamsBytes, (short) 0, aLen);
         }
+        transientMemory = JCSystem.makeTransientByteArray(LENGTH_ECHO_BYTES, JCSystem.CLEAR_ON_RESET);
         register();
     }    
 
@@ -132,7 +134,6 @@ public class HelloWorldApplet extends BaseApplet {
                 // We do not support any other INS values
                 ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
         }
-        return;
     }
 
     /**
@@ -147,20 +148,21 @@ public class HelloWorldApplet extends BaseApplet {
         // receive all bytes
         // if P1 = 0x01 (echo)
         short incomeBytes = apdu.setIncomingAndReceive();
-        byte[] echo;
+        byte[] echo = transientMemory;
+        short echoLength;
         if (buffer[ISO7816.OFFSET_P1] == 0x01) {
-            echo = JCSystem.makeTransientByteArray(incomeBytes, JCSystem.CLEAR_ON_RESET);
+            echoLength = incomeBytes;
             Util.arrayCopyNonAtomic(buffer, ISO7816.OFFSET_CDATA, echo, (short) 0, incomeBytes);
         } else {
-            echo = JCSystem.makeTransientByteArray((short) helloMessage.length, JCSystem.CLEAR_ON_RESET);
+            echoLength = (short) helloMessage.length;
             Util.arrayCopyNonAtomic(helloMessage, (short) 0, echo, (short) 0, (short) helloMessage.length);
         }
         // Tell JVM that we will send data
         apdu.setOutgoing();
         // Set the length of data to send
-        apdu.setOutgoingLength((short) echo.length);
+        apdu.setOutgoingLength(echoLength);
         // Send our message starting at 0 position
-        apdu.sendBytesLong(echo, (short) 0, (short) echo.length);
+        apdu.sendBytesLong(echo, (short) 0, echoLength);
         // Set application specific sw
         if(sw!=0x9000) {
             ISOException.throwIt(sw);
@@ -184,7 +186,7 @@ public class HelloWorldApplet extends BaseApplet {
         }
 
         apdu.setOutgoing();
-        apdu.setOutgoingLength((short) echoOffset);
+        apdu.setOutgoingLength(echoOffset);
         // echo data
         apdu.sendBytesLong(echoBytes, (short) 0, echoOffset);
 
@@ -204,11 +206,12 @@ public class HelloWorldApplet extends BaseApplet {
      * send some hello data, and indicate there's more
      */
     private void sayContinue(APDU apdu) {
-    	byte[] echo = JCSystem.makeTransientByteArray((byte)6, JCSystem.CLEAR_ON_RESET);
-    	Util.arrayCopyNonAtomic(helloMessage, (short)0, echo, (short)0, (short)6);
+        byte[] echo = transientMemory;
+        short echoLength = (short) 6;
+        Util.arrayCopyNonAtomic(helloMessage, (short)0, echo, (short)0, (short)6);
         apdu.setOutgoing();
-        apdu.setOutgoingLength((short) echo.length);
-        apdu.sendBytesLong(echo, (short) 0, (short) echo.length);
+        apdu.setOutgoingLength(echoLength);
+        apdu.sendBytesLong(echo, (short) 0, echoLength);
         ISOException.throwIt((short) (ISO7816.SW_BYTES_REMAINING_00 | 0x07));
     }
 
@@ -219,11 +222,10 @@ public class HelloWorldApplet extends BaseApplet {
      * @param apdu APDU that requested hello message
      */
     private void maximumData(APDU apdu) {
-        short maxData = apdu.getOutBlockSize();
-        byte[] data = JCSystem.makeTransientByteArray(maxData, JCSystem.CLEAR_ON_RESET);
-        apdu.setOutgoing();
-        apdu.setOutgoingLength(maxData);
-        apdu.sendBytesLong(data, (short) 0, (short) data.length);
+        short maxData = APDU.getOutBlockSize();
+        byte[] buffer = apdu.getBuffer();
+        Util.arrayFillNonAtomic(buffer, (short) 0, maxData, (byte) 0);
+        apdu.setOutgoingAndSend((short) 0, maxData);
     }
     
     // prototype

@@ -2,6 +2,7 @@ package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.samples.MultiInstanceApplet;
 import com.licel.jcardsim.utils.AIDUtil;
+import com.licel.jcardsim.utils.ByteUtil;
 import javacard.framework.*;
 import junit.framework.TestCase;
 import org.bouncycastle.util.encoders.Hex;
@@ -50,10 +51,16 @@ public class SelectTest extends TestCase {
                 aid("0100CAFE01"),
                 aid("0200888888")
         };
+        Arrays.sort(input, AIDUtil.comparator());
+
+        String[] tmp = new String[input.length];
+        for (int i = 0; i < input.length; i++) {
+            tmp[i] = AIDUtil.toString(input[i]);
+        }
         String expected = "[0100CAFE01, 0200888888, A000008812, " +
                 "D0000CAFE000, D0000CAFE00001, D0000CAFE00023, D0000CAFE001, FF00066767]";
-        Arrays.sort(input, AIDUtil.comparator());
-        assertEquals(expected, Arrays.toString(input));
+
+        assertEquals(expected, Arrays.toString(tmp));
     }
 
     private Simulator prepareSimulator() {
@@ -95,7 +102,7 @@ public class SelectTest extends TestCase {
 
         // should select 010203040506070809
         simulator.transmitCommand(new byte[]{0, ISO7816.INS_SELECT, 4, 0});
-        byte[] actual = simulator.transmitCommand(new byte[]{CLA,INS_GET_FULL_AID,0,0});
+        byte[] actual = simulator.transmitCommand(new byte[]{CLA,INS_GET_FULL_AID, 0, 0});
         assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 
         // should select 010203040506070809
@@ -115,5 +122,20 @@ public class SelectTest extends TestCase {
         assertEquals(2, result.length);
         assertEquals(ISO7816.SW_APPLET_SELECT_FAILED, Util.getShort(result, (short)0));
         assertTrue(selectedCalled);
+    }
+
+    public void testApduWithoutSelectedAppletFails() {
+        Simulator simulator = new Simulator();
+        byte[] cmd = new byte[]{CLA, INS_GET_FULL_AID, 0, 0};
+        try {
+            simulator.transmitCommand(cmd);
+            fail("No exception");
+        }
+        catch (SystemException ex) {
+            assertEquals(SystemException.ILLEGAL_USE, ex.getReason());
+        }
+
+        byte[] result = CardManager.dispatchApdu(simulator, new byte[]{CLA,INS_GET_FULL_AID, 0, 0});
+        assertEquals(ISO7816.SW_COMMAND_NOT_ALLOWED, ByteUtil.getSW(result));
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.security.Checksum;
 import junit.framework.TestCase;
 import org.bouncycastle.util.Arrays;
@@ -50,7 +49,7 @@ public class CRC32Test extends TestCase {
     public void testCrc32() {
         System.out.println("test crc32");
         Checksum crcEngine = Checksum.getInstance(Checksum.ALG_ISO3309_CRC32, false);
-        byte[] crc = JCSystem.makeTransientByteArray((short) 4, JCSystem.CLEAR_ON_RESET);
+        byte[] crc = new byte[4];
         byte[] msg = Hex.decode(MESSAGE);
         crcEngine.doFinal(msg, (short) 0, (short) msg.length, crc, (short) 0);
         assertEquals(true, Arrays.areEqual(Hex.decode(CRC), crc));

@@ -97,7 +97,7 @@ public class BixVReaderIPCProtocol {
     private void closePipe(RandomAccessFile pipe) {
         try {
             pipe.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
     }
 }

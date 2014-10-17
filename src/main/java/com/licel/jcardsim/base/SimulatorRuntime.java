@@ -116,7 +116,7 @@ public class SimulatorRuntime {
      * Return <code>Applet class</code> by it's AID or null
      * @param aid applet <code>AID</code>
      */
-    protected Class getAppletClass(AID aid) {
+    protected Class<? extends Applet> getAppletClass(AID aid) {
         if (aid == null) {
             return null;
         }
@@ -130,7 +130,7 @@ public class SimulatorRuntime {
     /**
      * Load applet
      */
-    protected void loadApplet(AID aid, Class appletClass) {
+    protected void loadApplet(AID aid, Class<? extends Applet> appletClass) {
         // see specification
         if (lookupApplet(aid) != null) {
             SystemException.throwIt(SystemException.ILLEGAL_AID);
@@ -422,14 +422,14 @@ public class SimulatorRuntime {
         final static byte REGISTERED = 3;
         private byte state;
         private Applet applet;
-        private Class appletClass;
+        private Class<? extends Applet> appletClass;
         
         AppletHolder(Applet applet, byte state){
             this.applet = applet;
             this.state = state;
         }
         
-        AppletHolder(Class appletClass) {
+        AppletHolder(Class<? extends Applet> appletClass) {
             this.appletClass = appletClass;
             this.state = LOADED;
         }
@@ -454,7 +454,7 @@ public class SimulatorRuntime {
             return applet;
         }
         
-        Class getAppletClass(){
+        Class<? extends Applet> getAppletClass(){
             return appletClass;
         }
     }
