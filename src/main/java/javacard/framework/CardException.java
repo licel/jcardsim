@@ -30,7 +30,7 @@ package javacard.framework;
  */
 public class CardException extends Exception {
 
-    private byte theSw[];
+    private short reason;
 
     /**
      * Construct a CardException instance with the specified reason.
@@ -39,8 +39,7 @@ public class CardException extends Exception {
      * @param reason the reason for the exception
      */
     public CardException(short reason) {
-        theSw = JCSystem.makeTransientByteArray((short) 2, JCSystem.CLEAR_ON_RESET);
-        Util.setShort(theSw, (short) 0, reason);
+        this.reason = reason;
     }
 
     /**
@@ -48,7 +47,7 @@ public class CardException extends Exception {
      * @return the reason for the exception
      */
     public short getReason() {
-        return Util.getShort(theSw, (short) 0);
+        return reason;
     }
 
     /**
@@ -56,8 +55,7 @@ public class CardException extends Exception {
      * @param reason the reason for the exception
      */
     public void setReason(short reason) {
-        Util.arrayFillNonAtomic(theSw, (short) 0, (short) 1, (byte) (reason >>> 8));
-        Util.arrayFillNonAtomic(theSw, (short) 1, (short) 1, (byte) reason);
+        this.reason = reason;
     }
 
     /**

@@ -381,4 +381,6 @@ public class KeyBuilder {
         }
         return key;
     }
+
+    private KeyBuilder() {}
 }

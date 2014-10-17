@@ -28,9 +28,7 @@ import javacard.security.PublicKey;
 import javacard.security.RSAPrivateCrtKey;
 import javacard.security.RSAPrivateKey;
 import javacard.security.RSAPublicKey;
-import javax.xml.bind.DatatypeConverter;
 import junit.framework.TestCase;
-import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Test for <code>KeyPairImpl</code>

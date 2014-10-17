@@ -24,8 +24,8 @@ import javacard.framework.SystemException;
  */
 public class TransientMemory {
 
-    ArrayList clearOnDeselect = new ArrayList();
-    ArrayList clearOnReset = new ArrayList();
+    ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
+    ArrayList<Object> clearOnReset = new ArrayList<Object>();
 
     /**
      * Creates a transient boolean array with the specified array length.

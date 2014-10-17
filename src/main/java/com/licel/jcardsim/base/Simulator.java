@@ -23,11 +23,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
-import javacard.framework.AID;
-import javacard.framework.Applet;
-import javacard.framework.JCSystem;
-import javacard.framework.SystemException;
-import javax.xml.bind.DatatypeConverter;
+
+import com.licel.jcardsim.utils.ByteUtil;
+import javacard.framework.*;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
@@ -48,7 +46,7 @@ public class Simulator implements JavaCardInterface {
     // Applet ClassName system property template
     static final MessageFormat APPLET_CLASS_SP_TEMPLATE = new MessageFormat("{0}.Class");
     // Applet Class Loader
-    AppletClassLoader cl = new AppletClassLoader(new URL[]{});
+    final AppletClassLoader cl = new AppletClassLoader(new URL[]{});
 
     /**
      * Construct Simulator object and init base systems
@@ -60,8 +58,8 @@ public class Simulator implements JavaCardInterface {
         // init preinstalled applets
         for (int i = 0; i < 10; i++) {
             String selectedPrefix = PROPERTY_PREFIX;
-            String aidPropertyName = PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{new Integer(i)});
-            String aidPropertyOldName = OLD_PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{new Integer(i)});
+            String aidPropertyName = PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
+            String aidPropertyOldName = OLD_PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
             String appletAID = System.getProperty(aidPropertyName);
             if (appletAID == null) {
                 appletAID = System.getProperty(aidPropertyOldName);
@@ -70,7 +68,7 @@ public class Simulator implements JavaCardInterface {
                 }
             }
             if (appletAID != null) {
-                String appletClassName = System.getProperty(selectedPrefix + APPLET_CLASS_SP_TEMPLATE.format(new Object[]{new Integer(i)}));
+                String appletClassName = System.getProperty(selectedPrefix + APPLET_CLASS_SP_TEMPLATE.format(new Object[]{i}));
                 if (appletClassName != null) {
                     byte[] aidBytes = Hex.decode(appletAID);
                     if (aidBytes == null || aidBytes.length < 5 || aidBytes.length > 16) {
@@ -89,10 +87,10 @@ public class Simulator implements JavaCardInterface {
         // download data
         byte[] aidData = new byte[16];
         aid.getBytes(aidData, (short) 0);
-        Class appletClass = null;
+        Class<? extends Applet> appletClass = null;
         try {
             cl.addAppletContents(appletJarContents);
-            appletClass = cl.loadClass(appletClassName);
+            appletClass = requireExtendsApplet(cl.loadClass(appletClassName));
         } catch (Exception e) {
             SystemException.throwIt(SystemException.ILLEGAL_VALUE);
 
@@ -106,17 +104,13 @@ public class Simulator implements JavaCardInterface {
     }
 
     public AID loadApplet(AID aid, String appletClassName) throws SystemException {
-        Class appletClass = null;
+        Class<? extends Applet> appletClass = null;
         try {
-            appletClass = cl.loadClass(appletClassName);
+            appletClass = requireExtendsApplet(cl.loadClass(appletClassName));
         } catch (ClassNotFoundException ex) {
             SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
-        if (checkAppletSuperclass(appletClass)) {
-            return loadApplet(aid, appletClass);
-        }
-        SystemException.throwIt(SystemException.ILLEGAL_VALUE);
-        return null;
+        return loadApplet(aid, appletClass);
     }
 
     /**
@@ -129,25 +123,22 @@ public class Simulator implements JavaCardInterface {
      * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
-    public AID loadApplet(AID aid, Class appletClass) throws SystemException {
-        if (!checkAppletSuperclass(appletClass)) {
-            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
-        }
-        SimulatorSystem.getRuntime().loadApplet(aid, appletClass);
+    public AID loadApplet(AID aid, Class<? extends Applet> appletClass) throws SystemException {
+        SimulatorSystem.getRuntime().loadApplet(aid, requireExtendsApplet(appletClass));
         return aid;
     }
 
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
         try {
-            Class appletClass = SimulatorSystem.getRuntime().getAppletClass(aid);
+            Class<? extends Applet> appletClass = SimulatorSystem.getRuntime().getAppletClass(aid);
             if (appletClass == null) {
-                SystemException.throwIt(SystemException.ILLEGAL_AID);
+                throw new SystemException(SystemException.ILLEGAL_AID);
             }
             SimulatorSystem.getRuntime().appletInstalling(aid);
             Method initMethod = appletClass.getMethod("install",
                     new Class[]{byte[].class, short.class, byte.class});
-            initMethod.invoke(null, new Object[]{bArray, new Short(bOffset), new Byte(bLength)});
+            initMethod.invoke(null, bArray, bOffset, bLength);
         } catch (Exception ex) {
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CRATION_FAILED);
         }
@@ -164,7 +155,7 @@ public class Simulator implements JavaCardInterface {
      * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
-    public AID installApplet(AID aid, Class appletClass) throws SystemException {
+    public AID installApplet(AID aid, Class<? extends Applet> appletClass) throws SystemException {
         return installApplet(aid, appletClass, new byte[]{}, (short) 0, (byte) 0);
     }
 
@@ -185,7 +176,7 @@ public class Simulator implements JavaCardInterface {
      * @throws SystemException if <code>appletClass</code> not instanceof
      * <code>javacard.framework.Applet</code>
      */
-    public AID installApplet(AID aid, Class appletClass, byte bArray[], short bOffset,
+    public AID installApplet(AID aid, Class<? extends Applet> appletClass, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
         loadApplet(aid, appletClass);
         return createApplet(aid, bArray, bOffset, bLength);
@@ -212,18 +203,12 @@ public class Simulator implements JavaCardInterface {
     }
 
     public boolean selectApplet(AID aid) throws SystemException {
-    	byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
-    	if(resp != null && resp.length > 1) {
-        	int len = resp.length;
-        	if(resp[len - 2] == (byte)0x90 && resp[len - 1] == 0) {
-        		return true;
-        	}
-        }
-        return false;
+        byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
+        return ByteUtil.getSW(resp) == ISO7816.SW_NO_ERROR;
     }
     
     public byte[] selectAppletWithResult(AID aid) throws SystemException {
-    	return SimulatorSystem.selectAppletWithResult(aid);
+        return SimulatorSystem.selectAppletWithResult(aid);
     }
 
     public byte[] transmitCommand(byte[] command)
@@ -243,18 +228,14 @@ public class Simulator implements JavaCardInterface {
         return atr;
     }
 
-    // inspect class hierarchy
-    private boolean checkAppletSuperclass(Class appletClass) {
-        Class parent = appletClass;
-        while (parent != Object.class) {
-            if (parent == Applet.class) {
-                return true;
-            }
-            parent = parent.getSuperclass();
+    @SuppressWarnings("unchecked")
+    private Class<? extends Applet> requireExtendsApplet(Class<?> aClass) {
+        if (!Applet.class.isAssignableFrom(aClass)) {
+            throw new SystemException(SystemException.ILLEGAL_VALUE);
         }
-        return false;
+        return (Class<? extends Applet>) aClass;
     }
-    
+
     class AppletClassLoader extends URLClassLoader {
 
         AppletClassLoader(URL[] urls) {

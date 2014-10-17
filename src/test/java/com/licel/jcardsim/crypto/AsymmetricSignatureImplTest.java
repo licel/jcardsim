@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.security.KeyBuilder;
 import javacard.security.KeyPair;
 import javacard.security.PrivateKey;
@@ -139,8 +138,8 @@ public class AsymmetricSignatureImplTest extends TestCase {
         Signature signEngine = Signature.getInstance(signAlg, false);
         signEngine.init(privateKey, Signature.MODE_SIGN);
         // sign length + extra space
-        byte[] signature = JCSystem.makeTransientByteArray((short) (128 + 10), JCSystem.CLEAR_ON_RESET);
-        byte[] msg = JCSystem.makeTransientByteArray((short) 65, JCSystem.CLEAR_ON_RESET);
+        byte[] signature = new byte[128 + 10];
+        byte[] msg = new byte[65];
         RandomData rnd = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
         rnd.generateData(msg, (short) 0, (short) msg.length);
         short signLen = signEngine.sign(msg, (short) 0, (short) msg.length, signature, (short) 10);

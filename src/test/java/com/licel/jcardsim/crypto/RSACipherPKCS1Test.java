@@ -15,7 +15,6 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
 import javacard.security.KeyBuilder;
 import javacard.security.RandomData;
 import javacard.security.RSAPrivateKey;
@@ -90,14 +89,14 @@ public class RSACipherPKCS1Test extends TestCase {
         publicKey.setModulus(rsaPrivateKeyModulus, (short) 0,(short) rsaPrivateKeyModulus.length);
 
         cipher.init(publicKey, Cipher.MODE_ENCRYPT);
-        byte[] msg = JCSystem.makeTransientByteArray((short) 53, JCSystem.CLEAR_ON_RESET);
-        byte[] encryptedMsg = JCSystem.makeTransientByteArray((short) 64, JCSystem.CLEAR_ON_RESET);
+        byte[] msg = new byte[53];
+        byte[] encryptedMsg = new byte[64];
         RandomData rnd = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
         rnd.generateData(msg, (short) 0, (short) msg.length);
         cipher.doFinal(msg, (short) 0, (short) msg.length, encryptedMsg, (short) 0);
 
         cipher.init(privateKey, Cipher.MODE_DECRYPT);
-        byte[] decryptedMsg = JCSystem.makeTransientByteArray((short) msg.length, JCSystem.CLEAR_ON_RESET);
+        byte[] decryptedMsg = new byte[msg.length];
         cipher.doFinal(encryptedMsg, (short) 0, (short) encryptedMsg.length, decryptedMsg, (short) 0);
 
         assertEquals(true, Arrays.areEqual(msg, decryptedMsg));

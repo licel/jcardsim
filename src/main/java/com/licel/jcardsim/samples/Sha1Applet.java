@@ -1,10 +1,8 @@
 package com.licel.jcardsim.samples;
 
 import javacard.framework.APDU;
-import javacard.framework.Applet;
 import javacard.framework.ISO7816;
 import javacard.framework.ISOException;
-import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.MessageDigest;
 import javacardx.apdu.ExtendedLength;

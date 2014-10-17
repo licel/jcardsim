@@ -16,7 +16,7 @@
 package com.licel.jcardsim.crypto;
 
 import java.security.SecureRandom;
-import javacard.framework.JCSystem;
+
 import javacard.security.MessageDigest;
 import junit.framework.TestCase;
 import org.bouncycastle.util.Arrays;
@@ -177,7 +177,7 @@ public class MessageDigestImplTest extends TestCase {
      * @param etalonDigest byte array contains etalon digest
      */
     public void testEngineDoFinal(MessageDigest engine, byte[] msg, byte[] etalonDigest) {
-        byte[] digest = JCSystem.makeTransientByteArray(engine.getLength(), JCSystem.CLEAR_ON_RESET);
+        byte[] digest = new byte[engine.getLength()];
         engine.doFinal(msg, (short) 0, (short) msg.length, digest, (short) 0);
         assertEquals(true, Arrays.areEqual(etalonDigest, digest));
     }
@@ -189,7 +189,7 @@ public class MessageDigestImplTest extends TestCase {
      * @param etalonDigest byte array contains etalon digest
      */
     public void testEngineDoUpdateFinal(MessageDigest engine, byte[] msg, byte[] etalonDigest) {
-        byte[] digest = JCSystem.makeTransientByteArray(engine.getLength(), JCSystem.CLEAR_ON_RESET);
+        byte[] digest = new byte[engine.getLength()];
         engine.update(msg, (short) 0, (short) 7);
         engine.doFinal(msg, (short) 7, (short) (msg.length - 7), digest, (short) 0);
         assertEquals(true, Arrays.areEqual(etalonDigest, digest));
@@ -199,8 +199,8 @@ public class MessageDigestImplTest extends TestCase {
      * Test of setInitialDigest method, of class MessageDigestImpl.
      */
     public void testSetInitialDigest() {
-        byte[] initialDigestBuf = JCSystem.makeTransientByteArray((short) 128, JCSystem.CLEAR_ON_RESET);
-        byte[] inputData = JCSystem.makeTransientByteArray((short) 254, JCSystem.CLEAR_ON_RESET);
+        byte[] initialDigestBuf = new byte[128];
+        byte[] inputData = new byte[254];
         rnd.nextBytes(inputData);
 
         MessageDigestImpl[] digests = new MessageDigestImpl[]{engineSHA1, engineMD5, engineRIPEMD160,
@@ -208,8 +208,8 @@ public class MessageDigestImplTest extends TestCase {
 
         for (short i = 0; i < digests.length; i++) {
             System.out.println("testSetInitialDigest() - "+digests[i].getAlgorithm());
-            byte[] digest = JCSystem.makeTransientByteArray(digests[i].getLength(), JCSystem.CLEAR_ON_RESET);
-            byte[] etalonDigest = JCSystem.makeTransientByteArray(digests[i].getLength(), JCSystem.CLEAR_ON_RESET);
+            byte[] digest = new byte[digests[i].getLength()];
+            byte[] etalonDigest = new byte[digests[i].getLength()];
             // calc first part
             short part = digests[i].getBlockSize();
             digests[i].update(inputData, (short) 0, part);
@@ -219,8 +219,8 @@ public class MessageDigestImplTest extends TestCase {
             digests[i].doFinal(inputData, part, (short) (inputData.length - part), digest, (short) 0);
             // etalon
             digests[i].reset();
-            digests[i].update(inputData, (short) 0, (short) part);
-            digests[i].doFinal(inputData, (short) part, (short) (inputData.length - part), etalonDigest, (short) 0);
+            digests[i].update(inputData, (short) 0, part);
+            digests[i].doFinal(inputData, part, (short) (inputData.length - part), etalonDigest, (short) 0);
             assertEquals(true, Arrays.areEqual(etalonDigest, digest));
         }
     }

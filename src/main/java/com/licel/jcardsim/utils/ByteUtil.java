@@ -25,12 +25,27 @@ public final class ByteUtil {
      * @throws java.lang.NullPointerException if <code>bytes</code> is null
      */
     public static String hexString(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
+        return hexString(bytes, 0, bytes.length);
+    }
+
+    /**
+     * Convert byte array into hex string
+     * @param bytes hex string
+     * @param offset offset
+     * @param length length
+     * @return hexString
+     * @throws java.lang.NullPointerException if <code>bytes</code> is null
+     */
+    public static String hexString(byte[] bytes, int offset, int length) {
         // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
         if (bytes == null) {
             throw new NullPointerException("bytes");
         }
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
+        char[] hexChars = new char[length * 2];
+        for ( int j = offset; j < (offset + length); j++ ) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];

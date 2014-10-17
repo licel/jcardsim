@@ -17,9 +17,9 @@ package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.samples.HelloWorldApplet;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import javacard.framework.AID;
+import javacard.framework.Applet;
 import javacard.framework.ISO7816;
 import javacard.framework.Util;
 import junit.framework.TestCase;
@@ -33,7 +33,7 @@ public class SimulatorTest extends TestCase {
     
     private static final byte[] ETALON_ATR = Hex.decode("3BFA1800008131FE454A434F5033315632333298");
     private static final byte[] TEST_APPLET_AID_BYTES = Hex.decode("010203040506070809");
-    private static final Class TEST_APPLET_CLASS = HelloWorldApplet.class;
+    private static final Class<? extends Applet> TEST_APPLET_CLASS = HelloWorldApplet.class;
     private static final String TEST_APPLET_CLASSNAME = "com.licel.jcardsim.samples.HelloWorldApplet";
     private static final AID TEST_APPLET_AID = new AID(TEST_APPLET_AID_BYTES, (short)0, (byte) TEST_APPLET_AID_BYTES.length);
     private static final byte[] TEST_APPLET1_AID_BYTES = Hex.decode("01020304050607080A");

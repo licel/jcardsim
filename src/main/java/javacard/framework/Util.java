@@ -255,4 +255,6 @@ public class Util {
         bArray[bOff + 1] = (byte) sValue;
         return (short) (bOff + 2);
     }
+
+    private Util() {}
 }
