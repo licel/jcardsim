@@ -23,10 +23,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
-import javacard.framework.AID;
-import javacard.framework.Applet;
-import javacard.framework.JCSystem;
-import javacard.framework.SystemException;
+
+import com.licel.jcardsim.utils.ByteUtil;
+import javacard.framework.*;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
@@ -204,18 +203,12 @@ public class Simulator implements JavaCardInterface {
     }
 
     public boolean selectApplet(AID aid) throws SystemException {
-    	byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
-    	if(resp != null && resp.length > 1) {
-        	int len = resp.length;
-        	if(resp[len - 2] == (byte)0x90 && resp[len - 1] == 0) {
-        		return true;
-        	}
-        }
-        return false;
+        byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
+        return ByteUtil.getSW(resp) == ISO7816.SW_NO_ERROR;
     }
     
     public byte[] selectAppletWithResult(AID aid) throws SystemException {
-    	return SimulatorSystem.selectAppletWithResult(aid);
+        return SimulatorSystem.selectAppletWithResult(aid);
     }
 
     public byte[] transmitCommand(byte[] command)
