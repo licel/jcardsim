@@ -37,8 +37,7 @@ public class SelectTest extends TestCase {
     }
 
     private AID aid(String s) {
-        byte[] ba = Hex.decode(s);
-        return new AID(ba, (byte)0, (byte)ba.length);
+        return AIDUtil.create(s);
     }
 
     public void testAidComparator() {

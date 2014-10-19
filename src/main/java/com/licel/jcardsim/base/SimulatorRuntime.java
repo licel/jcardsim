@@ -19,6 +19,7 @@ import com.licel.jcardsim.utils.AIDUtil;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -59,7 +60,7 @@ public class SimulatorRuntime {
             apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte[].class);
             apduPrivateResetMethod.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Internal reflection error", e);
         }
     }
 
@@ -273,6 +274,7 @@ public class SimulatorRuntime {
             SimulatorSystem.setExtendedApduMode(false);
         }
 
+        APDU apdu = SimulatorSystem.getCurrentAPDU();
         try {
             if (selecting) {
                 boolean success;
@@ -288,8 +290,7 @@ public class SimulatorRuntime {
             }
 
             // set apdu
-            APDU apdu = SimulatorSystem.getCurrentAPDU();
-            apduPrivateResetMethod.invoke(apdu, command);
+            apduPrivateResetMethod.invoke(apdu, new Object[]{command});
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
@@ -302,6 +303,11 @@ public class SimulatorRuntime {
         }
         finally {
             selecting = false;
+            try {
+                apduPrivateResetMethod.invoke(apdu, new Object[]{null});
+            } catch (Exception e) {
+                throw new RuntimeException("Internal reflection error", e);
+            }
         }
 
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
