@@ -5,6 +5,9 @@ import org.bouncycastle.util.encoders.Hex;
 
 import java.util.Comparator;
 
+/**
+ * Utility methods for dealing AIDs
+ */
 public final class AIDUtil {
     private static final Comparator<AID> aidComparator = new Comparator<AID>() {
         public int compare(AID aid1, AID aid2) {
