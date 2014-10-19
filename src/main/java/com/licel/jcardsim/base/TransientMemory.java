@@ -16,6 +16,9 @@
 package com.licel.jcardsim.base;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javacard.framework.JCSystem;
 import javacard.framework.SystemException;
 
@@ -24,8 +27,8 @@ import javacard.framework.SystemException;
  */
 public class TransientMemory {
 
-    ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
-    ArrayList<Object> clearOnReset = new ArrayList<Object>();
+    private final ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
+    private final ArrayList<Object> clearOnReset = new ArrayList<Object>();
 
     /**
      * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
@@ -90,6 +93,55 @@ public class TransientMemory {
                 break;
             default:
                 SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        }
+    }
+
+    /**
+     * Zero <code>CLEAR_ON_DESELECT</code> buffers
+     */
+    protected void clearOnDeselect() {
+        zero(clearOnDeselect);
+    }
+
+    /**
+     * Zero <code>CLEAR_ON_RESET</code> and <code>CLEAR_ON_DESELECT</code>
+     * buffers
+     */
+    protected void clearOnReset() {
+        zero(clearOnDeselect);
+        zero(clearOnReset);
+    }
+
+    /**
+     * Perform <code>clearOnReset</code> and forget all buffers
+     */
+    protected void forgetBuffers() {
+        clearOnReset();
+        clearOnDeselect.clear();
+        clearOnReset.clear();
+    }
+
+    /**
+     * Zero all arrays in list
+     * @param list list of arrays
+     */
+    protected final void zero(List<Object> list) {
+        for (Object obj : list) {
+            if (obj instanceof byte[]) {
+                Arrays.fill((byte[]) obj, (byte) 0);
+            }
+            else if (obj instanceof short[]) {
+                Arrays.fill((short[]) obj, (short) 0);
+            }
+            else if (obj instanceof Object[]) {
+                Arrays.fill((Object[])obj, null);
+            }
+            else if (obj instanceof boolean[]) {
+                boolean[] array = (boolean[]) obj;
+                for (int i = 0; i < array.length; ++i) {
+                    array[i] = false;
+                }
+            }
         }
     }
 }

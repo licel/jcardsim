@@ -34,7 +34,9 @@ public class SimulatorRuntime {
     // method for resetting APDUs
     private final Method apduPrivateResetMethod;
     // outbound response byte array buffer
-    private final byte[] responseBuffer = SimulatorSystem.makeInternalBuffer(Short.MAX_VALUE + 2);
+    private final byte[] responseBuffer = new byte[Short.MAX_VALUE + 2];
+    // transient memory
+    private final TransientMemory transientMemory;
 
     // current selected applet
     private AID currentAID;
@@ -48,6 +50,11 @@ public class SimulatorRuntime {
     private boolean selecting = false;
 
     public SimulatorRuntime() {
+        this(new TransientMemory());
+    }
+
+    public SimulatorRuntime(TransientMemory transientMemory) {
+        this.transientMemory = transientMemory;
         try {
             apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte[].class);
             apduPrivateResetMethod.setAccessible(true);
@@ -346,7 +353,7 @@ public class SimulatorRuntime {
         if (SimulatorSystem.getTransactionDepth() != 0) {
             SimulatorSystem.abortTransaction();
         }
-        // TODO perform CLEAR_ON_DESELECT
+        transientMemory.clearOnDeselect();
     }
 
     /**
@@ -381,6 +388,7 @@ public class SimulatorRuntime {
         currentAID = null;
         previousAID = null;
         appletToInstallAID = null;
+        transientMemory.clearOnReset();
     }
 
     void resetRuntime() {
@@ -399,6 +407,12 @@ public class SimulatorRuntime {
         currentAID = null;
         previousAID = null;
         appletToInstallAID = null;
+        transientMemory.clearOnReset();
+        transientMemory.forgetBuffers();
+    }
+
+    final TransientMemory getTransientMemory() {
+        return transientMemory;
     }
 
     static boolean isAppletSelectionApdu(byte[] apdu) {

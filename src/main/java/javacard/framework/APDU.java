@@ -265,14 +265,14 @@ public final class APDU {
     private static final byte NO_GET_RESPONSE_FLAG = 4;
     // total length flags
     private static final byte FLAGS_LENGTH = 5;
-    //
+    // APDU input buffer
     private byte[] buffer;
 
     APDU(boolean extended) {
         this.extended = extended;
-        buffer = SimulatorSystem.makeInternalBuffer(extended ? BUFFER_EXTENDED_SIZE : BUFFER_SIZE);
-        ramVars = JCSystem.makeTransientShortArray(RAM_VARS_LENGTH, JCSystem.CLEAR_ON_RESET);
-        flags = JCSystem.makeTransientBooleanArray(FLAGS_LENGTH, JCSystem.CLEAR_ON_RESET);
+        buffer = new byte[extended ? BUFFER_EXTENDED_SIZE : BUFFER_SIZE];
+        ramVars = new short[RAM_VARS_LENGTH];
+        flags = new boolean[FLAGS_LENGTH];
     }
 
     /**

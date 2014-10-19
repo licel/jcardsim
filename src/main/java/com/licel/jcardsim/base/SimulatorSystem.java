@@ -38,8 +38,6 @@ public class SimulatorSystem {
     private static byte transactionDepth = 0;
     // implementaion api version
     private static final short API_VERSION = 0x202;
-    // transient memory storage
-    private static TransientMemory transientMemory = new TransientMemory();
 
     private static SimulatorRuntime runtime = new SimulatorRuntime();
 
@@ -73,43 +71,35 @@ public class SimulatorSystem {
      * @see javacard.framework.JCSystem#isTransient(Object)
      */
     public static byte isTransient(Object theObj) {
-        return transientMemory.isTransient(theObj);
+        return runtime.getTransientMemory().isTransient(theObj);
     }
 
     /**
      * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
      */
     public static boolean[] makeTransientBooleanArray(short length, byte event) {
-        return transientMemory.makeBooleanArray(length, event);
+        return runtime.getTransientMemory().makeBooleanArray(length, event);
     }
 
     /**
      * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
      */
     public static byte[] makeTransientByteArray(short length, byte event) {
-        return transientMemory.makeByteArray(length, event);
-    }
-
-    /**
-     * Reserve <code>CLEAR_ON_RESET</code> memory for internal use
-     * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
-     */
-    public static byte[] makeInternalBuffer(int length) {
-        return transientMemory.makeByteArray(length, JCSystem.CLEAR_ON_RESET);
+        return runtime.getTransientMemory().makeByteArray(length, event);
     }
 
     /**
      * @see javacard.framework.JCSystem#makeTransientShortArray(short, byte)
      */
     public static short[] makeTransientShortArray(short length, byte event) {
-        return transientMemory.makeShortArray(length, event);
+        return runtime.getTransientMemory().makeShortArray(length, event);
     }
 
     /**
      * @see javacard.framework.JCSystem#makeTransientObjectArray(short, byte)
      */
     public static Object[] makeTransientObjectArray(short length, byte event) {
-        return transientMemory.makeObjectArray(length, event);
+        return runtime.getTransientMemory().makeObjectArray(length, event);
     }
 
     /**
