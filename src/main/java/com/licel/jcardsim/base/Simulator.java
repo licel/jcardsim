@@ -55,7 +55,7 @@ public class Simulator implements JavaCardInterface {
         resetRuntime();
         JCSystem.getVersion();
         atr = Hex.decode(System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
-        // init preinstalled applets
+        // init pre-installed applets
         for (int i = 0; i < 10; i++) {
             String selectedPrefix = PROPERTY_PREFIX;
             String aidPropertyName = PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
@@ -211,8 +211,7 @@ public class Simulator implements JavaCardInterface {
         return SimulatorSystem.selectAppletWithResult(aid);
     }
 
-    public byte[] transmitCommand(byte[] command)
-            throws SystemException {
+    public byte[] transmitCommand(byte[] command) {
         return SimulatorSystem.transmitCommand(command);
     }
 

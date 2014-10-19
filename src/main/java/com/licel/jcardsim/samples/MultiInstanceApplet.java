@@ -2,8 +2,21 @@ package com.licel.jcardsim.samples;
 
 import javacard.framework.*;
 
+/**
+ * Multi instance sample applet
+ *
+ * Returns <code>FCI</code> (file control information) on SELECT
+ *
+ * Supported APDUs:
+ *
+ * <ul>
+ *     <code>CLA=0x80 INS=0</code> return AID
+ *     <code>CLA=0x80 INS=2</code> return instance count
+ *     <code>CLA=0x80 INS=4</code> lock the applet
+ * </ul>
+ */
 public class MultiInstanceApplet extends BaseApplet implements AppletEvent {
-    private static final byte CLA = (byte) 0x90;
+    private static final byte CLA = (byte) 0x80;
     private static final byte INS_GET_FULL_AID = 0;
     private static final byte INS_GET_COUNT = 2;
     private static final byte INS_MAKE_UNUSABLE = 4;

@@ -35,11 +35,13 @@ public interface CardInterface {
     /**
      * Transmit APDU to previous selected applet
      *
+     * If no applet was selected returns <code>byte[2]</code>
+     * with status word 0x6986 (Command not allowed (no current EF))
+     *
      * @param commandAPDU command apdu
-     * @return response apdu
+     * @return response APDU
      * @see javax.smartcardio.CommandAPDU
      * @see javax.smartcardio.ResponseAPDU
-     * @throws javacard.framework.SystemException <code>SystemException.ILLEGAL_USE</code> if appplet not selected before
      */
     public byte[] transmitCommand(byte[] commandAPDU);
 }

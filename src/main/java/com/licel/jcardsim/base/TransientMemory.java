@@ -16,6 +16,9 @@
 package com.licel.jcardsim.base;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javacard.framework.JCSystem;
 import javacard.framework.SystemException;
 
@@ -24,22 +27,11 @@ import javacard.framework.SystemException;
  */
 public class TransientMemory {
 
-    ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
-    ArrayList<Object> clearOnReset = new ArrayList<Object>();
+    private final ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
+    private final ArrayList<Object> clearOnReset = new ArrayList<Object>();
 
     /**
-     * Creates a transient boolean array with the specified array length.
-     * @param length the length of the boolean array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient boolean array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
      */
     boolean[] makeBooleanArray(short length, byte event) {
         boolean[] array = new boolean[length];
@@ -48,18 +40,7 @@ public class TransientMemory {
     }
 
     /**
-     * Creates a transient byte array with the specified array length.
-     * @param length the length of the byte array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient byte array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
      */
     byte[] makeByteArray(int length, byte event) {
         byte[] array = new byte[length];
@@ -68,18 +49,7 @@ public class TransientMemory {
     }
 
     /**
-     * Creates a transient short array with the specified array length.
-     * @param length the length of the short array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient short array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientShortArray(short, byte)
      */
     short[] makeShortArray(short length, byte event) {
         short[] array = new short[length];
@@ -88,18 +58,7 @@ public class TransientMemory {
     }
 
     /**
-     * Creates a transient array of <code>Object</code> with the specified array length.
-     * @param length the length of the Object array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient Object array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientObjectArray(short, byte)
      */
     Object[] makeObjectArray(short length, byte event) {
         Object[] array = new Object[length];
@@ -108,18 +67,7 @@ public class TransientMemory {
     }
 
     /**
-     * Checks if the specified object is transient.
-     * <p>Note:
-     * <ul>
-     * <em>This method returns </em><code>NOT_A_TRANSIENT_OBJECT</code><em> if the specified object is
-     * <code>null</code> or is not an array type.</em>
-     * </ul>
-     * @param theObj the object being queried
-     * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
-     * @see #makeBooleanArray(short, byte)
-     * @see #makeByteArray(short, byte)
-     * @see #makeObjectArray(short, byte)
-     * @see #makeShortArray(short, byte)
+     * @see javacard.framework.JCSystem#isTransient(Object)
      */
     byte isTransient(Object theObj) {
         if (clearOnDeselect.contains(theObj)) {
@@ -145,6 +93,55 @@ public class TransientMemory {
                 break;
             default:
                 SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        }
+    }
+
+    /**
+     * Zero <code>CLEAR_ON_DESELECT</code> buffers
+     */
+    protected void clearOnDeselect() {
+        zero(clearOnDeselect);
+    }
+
+    /**
+     * Zero <code>CLEAR_ON_RESET</code> and <code>CLEAR_ON_DESELECT</code>
+     * buffers
+     */
+    protected void clearOnReset() {
+        zero(clearOnDeselect);
+        zero(clearOnReset);
+    }
+
+    /**
+     * Perform <code>clearOnReset</code> and forget all buffers
+     */
+    protected void forgetBuffers() {
+        clearOnReset();
+        clearOnDeselect.clear();
+        clearOnReset.clear();
+    }
+
+    /**
+     * Zero all arrays in list
+     * @param list list of arrays
+     */
+    protected final void zero(List<Object> list) {
+        for (Object obj : list) {
+            if (obj instanceof byte[]) {
+                Arrays.fill((byte[]) obj, (byte) 0);
+            }
+            else if (obj instanceof short[]) {
+                Arrays.fill((short[]) obj, (short) 0);
+            }
+            else if (obj instanceof Object[]) {
+                Arrays.fill((Object[])obj, null);
+            }
+            else if (obj instanceof boolean[]) {
+                boolean[] array = (boolean[]) obj;
+                for (int i = 0; i < array.length; ++i) {
+                    array[i] = false;
+                }
+            }
         }
     }
 }

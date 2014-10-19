@@ -30,7 +30,7 @@ public class CardManager {
     public static byte[] dispatchApdu(JavaCardInterface sim, byte[] capdu) {
         byte[] theSW = new byte[2];
         if (capdu[ISO7816.OFFSET_CLA] == (byte)0x80 && capdu[ISO7816.OFFSET_INS] == (byte)0xb8) {
-            // handle CREATE APPLTE command
+            // handle CREATE APPLET command
             // command format:
             // CLA    INS  P0    P1
             // 0x8x, 0xb8, 0x00, 0x00
@@ -54,12 +54,7 @@ public class CardManager {
             }
             // forward -> applet. TODO: more clean implementation    
         } else {
-            try {
-                return sim.transmitCommand(capdu);
-            } catch (SystemException e) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
-                return theSW;
-            }
+            return sim.transmitCommand(capdu);
         }
     }
 }

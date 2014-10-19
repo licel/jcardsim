@@ -19,6 +19,7 @@ import com.licel.jcardsim.utils.AIDUtil;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -34,7 +35,9 @@ public class SimulatorRuntime {
     // method for resetting APDUs
     private final Method apduPrivateResetMethod;
     // outbound response byte array buffer
-    private final byte[] responseBuffer = SimulatorSystem.makeInternalBuffer(Short.MAX_VALUE + 2);
+    private final byte[] responseBuffer = new byte[Short.MAX_VALUE + 2];
+    // transient memory
+    private final TransientMemory transientMemory;
 
     // current selected applet
     private AID currentAID;
@@ -48,11 +51,16 @@ public class SimulatorRuntime {
     private boolean selecting = false;
 
     public SimulatorRuntime() {
+        this(new TransientMemory());
+    }
+
+    public SimulatorRuntime(TransientMemory transientMemory) {
+        this.transientMemory = transientMemory;
         try {
             apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte[].class);
             apduPrivateResetMethod.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Internal reflection error", e);
         }
     }
 
@@ -193,22 +201,7 @@ public class SimulatorRuntime {
      * @return data from select command
      */
     byte[] selectApplet(AID aid) {
-        if (aid == null) {
-            throw new NullPointerException("aid");
-        }
-
-        byte[] aidBuffer = new byte[16];
-        byte length = aid.getBytes(aidBuffer, (short) 0);
-
-        byte[] selectCmd = new byte[length + ISO7816.OFFSET_CDATA];
-        selectCmd[ISO7816.OFFSET_CLA] = ISO7816.CLA_ISO7816;
-        selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
-        selectCmd[ISO7816.OFFSET_P1] = 0x04;
-        selectCmd[ISO7816.OFFSET_P2] = 0x00;
-        selectCmd[ISO7816.OFFSET_LC] = length;
-        System.arraycopy(aidBuffer, 0, selectCmd, ISO7816.OFFSET_CDATA, length);
-
-        return transmitCommand(selectCmd);
+        return transmitCommand(AIDUtil.select(aid));
     }
 
     /**
@@ -224,7 +217,6 @@ public class SimulatorRuntime {
      * Transmit APDU to previous selected applet
      * @param command command apdu
      * @return response apdu
-     * @throws SystemException <code>SystemException.ILLEGAL_USE</code> if appplet not selected before
      */
     byte[] transmitCommand(byte[] command) throws SystemException {
         final ApduCase apduCase = ApduCase.getCase(command);
@@ -250,7 +242,8 @@ public class SimulatorRuntime {
         }
 
         if (applet == null) {
-            throw new SystemException(SystemException.ILLEGAL_USE);
+            Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
+            return theSW;
         }
 
         if (apduCase.isExtended()) {
@@ -266,6 +259,7 @@ public class SimulatorRuntime {
             SimulatorSystem.setExtendedApduMode(false);
         }
 
+        APDU apdu = SimulatorSystem.getCurrentAPDU();
         try {
             if (selecting) {
                 boolean success;
@@ -281,8 +275,7 @@ public class SimulatorRuntime {
             }
 
             // set apdu
-            APDU apdu = SimulatorSystem.getCurrentAPDU();
-            apduPrivateResetMethod.invoke(apdu, command);
+            apduPrivateResetMethod.invoke(apdu, new Object[]{command});
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
@@ -295,6 +288,11 @@ public class SimulatorRuntime {
         }
         finally {
             selecting = false;
+            try {
+                apduPrivateResetMethod.invoke(apdu, new Object[]{null});
+            } catch (Exception e) {
+                throw new RuntimeException("Internal reflection error", e);
+            }
         }
 
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
@@ -346,7 +344,7 @@ public class SimulatorRuntime {
         if (SimulatorSystem.getTransactionDepth() != 0) {
             SimulatorSystem.abortTransaction();
         }
-        // TODO perform CLEAR_ON_DESELECT
+        transientMemory.clearOnDeselect();
     }
 
     /**
@@ -381,6 +379,7 @@ public class SimulatorRuntime {
         currentAID = null;
         previousAID = null;
         appletToInstallAID = null;
+        transientMemory.clearOnReset();
     }
 
     void resetRuntime() {
@@ -399,6 +398,12 @@ public class SimulatorRuntime {
         currentAID = null;
         previousAID = null;
         appletToInstallAID = null;
+        transientMemory.clearOnReset();
+        transientMemory.forgetBuffers();
+    }
+
+    final TransientMemory getTransientMemory() {
+        return transientMemory;
     }
 
     static boolean isAppletSelectionApdu(byte[] apdu) {
