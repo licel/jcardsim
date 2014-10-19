@@ -211,8 +211,7 @@ public class Simulator implements JavaCardInterface {
         return SimulatorSystem.selectAppletWithResult(aid);
     }
 
-    public byte[] transmitCommand(byte[] command)
-            throws SystemException {
+    public byte[] transmitCommand(byte[] command) {
         return SimulatorSystem.transmitCommand(command);
     }
 

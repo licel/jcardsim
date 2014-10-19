@@ -224,7 +224,6 @@ public class SimulatorRuntime {
      * Transmit APDU to previous selected applet
      * @param command command apdu
      * @return response apdu
-     * @throws SystemException <code>SystemException.ILLEGAL_USE</code> if appplet not selected before
      */
     byte[] transmitCommand(byte[] command) throws SystemException {
         final ApduCase apduCase = ApduCase.getCase(command);
@@ -250,7 +249,8 @@ public class SimulatorRuntime {
         }
 
         if (applet == null) {
-            throw new SystemException(SystemException.ILLEGAL_USE);
+            Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
+            return theSW;
         }
 
         if (apduCase.isExtended()) {
