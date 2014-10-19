@@ -54,12 +54,7 @@ public class CardManager {
             }
             // forward -> applet. TODO: more clean implementation    
         } else {
-            try {
-                return sim.transmitCommand(capdu);
-            } catch (SystemException e) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
-                return theSW;
-            }
+            return sim.transmitCommand(capdu);
         }
     }
 }

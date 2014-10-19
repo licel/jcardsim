@@ -127,15 +127,12 @@ public class SelectTest extends TestCase {
     public void testApduWithoutSelectedAppletFails() {
         Simulator simulator = new Simulator();
         byte[] cmd = new byte[]{CLA, INS_GET_FULL_AID, 0, 0};
-        try {
-            simulator.transmitCommand(cmd);
-            fail("No exception");
-        }
-        catch (SystemException ex) {
-            assertEquals(SystemException.ILLEGAL_USE, ex.getReason());
-        }
+        byte[] result;
 
-        byte[] result = CardManager.dispatchApdu(simulator, new byte[]{CLA,INS_GET_FULL_AID, 0, 0});
+        result = simulator.transmitCommand(cmd);
+        assertEquals(ISO7816.SW_COMMAND_NOT_ALLOWED, ByteUtil.getSW(result));
+
+        result = CardManager.dispatchApdu(simulator, new byte[]{CLA,INS_GET_FULL_AID, 0, 0});
         assertEquals(ISO7816.SW_COMMAND_NOT_ALLOWED, ByteUtil.getSW(result));
     }
 }
