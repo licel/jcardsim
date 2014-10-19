@@ -10,12 +10,13 @@ import org.bouncycastle.util.encoders.Hex;
 import java.util.Arrays;
 
 public class SelectTest extends TestCase {
-    private static final byte CLA = (byte) 0x90;
+    private static final byte CLA = (byte) 0x80;
     private static final byte INS_GET_FULL_AID = 0;
 
     private static boolean selectedCalled;
 
     private static class UnselectableApplet extends Applet {
+        @SuppressWarnings("unused")
         public static void install(byte[] bArray, short bOffset, byte bLength) {
             new UnselectableApplet().register();
         }
