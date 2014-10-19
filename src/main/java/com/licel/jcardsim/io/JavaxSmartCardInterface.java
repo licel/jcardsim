@@ -25,7 +25,7 @@ import javax.smartcardio.ResponseAPDU;
 public class JavaxSmartCardInterface extends Simulator {
 
     /**
-     * Wraper for the transmitCommand(byte[]) 
+     * Wrapper for transmitCommand(byte[])
      * @param commandApdu CommandAPDU
      * @return ResponseAPDU
      */

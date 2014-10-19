@@ -3,11 +3,38 @@ package com.licel.jcardsim.base;
 import javacard.framework.ISO7816;
 import javacard.framework.Util;
 
+/**
+ * Case of an <code>APDU</code>
+ */
 public enum ApduCase {
+    /**
+     * Case 1 APDU (CLA, INS, P1, P2)
+     */
     Case1(false),
-    Case2(false), Case2Extended(true),
-    Case3(false), Case3Extended(true),
-    Case4(false), Case4Extended(true);
+    /**
+     * Case 2 APDU (CLA, INS, P1, P2, 1 byte Le)
+     */
+    Case2(false),
+    /**
+     * Case 2 extended APDU (CLA, INS, P1, P2, 0, 2 byte Le)
+     */
+    Case2Extended(true),
+    /**
+     * Case 3 APDU (CLA, INS, P1, P2, 1 byte Lc, Data)
+     */
+    Case3(false),
+    /**
+     * Case 3 extended APDU (CLA, INS, P1, P2, 2 byte Lc, Data)
+     */
+    Case3Extended(true),
+    /**
+     * Case 4 APDU (CLA, INS, P1, P2, 1 byte Lc, Data, 1 byte Le)
+     */
+    Case4(false),
+    /**
+     * Case 4 extended APDU (CLA, INS, P1, P2, 0, 2 byte Lc, Data, 2 byte Le)
+     */
+    Case4Extended(true);
 
     private final boolean extended;
 
@@ -15,10 +42,20 @@ public enum ApduCase {
         this.extended = extended;
     }
 
+    /**
+     * @return <code>true</code> for extended APDU
+     */
     public boolean isExtended() {
         return extended;
     }
 
+    /**
+     * Determine case of APDU
+     * @param command command APDU byte buffer
+     * @return Case of <code>command</code>
+     * @throws java.lang.IllegalArgumentException if <code>command</code> is malformed
+     * @throws java.lang.NullPointerException if <code>command</code> is null
+     */
     public static ApduCase getCase(byte[] command) {
         if (command == null) {
             throw new NullPointerException("command");
@@ -27,21 +64,21 @@ public enum ApduCase {
             throw new IllegalArgumentException("command: malformed APDU, length < 4");
         }
         if (command.length == 4) {
-            return Case1; // case 1 (CLA, INS, P1, P2)
+            return Case1;
         }
         if (command.length == 5) {
-            return Case2; // case 2 (CLA, INS, P1, P2, Le)
+            return Case2;
         }
         if (command.length == 7 && command[ISO7816.OFFSET_LC] == 0) {
-            return Case2Extended; // case 2 (CLA, INS, P1, P2, Le)
+            return Case2Extended;
         }
         if (command[ISO7816.OFFSET_LC] == 0) {
             int lc = Util.getShort(command, (short) (ISO7816.OFFSET_LC + 1));
             int offset = ISO7816.OFFSET_LC + 3;
             if (lc + offset == command.length) {
-                return Case3Extended; // case 3 (CLA, INS, P1, P2, Lc, Data)
+                return Case3Extended;
             } else if (lc + offset + 2 == command.length) {
-                return Case4Extended; // case 4 (CLA, INS, P1, P2, Lc, Data, Le)
+                return Case4Extended;
             } else {
                 throw new IllegalArgumentException("Invalid extended C-APDU: Lc or Le is invalid");
             }
@@ -49,9 +86,9 @@ public enum ApduCase {
             int lc = (command[ISO7816.OFFSET_LC] & 0xFF);
             int offset = ISO7816.OFFSET_LC + 1;
             if (lc + offset == command.length) {
-                return Case3; // case 3 (CLA, INS, P1, P2, Lc, Data)
+                return Case3;
             } else if (lc + offset + 1 == command.length) {
-                return Case4; // case 4 (CLA, INS, P1, P2, Lc, Data, Le)
+                return Case4;
             } else {
                 throw new IllegalArgumentException("Invalid C-APDU: Lc or Le is invalid");
             }

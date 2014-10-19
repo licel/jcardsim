@@ -263,16 +263,19 @@ public final class APDU {
     private static final byte INCOMING_FLAG = 3;
     // notGetResponseFlag;
     private static final byte NO_GET_RESPONSE_FLAG = 4;
+    // accessAllowedFlag;
+    private static final byte ACCESS_ALLOWED_FLAG = 5;
     // total length flags
-    private static final byte FLAGS_LENGTH = 5;
-    //
+    private static final byte FLAGS_LENGTH = 6;
+    // APDU input buffer
     private byte[] buffer;
 
     APDU(boolean extended) {
         this.extended = extended;
-        buffer = SimulatorSystem.makeInternalBuffer(extended ? BUFFER_EXTENDED_SIZE : BUFFER_SIZE);
-        ramVars = JCSystem.makeTransientShortArray(RAM_VARS_LENGTH, JCSystem.CLEAR_ON_RESET);
-        flags = JCSystem.makeTransientBooleanArray(FLAGS_LENGTH, JCSystem.CLEAR_ON_RESET);
+        buffer = new byte[extended ? BUFFER_EXTENDED_SIZE : BUFFER_SIZE];
+        ramVars = new short[RAM_VARS_LENGTH];
+        flags = new boolean[FLAGS_LENGTH];
+        internalReset(null);
     }
 
     /**
@@ -714,7 +717,11 @@ public final class APDU {
      */
     public static APDU getCurrentAPDU()
             throws SecurityException {
-        return SimulatorSystem.getCurrentAPDU();
+        APDU currentAPDU = SimulatorSystem.getCurrentAPDU();
+        if (!currentAPDU.flags[ACCESS_ALLOWED_FLAG]) {
+            throw new SecurityException("getCurrentAPDU must not be called outside of Applet#process()");
+        }
+        return currentAPDU;
     }
 
     /**
@@ -752,7 +759,8 @@ public final class APDU {
      * @return logical channel number, if present, within the CLA byte, 0 otherwise
      */
     public static byte getCLAChannel() {
-        return (byte) getCurrentAPDU().ramVars[LOGICAL_CHN];
+        APDU apdu = SimulatorSystem.getCurrentAPDU();
+        return (byte) apdu.ramVars[LOGICAL_CHN];
     }
 
     /**
@@ -772,8 +780,9 @@ public final class APDU {
      */
     public static void waitExtension()
             throws APDUException {
-        if (getCurrentAPDU().flags[NO_CHAINING_FLAG]) {
-            APDUException.throwIt((short) 1);
+        APDU apdu = SimulatorSystem.getCurrentAPDU();
+        if (!apdu.flags[ACCESS_ALLOWED_FLAG] || apdu.flags[NO_CHAINING_FLAG]) {
+            APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
     }
 
@@ -880,10 +889,17 @@ public final class APDU {
      */
     @SuppressWarnings("unused")
     private void internalReset(byte[] inputBuffer) {
+        if (inputBuffer == null) {
+            flags[ACCESS_ALLOWED_FLAG] = false;
+            return;
+        }
+
         Arrays.fill(buffer, (byte) 0);
         Arrays.fill(ramVars, (short) 0);
-        for(byte i=0;i<flags.length;i++) {flags[i]=false;}
         System.arraycopy(inputBuffer, 0, buffer, 0, inputBuffer.length);
+
+        for(byte i=0;i<flags.length;i++) {flags[i]=false;}
+        flags[ACCESS_ALLOWED_FLAG] = true;
 
         int offset = getOffsetCdata() + getIncomingLength();
         short le;
