@@ -70,150 +70,64 @@ public class SimulatorSystem {
     }
 
     /**
-     * Checks if the specified object is transient.
-     * <p>Note:
-     * <ul>
-     * <em>This method returns </em><code>NOT_A_TRANSIENT_OBJECT</code><em> if the specified object is
-     * <code>null</code> or is not an array type.</em>
-     * </ul>
-     * @param theObj the object being queried
-     * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
-     * @see #makeTransientBooleanArray(short, byte)
-     * @see #makeTransientByteArray(short, byte)
-     * @see #makeTransientObjectArray(short, byte)
-     * @see #makeTransientShortArray(short, byte)
+     * @see javacard.framework.JCSystem#isTransient(Object)
      */
     public static byte isTransient(Object theObj) {
         return transientMemory.isTransient(theObj);
     }
 
     /**
-     * Creates a transient boolean array with the specified array length.
-     * @param length the length of the boolean array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient boolean array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
      */
     public static boolean[] makeTransientBooleanArray(short length, byte event) {
         return transientMemory.makeBooleanArray(length, event);
     }
 
     /**
-     * Creates a transient byte array with the specified array length.
-     * @param length the length of the byte array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient byte array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
      */
     public static byte[] makeTransientByteArray(short length, byte event) {
         return transientMemory.makeByteArray(length, event);
     }
 
+    /**
+     * Reserve <code>CLEAR_ON_RESET</code> memory for internal use
+     * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
+     */
     public static byte[] makeInternalBuffer(int length) {
         return transientMemory.makeByteArray(length, JCSystem.CLEAR_ON_RESET);
     }
 
     /**
-     * Creates a transient short array with the specified array length.
-     * @param length the length of the short array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient short array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientShortArray(short, byte)
      */
     public static short[] makeTransientShortArray(short length, byte event) {
         return transientMemory.makeShortArray(length, event);
     }
 
     /**
-     * Creates a transient array of <code>Object</code> with the specified array length.
-     * @param length the length of the Object array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient Object array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientObjectArray(short, byte)
      */
     public static Object[] makeTransientObjectArray(short length, byte event) {
         return transientMemory.makeObjectArray(length, event);
     }
 
     /**
-     * Returns the Java Card runtime environment-owned instance of the <code>AID</code> object associated with
-     * the current applet context, or
-     * <code>null</code> if the <code>Applet.register()</code> method
-     * has not yet been invoked.
-     * <p>Java Card runtime environment-owned instances of <code>AID</code> are permanent Java Card runtime environment
-     * Entry Point Objects and can be accessed from any applet context.
-     * References to these permanent objects can be stored and re-used.
-     * <p>See <em>Runtime Environment Specification for the Java Card Platform</em>, section 6.2.1 for details.
-     * @return the <code>AID</code> object
+     * @see javacard.framework.JCSystem#getAID()
      */
     public static AID getAID() {
         return runtime.getAID();
     }
 
     /**
-     * Returns the Java Card runtime environment-owned instance of the <code>AID</code> object, if any,
-     * encapsulating the specified AID bytes in the <code>buffer</code> parameter
-     * if there exists a successfully installed applet on the card whose instance AID
-     * exactly matches that of the specified AID bytes.
-     * <p>Java Card runtime environment-owned instances of <code>AID</code> are permanent Java Card runtime environment
-     * Entry Point Objects and can be accessed from any applet context.
-     * References to these permanent objects can be stored and re-used.
-     * <p>See <em>Runtime Environment Specification for the Java Card Platform</em>, section 6.2.1 for details.
-     * @param buffer byte array containing the AID bytes
-     * @param offset offset within buffer where AID bytes begin
-     * @param length length of AID bytes in buffer
-     * @return the <code>AID</code> object, if any; <code>null</code> otherwise. A VM exception
-     * is thrown if <code>buffer</code> is <code>null</code>,
-     * or if <code>offset</code> or <code>length</code> are out of range.
+     * @see javacard.framework.JCSystem#lookupAID(byte[], short, byte)
      */
     public static AID lookupAID(byte buffer[], short offset, byte length) {
         return runtime.lookupAID(buffer, offset, length);
     }
 
     /**
-     * Begins an atomic transaction. If a transaction is already in
-     * progress (transaction nesting depth level != 0), a TransactionException is
-     * thrown.
-     * <p>Note:
-     * <ul>
-     * <li><em>This method may do nothing if the <code>Applet.register()</code>
-     * method has not yet been invoked. In case of tear or failure prior to successful
-     * registration, the Java Card runtime environment will roll back all atomically updated persistent state.</em>
-     * </ul>
-     * @throws TransactionException  with the following reason codes:
-     * <ul>
-     * <li><code>TransactionException.IN_PROGRESS</code> if a transaction is already in progress.
-     * </ul>
-     * @see #abortTransaction()
-     * @see #commitTransaction()
+     * @see javacard.framework.JCSystem#beginTransaction()
      */
     public static void beginTransaction() {
         if (transactionDepth != 0) {
@@ -223,28 +137,7 @@ public class SimulatorSystem {
     }
 
     /**
-     * Aborts the atomic transaction. The contents of the commit
-     * buffer is discarded.
-     * <p>Note:
-     * <ul>
-     * <li><em>This method may do nothing if the <code>Applet.register()</code>
-     * method has not yet been invoked. In case of tear or failure prior to successful
-     * registration, the Java Card runtime environment will roll back all atomically updated persistent state.</em>
-     * <li><em>Do not call this method from within a transaction which creates new objects because
-     * the Java Card runtime environment may not recover the heap space used by the new object instances.</em>
-     * <li><em>Do not call this method from within a transaction which creates new objects because
-     * the Java Card runtime environment may, to ensure the security of the card and to avoid heap space loss,
-     * lock up the card session to force tear/reset processing.</em>
-     * <li><em>The Java Card runtime environment ensures that any variable of reference type which references an object
-     * instantiated from within this aborted transaction is equivalent to
-     * a </em><code>null</code><em> reference.</em>
-     * </ul>
-     * @throws TransactionException - with the following reason codes:
-     * <ul>
-     * <li><code>TransactionException.NOT_IN_PROGRESS</code> if a transaction is not in progress.
-     * </ul>
-     * @see #beginTransaction()
-     * @see #commitTransaction()
+     * @see javacard.framework.JCSystem#abortTransaction()
      */
     public static void abortTransaction() {
         if (transactionDepth == 0) {
@@ -254,22 +147,7 @@ public class SimulatorSystem {
     }
 
     /**
-     * Commits an atomic transaction. The contents of commit
-     * buffer is atomically committed. If a transaction is not in
-     * progress (transaction nesting depth level == 0) then a TransactionException is
-     * thrown.
-     * <p>Note:
-     * <ul>
-     * <li><em>This method may do nothing if the <code>Applet.register()</code>
-     * method has not yet been invoked. In case of tear or failure prior to successful
-     * registration, the Java Card runtime environment will roll back all atomically updated persistent state.</em>
-     * </ul>
-     * @throws TransactionException ith the following reason codes:
-     * <ul>
-     * <li><code>TransactionException.NOT_IN_PROGRESS</code> if a transaction is not in progress.
-     * </ul>
-     * @see #beginTransaction()
-     * @see #abortTransaction()
+     * @see javacard.framework.JCSystem#commitTransaction()
      */
     public static void commitTransaction() {
         if (transactionDepth == 0) {
@@ -279,100 +157,61 @@ public class SimulatorSystem {
     }
 
     /**
-     * Returns the current transaction nesting depth level. At present,
-     * only 1 transaction can be in progress at a time.
-     * @return 1 if transaction in progress, 0 if not
+     * @see javacard.framework.JCSystem#getTransactionDepth()
      */
     public static byte getTransactionDepth() {
         return transactionDepth;
     }
 
     /**
-     * Returns the number of bytes left in the commit buffer.
-     * <p> Note:
-     * <ul>
-     * <li><em>Current method implementation returns 32767.</em>
-     * </ul>
-     * @return the number of bytes left in the commit buffer
-     * @see #getMaxCommitCapacity()
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
+     * @return The current implementation always returns 32767
      */
     public static short getUnusedCommitCapacity() {
         return Short.MAX_VALUE;
     }
 
     /**
-     * Returns the total number of bytes in the commit buffer.
-     * This is approximately the maximum number of bytes of
-     * persistent data which can be modified during a transaction.
-     * However, the transaction subsystem requires additional bytes
-     * of overhead data to be included in the commit buffer, and this
-     * depends on the number of fields modified and the implementation
-     * of the transaction subsystem. The application cannot determine
-     * the actual maximum amount of data which can be modified during
-     * a transaction without taking these overhead bytes into consideration.
-     * <p> Note:
-     * <ul>
-     * <li><em>Current method implementation returns 32767.</em>
-     * </ul>
-     * @return the total number of bytes in the commit buffer
-     * @see #getUnusedCommitCapacity()
+     * @see javacard.framework.JCSystem#getMaxCommitCapacity()
+     * @return The current implementation always returns 32767
      */
     public static short getMaxCommitCapacity() {
         return Short.MAX_VALUE;
     }
 
     /**
-     * Obtains the Java Card runtime environment-owned instance of the <code>AID</code> object associated
-     * with the previously active applet context. This method is typically used by a server applet,
-     * while executing a shareable interface method to determine the identity of its client and
-     * thereby control access privileges.
-     * <p>Java Card runtime environment-owned instances of <code>AID</code> are permanent Java Card runtime environment
-     * Entry Point Objects and can be accessed from any applet context.
-     *  References to these permanent objects can be stored and re-used.
-     * <p>See <em>Runtime Environment Specification for the Java Card Platform</em>, section 6.2.1 for details.
-     * @return the <code>AID</code> object of the previous context, or <code>null</code> if Java Card runtime environment
+     * @see javacard.framework.JCSystem#getPreviousContextAID()
      */
     public static AID getPreviousContextAID() {
         return runtime.getPreviousContextAID();
     }
 
     /**
-     * Current method implementation returns 32767.
-     * @return 32767
+     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
+     * @return The current implementation always returns 32767
      */
     public static short getAvailablePersistentMemory() {
         return Short.MAX_VALUE;
     }
 
     /**
-     * Current method implementation returns 32767.
-     * @return 32767
+     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
+     * @return The current implementation always returns 32767
      */
     public static short getAvailableTransientResetMemory() {
         return Short.MAX_VALUE;
     }
 
     /**
-     * Current method implementation returns 32767.
-     * @return 32767
+     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
+     * @return The current implementation always returns 32767
      */
     public static short getAvailableTransientDeselectMemory() {
         return Short.MAX_VALUE;
     }
 
     /**
-     * Called by a client applet to get a server applet's
-     * shareable interface object. <p>This method returns <code>null</code>
-     * if:
-     * <ul>
-     *  <li>the <code>Applet.register()</code> has not yet been invoked</li>
-     *  <li>the server does not exist</li>
-     *  <li>the server returns <code>null</code></li>
-     * </ul>
-     * @param serverAID the AID of the server applet
-     * @param parameter optional parameter data
-     * @return the shareable interface object or <code>null</code>
-     * @see Applet#getShareableInterfaceObject(AID, byte)
+     * @see javacard.framework.JCSystem#getAppletShareableInterfaceObject(javacard.framework.AID, byte)
      */
     public static Shareable getSharedObject(AID serverAID, byte parameter) {
         Applet serverApplet = runtime.getApplet(serverAID);
@@ -384,8 +223,7 @@ public class SimulatorSystem {
     }
 
     /**
-     * Alway return false
-     * @return false value
+     * @see javacard.framework.JCSystem#isObjectDeletionSupported()
      */
     public static boolean isObjectDeletionSupported() {
         return false;
@@ -403,16 +241,7 @@ public class SimulatorSystem {
     }
 
     /**
-     * This method is used to determine if the specified applet is
-     * active on the card.
-     * <p>Note:
-     * <ul>
-     * <li><em>This method returns <code>false</code> if the specified applet is
-     * not active, even if its context is active.</em>
-     * </ul>
-     * @param theApplet the AID of the applet object being queried
-     * @return <code>true</code> if and only if the applet specified by the
-     * AID parameter is currently active on this or another logical channel
+     * @see javacard.framework.JCSystem#isAppletActive(javacard.framework.AID)
      */
     public static boolean isAppletActive(AID theApplet) {
         return (theApplet == runtime.getAID());
@@ -423,38 +252,15 @@ public class SimulatorSystem {
     }
 
     /**
-     * This method is used by the applet to register <code>this</code> applet instance with
-     * the Java Card runtime environment and to
-     * assign the Java Card platform name of the applet as its instance AID bytes.
-     * One of the <code>register()</code> methods must be called from within <code>install()</code>
-     * to be registered with the Java Card runtime environment.
-     * See <em>Runtime Environment Specification for the Java Card Platform</em>, section 3.1 for details.
-     * <p>Note:<ul>
-     * <li><em>The phrase "Java Card platform name of the applet" is a reference to the </em><code>AID[AID_length]</code><em>
-     * item in the </em><code>applets[]</code><em> item of the </em><code>applet_component</code><em>, as documented in Section 6.5
-     * Applet Component in the Virtual Machine Specification for the Java Card Platform.</em>
-     * </ul>
-     * @throws SystemException with the following reason codes:<ul>
-     * <li><code>SystemException.ILLEGAL_AID</code> if the <code>Applet</code> subclass AID bytes are in use or
-     * if the applet instance has previously successfully registered with the Java Card runtime environment via one of the
-     * <code>register()</code> methods or if a Java Card runtime environment initiated <code>install()</code> method execution is not in progress.
-     * </ul>
+     * @see javacard.framework.Applet#register()
      */
     public static void registerApplet(Applet applet) throws SystemException {
         runtime.registerApplet(null, applet);
     }
 
     /**
-     * This method is used by the applet to register <code>this</code> applet instance with the Java Card runtime environment and
-     * assign the specified AID bytes as its instance AID bytes.
-     * One of the <code>register()</code> methods must be called from within <code>install()</code>
-     * to be registered with the Java Card runtime environment.
-     * See <em>Runtime Environment Specification for the Java Card Platform</em>, section 3.1 for details.
-     * <p>Note:<ul>
-     * <li><em>The implementation may require that the instance AID bytes specified are the same as that
-     * supplied in the install parameter data. An ILLEGAL_AID exception may be thrown otherwise.</em>
-     * </ul>
-     */
+      * @see javacard.framework.Applet#register()(byte[], short, byte)
+      */
     public static void registerApplet(Applet applet, byte[] bArray, short bOffset, byte bLength)
             throws SystemException {
         runtime.registerApplet(new AID(bArray, bOffset, bLength), applet);

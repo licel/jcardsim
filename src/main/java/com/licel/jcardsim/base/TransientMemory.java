@@ -28,18 +28,7 @@ public class TransientMemory {
     ArrayList<Object> clearOnReset = new ArrayList<Object>();
 
     /**
-     * Creates a transient boolean array with the specified array length.
-     * @param length the length of the boolean array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient boolean array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
      */
     boolean[] makeBooleanArray(short length, byte event) {
         boolean[] array = new boolean[length];
@@ -48,18 +37,7 @@ public class TransientMemory {
     }
 
     /**
-     * Creates a transient byte array with the specified array length.
-     * @param length the length of the byte array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient byte array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
      */
     byte[] makeByteArray(int length, byte event) {
         byte[] array = new byte[length];
@@ -68,18 +46,7 @@ public class TransientMemory {
     }
 
     /**
-     * Creates a transient short array with the specified array length.
-     * @param length the length of the short array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient short array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientShortArray(short, byte)
      */
     short[] makeShortArray(short length, byte event) {
         short[] array = new short[length];
@@ -88,18 +55,7 @@ public class TransientMemory {
     }
 
     /**
-     * Creates a transient array of <code>Object</code> with the specified array length.
-     * @param length the length of the Object array
-     * @param event the <code>CLEAR_ON...</code> event which causes the array elements to be cleared
-     * @return the new transient Object array
-     * @throws NegativeArraySizeException if the <CODE>length</CODE> parameter is negative
-     * @throws SystemException with the following reason codes:
-     * <ul>
-     * <li><code>SystemException.ILLEGAL_VALUE</code> if event is not a valid event code.
-     * <li><code>SystemException.NO_TRANSIENT_SPACE</code> if sufficient transient space is not available.
-     * <li><code>SystemException.ILLEGAL_TRANSIENT</code> if the current applet context
-     * is not the currently selected applet context and <code>CLEAR_ON_DESELECT</code> is specified.
-     * </ul>
+     * @see javacard.framework.JCSystem#makeTransientObjectArray(short, byte)
      */
     Object[] makeObjectArray(short length, byte event) {
         Object[] array = new Object[length];
@@ -108,18 +64,7 @@ public class TransientMemory {
     }
 
     /**
-     * Checks if the specified object is transient.
-     * <p>Note:
-     * <ul>
-     * <em>This method returns </em><code>NOT_A_TRANSIENT_OBJECT</code><em> if the specified object is
-     * <code>null</code> or is not an array type.</em>
-     * </ul>
-     * @param theObj the object being queried
-     * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
-     * @see #makeBooleanArray(short, byte)
-     * @see #makeByteArray(short, byte)
-     * @see #makeObjectArray(short, byte)
-     * @see #makeShortArray(short, byte)
+     * @see javacard.framework.JCSystem#isTransient(Object)
      */
     byte isTransient(Object theObj) {
         if (clearOnDeselect.contains(theObj)) {
