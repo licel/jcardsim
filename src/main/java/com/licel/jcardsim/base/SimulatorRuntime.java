@@ -201,22 +201,7 @@ public class SimulatorRuntime {
      * @return data from select command
      */
     byte[] selectApplet(AID aid) {
-        if (aid == null) {
-            throw new NullPointerException("aid");
-        }
-
-        byte[] aidBuffer = new byte[16];
-        byte length = aid.getBytes(aidBuffer, (short) 0);
-
-        byte[] selectCmd = new byte[length + ISO7816.OFFSET_CDATA];
-        selectCmd[ISO7816.OFFSET_CLA] = ISO7816.CLA_ISO7816;
-        selectCmd[ISO7816.OFFSET_INS] = ISO7816.INS_SELECT;
-        selectCmd[ISO7816.OFFSET_P1] = 0x04;
-        selectCmd[ISO7816.OFFSET_P2] = 0x00;
-        selectCmd[ISO7816.OFFSET_LC] = length;
-        System.arraycopy(aidBuffer, 0, selectCmd, ISO7816.OFFSET_CDATA, length);
-
-        return transmitCommand(selectCmd);
+        return transmitCommand(AIDUtil.select(aid));
     }
 
     /**

@@ -36,20 +36,16 @@ public class SelectTest extends TestCase {
         super(name);
     }
 
-    private AID aid(String s) {
-        return AIDUtil.create(s);
-    }
-
     public void testAidComparator() {
         AID[] input = new AID[] {
-                aid("A000008812"),
-                aid("FF00066767"),
-                aid("D0000CAFE001"),
-                aid("D0000CAFE000"),
-                aid("D0000CAFE00023"),
-                aid("D0000CAFE00001"),
-                aid("0100CAFE01"),
-                aid("0200888888")
+                AIDUtil.create("A000008812"),
+                AIDUtil.create("FF00066767"),
+                AIDUtil.create("D0000CAFE001"),
+                AIDUtil.create("D0000CAFE000"),
+                AIDUtil.create("D0000CAFE00023"),
+                AIDUtil.create("D0000CAFE00001"),
+                AIDUtil.create("0100CAFE01"),
+                AIDUtil.create("0200888888")
         };
         Arrays.sort(input, AIDUtil.comparator());
 
@@ -64,9 +60,9 @@ public class SelectTest extends TestCase {
     }
 
     private Simulator prepareSimulator() {
-        AID aid0 = aid("010203040506070809");
-        AID aid1 = aid("d0000cafe00001");
-        AID aid2 = aid("d0000cafe00002");
+        AID aid0 = AIDUtil.create("010203040506070809");
+        AID aid1 = AIDUtil.create("d0000cafe00001");
+        AID aid2 = AIDUtil.create("d0000cafe00002");
 
         Simulator simulator = new Simulator();
         simulator.installApplet(aid0, MultiInstanceApplet.class);
@@ -79,7 +75,7 @@ public class SelectTest extends TestCase {
         Simulator simulator = prepareSimulator();
 
         // should select d0000cafe00001
-        assertTrue(simulator.selectApplet(aid("d0000cafe0")));
+        assertTrue(simulator.selectApplet(AIDUtil.create("d0000cafe0")));
         byte[] expected = Hex.decode("d0000cafe000019000");
         byte[] actual = simulator.transmitCommand(new byte[]{CLA,INS_GET_FULL_AID,0,0});
         assertEquals(Arrays.toString(expected), Arrays.toString(actual));
@@ -114,7 +110,7 @@ public class SelectTest extends TestCase {
     public void testCanNotSelectUnselectableApplet() {
         selectedCalled = false;
 
-        AID aid = aid("010203040506070809");
+        AID aid = AIDUtil.create("010203040506070809");
         Simulator simulator = new Simulator();
         simulator.installApplet(aid, UnselectableApplet.class);
 
