@@ -12,7 +12,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class ExtendedLengthTest extends TestCase {
-    private static final byte CLA = Sha1Applet.CLA;
+    private static final byte CLA = (byte) 0x80;
+    private static final byte INS_DIGEST = 0;
+    private static final byte INS_ECHO = 2;
+    private static final byte INS_LEN = 4;
     private static final byte P1 = (byte) 0;
     private static final byte P2 = (byte) 0;
     private static final byte DUMMY = (byte) 0x41;
@@ -37,7 +40,7 @@ public class ExtendedLengthTest extends TestCase {
 
         Simulator instance = prepareSimulator();
 
-        byte[] apdu = new byte[]{CLA, Sha1Applet.INS_DIGEST, P1, P2, 1, DUMMY};
+        byte[] apdu = new byte[]{CLA, INS_DIGEST, P1, P2, 1, DUMMY};
         byte[] result = instance.transmitCommand(apdu);
 
         ResponseAPDU responseApdu = new ResponseAPDU(result);
@@ -52,7 +55,7 @@ public class ExtendedLengthTest extends TestCase {
 
         Simulator instance = prepareSimulator();
 
-        byte[] apdu = new byte[]{CLA, Sha1Applet.INS_LEN, P1, P2, lc, 0, le};
+        byte[] apdu = new byte[]{CLA, INS_LEN, P1, P2, lc, 0, le};
         byte[] result = instance.transmitCommand(apdu);
 
         ResponseAPDU responseApdu = new ResponseAPDU(result);
@@ -65,7 +68,7 @@ public class ExtendedLengthTest extends TestCase {
 
         Simulator instance = prepareSimulator();
 
-        byte[] apdu = new byte[]{CLA, Sha1Applet.INS_ECHO, 0, 0, 1, DUMMY};
+        byte[] apdu = new byte[]{CLA, INS_ECHO, 0, 0, 1, DUMMY};
         byte[] result = instance.transmitCommand(apdu);
 
         ResponseAPDU responseApdu = new ResponseAPDU(result);
@@ -80,7 +83,7 @@ public class ExtendedLengthTest extends TestCase {
 
         Simulator instance = prepareSimulator();
 
-        byte[] apdu = new byte[]{CLA, Sha1Applet.INS_DIGEST, 0, 0, 0, 0, 1, DUMMY};
+        byte[] apdu = new byte[]{CLA, INS_DIGEST, 0, 0, 0, 0, 1, DUMMY};
         byte[] result = instance.transmitCommand(apdu);
 
         ResponseAPDU responseApdu = new ResponseAPDU(result);
@@ -93,7 +96,7 @@ public class ExtendedLengthTest extends TestCase {
 
         Simulator instance = prepareSimulator();
 
-        byte[] apdu = new byte[]{CLA, Sha1Applet.INS_LEN, P1, P2, 0, 0, 1, DUMMY, 0x1F, (byte) 0xCA};
+        byte[] apdu = new byte[]{CLA, INS_LEN, P1, P2, 0, 0, 1, DUMMY, 0x1F, (byte) 0xCA};
         byte[] result = instance.transmitCommand(apdu);
 
         ResponseAPDU responseApdu = new ResponseAPDU(result);
@@ -105,7 +108,7 @@ public class ExtendedLengthTest extends TestCase {
         byte[] expectedOutput = {0x41};
 
         Simulator instance = prepareSimulator();
-        byte[] apdu = new byte[]{CLA, Sha1Applet.INS_ECHO, 0, 0, 0, 0, 1, DUMMY};
+        byte[] apdu = new byte[]{CLA, INS_ECHO, 0, 0, 0, 0, 1, DUMMY};
         byte[] result = instance.transmitCommand(apdu);
 
         ResponseAPDU responseApdu = new ResponseAPDU(result);
@@ -123,7 +126,7 @@ public class ExtendedLengthTest extends TestCase {
 
         ByteBuffer inputApdu = ByteBuffer.wrap(new byte[input.length + 7]);
         inputApdu.put(CLA);
-        inputApdu.put(Sha1Applet.INS_DIGEST);
+        inputApdu.put(INS_DIGEST);
         inputApdu.put(P1);
         inputApdu.put(P2);
         inputApdu.put((byte) 0).putShort((short) input.length); // Lc
@@ -143,7 +146,7 @@ public class ExtendedLengthTest extends TestCase {
 
         ByteBuffer inputApdu = ByteBuffer.wrap(new byte[input.length + 7]);
         inputApdu.put(CLA);
-        inputApdu.put(Sha1Applet.INS_ECHO);
+        inputApdu.put(INS_ECHO);
         inputApdu.put(P1);
         inputApdu.put(P2);
         inputApdu.put((byte) 0).putShort((short) input.length); // Lc
