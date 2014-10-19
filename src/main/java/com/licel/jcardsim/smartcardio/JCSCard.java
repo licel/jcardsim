@@ -85,9 +85,14 @@ public class JCSCard extends Card {
     }
 
     /**
-     * Do nothing.
+     * Disconnect form the card
+     * @param true if the card should be reset
+     * @see Card#disconnect(boolean)
      */
-    public void disconnect(boolean bln) throws CardException {
+    public void disconnect(boolean reset) throws CardException {
+        if (reset) {
+            cardInterface.reset();
+        }
     }
 
     ResponseAPDU transmitCommand(CommandAPDU capdu) {
