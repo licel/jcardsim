@@ -36,7 +36,7 @@ public class SimulatorSystem {
     
     // current depth of transaction
     private static byte transactionDepth = 0;
-    // implementaion api version
+    // implementation api version
     private static final short API_VERSION = 0x202;
 
     private static SimulatorRuntime runtime = new SimulatorRuntime();

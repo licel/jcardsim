@@ -79,35 +79,35 @@ public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject
     }
 
     /**
-     * Imlementation
+     * Implementation
      */
     public SerializableAID loadApplet(SerializableAID aid, String appletClassName) throws RemoteException {
         return new SerializableAID(sim.loadApplet(aid.getAID(), appletClassName));
     }
 
     /**
-     * Imlementation
+     * Implementation
      */
     public SerializableAID loadApplet(SerializableAID aid, String appletClassName, byte[] appletJarContents) throws RemoteException {
         return new SerializableAID(sim.loadApplet(aid.getAID(), appletClassName, appletJarContents));
     }
     
     /**
-     * Imlementation
+     * Implementation
      */
     public SerializableAID createApplet(SerializableAID aid, byte[] bArray, short bOffset, byte bLength) throws RemoteException {
         return new SerializableAID(sim.createApplet(aid.getAID(), bArray, bOffset, bLength));
     }
 
     /**
-     * Imlementation
+     * Implementation
      */
     public byte[] transmitCommand(byte[] data) throws RemoteException {
         return sim.transmitCommand(data);
     }
 
     /**
-     * Imlementation
+     * Implementation
      */
     public boolean selectApplet(SerializableAID aid) throws RemoteException {
         return sim.selectApplet(aid.getAID());
@@ -115,14 +115,14 @@ public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject
 
 
     /**
-     * Imlementation
+     * Implementation
      */
     public void reset() throws RemoteException {
         sim.reset();
     }
 
     /**
-     * Imlementation
+     * Implementation
      */
     public byte[] getATR() throws RemoteException {
         return sim.getATR();

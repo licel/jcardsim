@@ -76,7 +76,7 @@ public class JCardSimProviderTest extends TestCase {
         // get basic channel
         CardChannel jcsChannel = jcsCard.getBasicChannel();
         assertTrue(jcsChannel != null);
-        // create applet data = aid len (byte), aid bytes, params lenth (byte), param 
+        // create applet data = aid len (byte), aid bytes, params length (byte), param
         byte[] aidBytes = Hex.decode(TEST_APPLET_AID);
         byte[] createData = new byte[1+aidBytes.length+1+2+3];
         createData[0] = (byte) aidBytes.length;
@@ -113,7 +113,7 @@ public class JCardSimProviderTest extends TestCase {
         response = jcsChannel.transmit(new CommandAPDU(0x01, 0x03, 0x00, 0x00, ("Hello javacard world !").getBytes()));
         assertEquals(0x9000, response.getSW());
         assertEquals("Hello javacard world !", new String(response.getData()));
-        // test echo intall params
+        // test echo install params
         response = jcsChannel.transmit(new CommandAPDU(0x01, 0x04, 0x00, 0x00));
         assertEquals(0x9000, response.getSW());
         assertEquals(0xF, response.getData()[0]);
