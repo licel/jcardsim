@@ -128,8 +128,24 @@ public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject
         return sim.getATR();
     }
 
+    /**
+     * Implementation
+     */
+    public void changeProtocol(String protocol) throws RemoteException {
+        sim.changeProtocol(protocol);
+    }
+
+    /**
+     * Implementation
+     */
+    public String getProtocol() throws RemoteException {
+        return sim.getProtocol();
+    }
+
+    /**
+     * Implementation
+     */
     public byte[] selectAppletWithResult(SerializableAID aid) throws RemoteException {
         return sim.selectAppletWithResult(aid.getAID());
     }
-
 }
