@@ -85,7 +85,7 @@ public class JCSCard extends Card {
 
     /**
      * Disconnect form the card
-     * @param true if the card should be reset
+     * @param reset true if the card should be reset
      * @see Card#disconnect(boolean)
      */
     public void disconnect(boolean reset) throws CardException {

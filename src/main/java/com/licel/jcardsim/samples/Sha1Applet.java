@@ -11,10 +11,10 @@ import javacardx.apdu.ExtendedLength;
  * Supported APDUs:
  *
  * <ul>
- *     <code>CLA=0x80 INS=0</code> digest of <code>CData</code>
- *     <code>CLA=0x80 INS=2</code> echo input
- *     <code>CLA=0x80 INS=4</code> echo value of <code>Le</code>
- *     <code>CLA=0x80 INS=8</code> return last digest
+ *     <li><code>CLA=0x80 INS=0</code> digest of <code>CData</code></li>
+ *     <li><code>CLA=0x80 INS=2</code> echo input</li>
+ *     <li><code>CLA=0x80 INS=4</code> echo value of <code>Le</code></li>
+ *     <li><code>CLA=0x80 INS=8</code> return last digest</li>
  * </ul>
  */
 public class Sha1Applet extends BaseApplet implements ExtendedLength {

@@ -10,9 +10,9 @@ import javacard.framework.*;
  * Supported APDUs:
  *
  * <ul>
- *     <code>CLA=0x80 INS=0</code> return AID
- *     <code>CLA=0x80 INS=2</code> return instance count
- *     <code>CLA=0x80 INS=4</code> lock the applet
+ *     <li><code>CLA=0x80 INS=0</code> return AID</li>
+ *     <li><code>CLA=0x80 INS=2</code> return instance count</li>
+ *     <li><code>CLA=0x80 INS=4</code> lock the applet</li>
  * </ul>
  */
 public class MultiInstanceApplet extends BaseApplet implements AppletEvent {
