@@ -846,6 +846,13 @@ public final class APDU {
      * @since 2.2.2
      */
     public short getIncomingLength() {
+        if (!flags[INCOMING_FLAG] || flags[OUTGOING_FLAG]) {
+            throw new APDUException(APDUException.ILLEGAL_USE);
+        }
+        return internalGetIncomingLength();
+    }
+
+    private short internalGetIncomingLength() {
         if (extended) {
             return Util.getShort(buffer, (short) (ISO7816.OFFSET_LC + 1));
         }
@@ -868,6 +875,13 @@ public final class APDU {
      * @since 2.2.2
      */
     public short getOffsetCdata() {
+        if (!flags[INCOMING_FLAG] || flags[OUTGOING_FLAG]) {
+            throw new APDUException(APDUException.ILLEGAL_USE);
+        }
+        return internalGetOffsetCdata();
+    }
+
+    private short internalGetOffsetCdata() {
         if (extended) {
             return ISO7816.OFFSET_CDATA + 2;
         }
@@ -901,7 +915,7 @@ public final class APDU {
         for(byte i=0;i<flags.length;i++) {flags[i]=false;}
         flags[ACCESS_ALLOWED_FLAG] = true;
 
-        int offset = getOffsetCdata() + getIncomingLength();
+        int offset = internalGetOffsetCdata() + internalGetIncomingLength();
         short le;
         if (extended) {
             le = ByteUtil.getShort(buffer, offset);
