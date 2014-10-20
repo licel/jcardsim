@@ -30,7 +30,7 @@ public class JCSTerminal extends CardTerminal {
 
     final static String NAME = "jCardSim.Terminal";
     CAD cad;
-    static JCSCard card = null;
+    static JavaCardInterface cardInterface = null;
 
     public JCSTerminal() {
         cad = new CAD(System.getProperties());
@@ -40,11 +40,26 @@ public class JCSTerminal extends CardTerminal {
         return NAME;
     }
 
-    public Card connect(String string) throws CardException {
-        if (card == null) {
-            card = new JCSCard((JavaCardInterface) cad.getCardInterface());
+    /**
+     * @see javax.smartcardio.CardTerminal#connect(String)
+     * @see com.licel.jcardsim.io.JavaCardInterface#changeProtocol(String)
+     */
+    public Card connect(String protocol) throws CardException {
+        if (cardInterface == null) {
+            cardInterface = (JavaCardInterface) cad.getCardInterface();
         }
-        return card;
+
+        if (protocol == null) {
+            throw new NullPointerException("protocol");
+        }
+        else if (protocol.equals("*")) {
+            cardInterface.changeProtocol("T=0");
+        }
+        else {
+            cardInterface.changeProtocol(protocol);
+        }
+
+        return new JCSCard(cardInterface);
     }
 
     /**

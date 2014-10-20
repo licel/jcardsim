@@ -47,21 +47,6 @@ public class SimulatorSystem {
     public static NullPointerException nullPointerException;
     public static SecurityException securityException;
 
-    private static final APDU shortAPDU = createAPDU(false);
-    private static final APDU extendedAPDU = createAPDU(true);
-    private static boolean enableExtendApdu = false;
-
-    private static APDU createAPDU(boolean extended) {
-        try {
-            Constructor<?> ctor = APDU.class.getDeclaredConstructors()[0];
-            ctor.setAccessible(true);
-            return (APDU) ctor.newInstance(extended);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private SimulatorSystem() {
         nullPointerException = new NullPointerException();
         securityException = new SecurityException();
@@ -255,25 +240,6 @@ public class SimulatorSystem {
             throws SystemException {
         runtime.registerApplet(new AID(bArray, bOffset, bLength), applet);
     }
-    
-    /**
-     * Select applet by It's AID
-     * This method or selectApplet() must be called before start working with applet instance
-     * @param aid appletId
-     * @return data from select operation
-     */
-    static byte[] selectAppletWithResult(AID aid) {
-    	return runtime.selectApplet(aid);
-    }
-
-    /**
-     * Transmit <code>commandAPDU</code> to previous selected applet
-     * @param commandAPDU commandAPDU
-     * @return responseAPDU
-     */
-    static byte[] transmitCommand(byte[] commandAPDU) {
-        return runtime.transmitCommand(commandAPDU);
-    }
 
     /**
      * Return if the applet is currently being selected
@@ -307,11 +273,7 @@ public class SimulatorSystem {
         return 0;
     }
 
-    protected static void setExtendedApduMode(boolean enabled) {
-        enableExtendApdu = enabled;
-    }
-
     public static APDU getCurrentAPDU() {
-        return enableExtendApdu ? extendedAPDU : shortAPDU;
+        return runtime.getCurrentAPDU();
     }
 }
