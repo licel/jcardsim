@@ -19,7 +19,7 @@ import com.licel.jcardsim.utils.AIDUtil;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -29,7 +29,6 @@ import java.util.*;
  * @see Applet
  */
 public class SimulatorRuntime {
-
     // storage for registered applets
     private final SortedMap<AID, AppletHolder> applets = new TreeMap<AID, AppletHolder>(AIDUtil.comparator());
     // method for resetting APDUs
@@ -38,6 +37,10 @@ public class SimulatorRuntime {
     private final byte[] responseBuffer = new byte[Short.MAX_VALUE + 2];
     // transient memory
     private final TransientMemory transientMemory;
+    // regular APDU
+    private final APDU shortAPDU;
+    // extended APDU
+    private final APDU extendedAPDU;
 
     // current selected applet
     private AID currentAID;
@@ -49,6 +52,10 @@ public class SimulatorRuntime {
     private short responseBufferSize = 0;
     // if the applet is currently being selected
     private boolean selecting = false;
+    // if extended APDUs are used
+    private boolean usingExtendedAPDUs = false;
+    // current protocol
+    private byte currentProtocol = APDU.PROTOCOL_T0;
 
     public SimulatorRuntime() {
         this(new TransientMemory());
@@ -57,9 +64,15 @@ public class SimulatorRuntime {
     public SimulatorRuntime(TransientMemory transientMemory) {
         this.transientMemory = transientMemory;
         try {
-            apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte[].class);
+            Constructor<?> ctor = APDU.class.getDeclaredConstructors()[0];
+            ctor.setAccessible(true);
+
+            shortAPDU = (APDU) ctor.newInstance(false);
+            extendedAPDU = (APDU) ctor.newInstance(true);
+
+            apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte.class, byte[].class);
             apduPrivateResetMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Internal reflection error", e);
         }
     }
@@ -196,15 +209,6 @@ public class SimulatorRuntime {
     }
 
     /**
-     * Select applet
-     * @param aid Applet AID
-     * @return data from select command
-     */
-    byte[] selectApplet(AID aid) {
-        return transmitCommand(AIDUtil.select(aid));
-    }
-
-    /**
      * Check if applet is currently being selected
      * @param aThis applet
      * @return true if applet is being selected
@@ -248,7 +252,7 @@ public class SimulatorRuntime {
 
         if (apduCase.isExtended()) {
             if (applet instanceof ExtendedLength) {
-                SimulatorSystem.setExtendedApduMode(true);
+                usingExtendedAPDUs = true;
             }
             else {
                 Util.setShort(theSW, (short)0, ISO7816.SW_WRONG_LENGTH);
@@ -256,10 +260,10 @@ public class SimulatorRuntime {
             }
         }
         else {
-            SimulatorSystem.setExtendedApduMode(false);
+            usingExtendedAPDUs = false;
         }
 
-        APDU apdu = SimulatorSystem.getCurrentAPDU();
+        APDU apdu = getCurrentAPDU();
         try {
             if (selecting) {
                 boolean success;
@@ -275,7 +279,8 @@ public class SimulatorRuntime {
             }
 
             // set apdu
-            apduPrivateResetMethod.invoke(apdu, new Object[]{command});
+            resetAPDU(apdu, command);
+
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
@@ -288,11 +293,7 @@ public class SimulatorRuntime {
         }
         finally {
             selecting = false;
-            try {
-                apduPrivateResetMethod.invoke(apdu, new Object[]{null});
-            } catch (Exception e) {
-                throw new RuntimeException("Internal reflection error", e);
-            }
+            resetAPDU(apdu, null);
         }
 
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
@@ -404,6 +405,30 @@ public class SimulatorRuntime {
 
     final TransientMemory getTransientMemory() {
         return transientMemory;
+    }
+
+    protected void resetAPDU(APDU apdu, byte[] buffer) {
+        try {
+            apduPrivateResetMethod.invoke(apdu, currentProtocol, buffer);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Internal reflection error", e);
+        }
+    }
+
+    public APDU getCurrentAPDU() {
+        return usingExtendedAPDUs ? extendedAPDU : shortAPDU;
+    }
+
+    /**
+     * Change protocol
+     * @param protocol protocol bits
+     * @see javacard.framework.APDU#getProtocol()
+     */
+    public void changeProtocol(byte protocol) {
+        this.currentProtocol = protocol;
+        resetAPDU(shortAPDU, null);
+        resetAPDU(extendedAPDU, null);
     }
 
     static boolean isAppletSelectionApdu(byte[] apdu) {
