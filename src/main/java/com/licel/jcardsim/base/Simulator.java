@@ -23,7 +23,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
+import java.util.Locale;
 
+import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.ByteUtil;
 import javacard.framework.*;
 import org.bouncycastle.util.encoders.Hex;
@@ -47,12 +49,19 @@ public class Simulator implements JavaCardInterface {
     static final MessageFormat APPLET_CLASS_SP_TEMPLATE = new MessageFormat("{0}.Class");
     // Applet Class Loader
     final AppletClassLoader cl = new AppletClassLoader(new URL[]{});
+    // runtime
+    private final SimulatorRuntime runtime;
+    // current protocol
+    private String protocol = "T=0";
 
     /**
      * Construct Simulator object and init base systems
      */
     public Simulator() {
-        resetRuntime();
+        this.runtime = SimulatorSystem.getRuntime();
+        runtime.resetRuntime();
+        changeProtocol(protocol);
+
         JCSystem.getVersion();
         atr = Hex.decode(System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
         // init pre-installed applets
@@ -124,18 +133,18 @@ public class Simulator implements JavaCardInterface {
      * <code>javacard.framework.Applet</code>
      */
     public AID loadApplet(AID aid, Class<? extends Applet> appletClass) throws SystemException {
-        SimulatorSystem.getRuntime().loadApplet(aid, requireExtendsApplet(appletClass));
+        runtime.loadApplet(aid, requireExtendsApplet(appletClass));
         return aid;
     }
 
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
         try {
-            Class<? extends Applet> appletClass = SimulatorSystem.getRuntime().getAppletClass(aid);
+            Class<? extends Applet> appletClass = runtime.getAppletClass(aid);
             if (appletClass == null) {
                 throw new SystemException(SystemException.ILLEGAL_AID);
             }
-            SimulatorSystem.getRuntime().appletInstalling(aid);
+            runtime.appletInstalling(aid);
             Method initMethod = appletClass.getMethod("install",
                     new Class[]{byte[].class, short.class, byte.class});
             initMethod.invoke(null, bArray, bOffset, bLength);
@@ -199,32 +208,79 @@ public class Simulator implements JavaCardInterface {
      * @param aid applet aid
      */
     public void deleteApplet(AID aid) {
-        SimulatorSystem.getRuntime().deleteApplet(aid);
+        runtime.deleteApplet(aid);
     }
 
     public boolean selectApplet(AID aid) throws SystemException {
-        byte[] resp = SimulatorSystem.selectAppletWithResult(aid);
+        byte[] resp = runtime.transmitCommand(AIDUtil.select(aid));
         return ByteUtil.getSW(resp) == ISO7816.SW_NO_ERROR;
     }
     
     public byte[] selectAppletWithResult(AID aid) throws SystemException {
-        return SimulatorSystem.selectAppletWithResult(aid);
+        return runtime.transmitCommand(AIDUtil.select(aid));
     }
 
     public byte[] transmitCommand(byte[] command) {
-        return SimulatorSystem.transmitCommand(command);
+        return runtime.transmitCommand(command);
     }
 
     public void reset() {
-        SimulatorSystem.getRuntime().reset();
+        runtime.reset();
     }
 
     public final void resetRuntime() {
-        SimulatorSystem.getRuntime().resetRuntime();
+        runtime.resetRuntime();
     }
 
     public byte[] getATR() {
         return atr;
+    }
+
+    /**
+     * @see com.licel.jcardsim.io.JavaCardInterface#changeProtocol(String)
+     */
+    public void changeProtocol(String protocol) {
+        if (protocol == null) {
+            throw new NullPointerException("protocol");
+        }
+        String p = protocol.toUpperCase(Locale.ENGLISH).replace(" ","");
+        byte protocolByte;
+
+        if (p.equals("T=0") || p.equals("*")) {
+            protocolByte = APDU.PROTOCOL_T0;
+        }
+        else if (p.equals("T=1")) {
+            protocolByte = APDU.PROTOCOL_T1;
+        }
+        else if (p.equals("T=CL,TYPE_A,T0") || p.equals("T=CL")) {
+            protocolByte = APDU.PROTOCOL_MEDIA_CONTACTLESS_TYPE_A;
+            protocolByte |= APDU.PROTOCOL_T0;
+        }
+        else if (p.equals("T=CL,TYPE_A,T1")) {
+            protocolByte = APDU.PROTOCOL_MEDIA_CONTACTLESS_TYPE_A;
+            protocolByte |= APDU.PROTOCOL_T1;
+        }
+        else if (p.equals("T=CL,TYPE_B,T0")) {
+            protocolByte = APDU.PROTOCOL_MEDIA_CONTACTLESS_TYPE_B;
+            protocolByte |= APDU.PROTOCOL_T0;
+        }
+        else if (p.equals("T=CL,TYPE_B,T1")) {
+            protocolByte = APDU.PROTOCOL_MEDIA_CONTACTLESS_TYPE_B;
+            protocolByte |= APDU.PROTOCOL_T1;
+        }
+        else {
+            throw new IllegalArgumentException("Unknown protocol: " + protocol);
+        }
+
+        this.protocol = p;
+        runtime.changeProtocol(protocolByte);
+    }
+
+    /**
+     * @see com.licel.jcardsim.io.JavaCardInterface#getProtocol()
+     */
+    public String getProtocol() {
+        return protocol;
     }
 
     @SuppressWarnings("unchecked")

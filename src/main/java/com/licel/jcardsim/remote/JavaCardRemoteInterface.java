@@ -42,4 +42,8 @@ public interface JavaCardRemoteInterface extends Remote {
     public void reset() throws RemoteException;
 
     public byte[] getATR() throws RemoteException;
+
+    public void changeProtocol(String protocol) throws RemoteException;
+
+    public String getProtocol() throws RemoteException;
 }

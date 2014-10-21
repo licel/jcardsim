@@ -110,7 +110,11 @@ public class JavaCardRemoteClient implements JavaCardInterface {
     private void handleRemoteException(RemoteException e) {
         if (e.getCause() instanceof SystemException) {
             throw (SystemException) e.getCause();
-        } else {
+        }
+        else if (e.getCause() instanceof IllegalArgumentException) {
+            throw (IllegalArgumentException) e.getCause();
+        }
+        else {
             SystemException.throwIt(SystemException.NO_RESOURCE);
         }
     }
@@ -118,6 +122,23 @@ public class JavaCardRemoteClient implements JavaCardInterface {
     public byte[] selectAppletWithResult(AID aid) {
         try {
             return remote.selectAppletWithResult(new SerializableAID(aid));
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+        return null;
+    }
+
+    public void changeProtocol(String protocol) {
+        try {
+            remote.changeProtocol(protocol);
+        } catch (RemoteException e) {
+            handleRemoteException(e);
+        }
+    }
+
+    public String getProtocol() {
+        try {
+            return remote.getProtocol();
         } catch (RemoteException e) {
             handleRemoteException(e);
         }

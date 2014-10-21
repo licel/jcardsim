@@ -12,6 +12,8 @@ public class ApduContextTest extends TestCase {
         public static boolean exceptionInInstall = false;
         public static boolean exceptionInDeselect = false;
         public static boolean exceptionInUninstall = false;
+        public static boolean exceptionIllegalUse1 = false;
+        public static boolean exceptionIllegalUse2 = false;
 
         @SuppressWarnings("unused")
         public static void install(byte[] bArray, short bOffset, byte bLength) {
@@ -19,6 +21,7 @@ public class ApduContextTest extends TestCase {
             exceptionInInstall = false;
             exceptionInDeselect = false;
             exceptionInUninstall = false;
+
 
             try {
                 APDU.getCurrentAPDU();
@@ -42,8 +45,25 @@ public class ApduContextTest extends TestCase {
         }
 
         @Override
-        public void process(APDU apdu) throws ISOException {
-            APDU.getCurrentAPDU();
+        public void process(APDU a) throws ISOException {
+            APDU apdu = APDU.getCurrentAPDU();
+            try {
+                apdu.getIncomingLength();
+                exceptionIllegalUse1 = false;
+            }
+            catch (APDUException e) {
+                exceptionIllegalUse1 = e.getReason() == APDUException.ILLEGAL_USE;
+            }
+            try {
+                apdu.getOffsetCdata();
+                exceptionIllegalUse2 = false;
+            }
+            catch (APDUException e) {
+                exceptionIllegalUse2 = e.getReason() == APDUException.ILLEGAL_USE;
+            }
+            apdu.setIncomingAndReceive();
+            apdu.getIncomingLength();
+            apdu.getOffsetCdata();
         }
 
         @Override
@@ -84,6 +104,8 @@ public class ApduContextTest extends TestCase {
 
         byte[] response = simulator.transmitCommand(new byte[]{(byte) 0x80,0,0,0});
         assertEquals(ISO7816.SW_NO_ERROR, ByteUtil.getSW(response));
+        assertTrue(DummyApplet.exceptionIllegalUse1);
+        assertTrue(DummyApplet.exceptionIllegalUse2);
 
         simulator.selectApplet(otherAppletAID);
         assertTrue(DummyApplet.exceptionInDeselect);

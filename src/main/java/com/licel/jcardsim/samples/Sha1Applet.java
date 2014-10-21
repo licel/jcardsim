@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 Robert Bachmann
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.licel.jcardsim.samples;
 
 import javacard.framework.*;
@@ -11,10 +26,10 @@ import javacardx.apdu.ExtendedLength;
  * Supported APDUs:
  *
  * <ul>
- *     <code>CLA=0x80 INS=0</code> digest of <code>CData</code>
- *     <code>CLA=0x80 INS=2</code> echo input
- *     <code>CLA=0x80 INS=4</code> echo value of <code>Le</code>
- *     <code>CLA=0x80 INS=8</code> return last digest
+ *     <li><code>CLA=0x80 INS=0</code> digest of <code>CData</code></li>
+ *     <li><code>CLA=0x80 INS=2</code> echo input</li>
+ *     <li><code>CLA=0x80 INS=4</code> echo value of <code>Le</code></li>
+ *     <li><code>CLA=0x80 INS=8</code> return last digest</li>
  * </ul>
  */
 public class Sha1Applet extends BaseApplet implements ExtendedLength {
