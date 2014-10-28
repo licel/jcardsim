@@ -24,7 +24,6 @@ import java.lang.reflect.Constructor;
  * @see JCSystem
  */
 public class SimulatorSystem {
-    
     /**
      * Response status : Applet creation failed = 0x6444
      */
@@ -33,247 +32,40 @@ public class SimulatorSystem {
      * Response status : Exception occured = 0x6424
      */
     public static final short SW_EXCEPTION_OCCURED = 0x6424;
-    
-    // current depth of transaction
-    private static byte transactionDepth = 0;
-    // implementation api version
-    private static final short API_VERSION = 0x202;
-
-    private static SimulatorRuntime runtime = new SimulatorRuntime();
-
-    public static byte currentChannel = 0;
-    public static Object previousActiveObject;
-    
-    public static NullPointerException nullPointerException;
-    public static SecurityException securityException;
-
-    private SimulatorSystem() {
-        nullPointerException = new NullPointerException();
-        securityException = new SecurityException();
-    }
 
     /**
-     * @see javacard.framework.JCSystem#isTransient(Object)
+     * Holds the currently active instance
      */
-    public static byte isTransient(Object theObj) {
-        return runtime.getTransientMemory().isTransient(theObj);
-    }
+    private static final ThreadLocal<SimulatorRuntime> currentRuntime = new ThreadLocal<SimulatorRuntime>();
 
     /**
-     * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
+     * the default instance. Used by <code>Simulator</code>
      */
-    public static boolean[] makeTransientBooleanArray(short length, byte event) {
-        return runtime.getTransientMemory().makeBooleanArray(length, event);
-    }
+    public static final SimulatorRuntime DEFAULT_RUNTIME = setCurrentInstance(new SimulatorRuntime());
 
     /**
-     * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
+     * Get the currently active SimulatorRuntime instance
+     *
+     * This method should be only called by JCE implementation classes like
+     * <code>JCSystem</code>
+     *
+     * @return current instance
      */
-    public static byte[] makeTransientByteArray(short length, byte event) {
-        return runtime.getTransientMemory().makeByteArray(length, event);
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#makeTransientShortArray(short, byte)
-     */
-    public static short[] makeTransientShortArray(short length, byte event) {
-        return runtime.getTransientMemory().makeShortArray(length, event);
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#makeTransientObjectArray(short, byte)
-     */
-    public static Object[] makeTransientObjectArray(short length, byte event) {
-        return runtime.getTransientMemory().makeObjectArray(length, event);
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getAID()
-     */
-    public static AID getAID() {
-        return runtime.getAID();
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#lookupAID(byte[], short, byte)
-     */
-    public static AID lookupAID(byte buffer[], short offset, byte length) {
-        return runtime.lookupAID(buffer, offset, length);
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#beginTransaction()
-     */
-    public static void beginTransaction() {
-        if (transactionDepth != 0) {
-            TransactionException.throwIt(TransactionException.IN_PROGRESS);
+    public static SimulatorRuntime instance() {
+        SimulatorRuntime simulatorRuntime = currentRuntime.get();
+        if (simulatorRuntime == null) {
+            throw new AssertionError("No current simulator instance");
         }
-        transactionDepth = 1;
+        return simulatorRuntime;
     }
 
     /**
-     * @see javacard.framework.JCSystem#abortTransaction()
+     * Internal method to set the currently active SimulatorRuntime
+     * @param simulatorRuntime simulatorRuntime to set
+     * @return <code>simulatorRuntime</code>
      */
-    public static void abortTransaction() {
-        if (transactionDepth == 0) {
-            TransactionException.throwIt(TransactionException.NOT_IN_PROGRESS);
-        }
-        transactionDepth = 0;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#commitTransaction()
-     */
-    public static void commitTransaction() {
-        if (transactionDepth == 0) {
-            TransactionException.throwIt(TransactionException.NOT_IN_PROGRESS);
-        }
-        transactionDepth = 0;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getTransactionDepth()
-     */
-    public static byte getTransactionDepth() {
-        return transactionDepth;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
-     * @return The current implementation always returns 32767
-     */
-    public static short getUnusedCommitCapacity() {
-        return Short.MAX_VALUE;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getMaxCommitCapacity()
-     * @return The current implementation always returns 32767
-     */
-    public static short getMaxCommitCapacity() {
-        return Short.MAX_VALUE;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getPreviousContextAID()
-     */
-    public static AID getPreviousContextAID() {
-        return runtime.getPreviousContextAID();
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
-     * @return The current implementation always returns 32767
-     */
-    public static short getAvailablePersistentMemory() {
-        return Short.MAX_VALUE;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
-     * @return The current implementation always returns 32767
-     */
-    public static short getAvailableTransientResetMemory() {
-        return Short.MAX_VALUE;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
-     * @return The current implementation always returns 32767
-     */
-    public static short getAvailableTransientDeselectMemory() {
-        return Short.MAX_VALUE;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#getAppletShareableInterfaceObject(javacard.framework.AID, byte)
-     */
-    public static Shareable getSharedObject(AID serverAID, byte parameter) {
-        Applet serverApplet = runtime.getApplet(serverAID);
-        if (serverApplet != null) {
-            return serverApplet.getShareableInterfaceObject(runtime.getAID(),
-                    parameter);
-        }
-        return null;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#isObjectDeletionSupported()
-     */
-    public static boolean isObjectDeletionSupported() {
-        return false;
-    }
-
-    /**
-     * Always throw SystemException.ILLEGAL_USE
-     */
-    public static void requestObjectDeletion() {
-        // do nothing
-    }
-
-    public static byte getCurrentlySelectedChannel() {
-        return currentChannel;
-    }
-
-    /**
-     * @see javacard.framework.JCSystem#isAppletActive(javacard.framework.AID)
-     */
-    public static boolean isAppletActive(AID theApplet) {
-        return (theApplet == runtime.getAID());
-    }
-
-    public static void sendAPDU(byte[] buffer, short bOff, short len) {
-        runtime.sendAPDU(buffer, bOff, len);
-    }
-
-    /**
-     * @see javacard.framework.Applet#register()
-     */
-    public static void registerApplet(Applet applet) throws SystemException {
-        runtime.registerApplet(null, applet);
-    }
-
-    /**
-      * @see javacard.framework.Applet#register()(byte[], short, byte)
-      */
-    public static void registerApplet(Applet applet, byte[] bArray, short bOffset, byte bLength)
-            throws SystemException {
-        runtime.registerApplet(new AID(bArray, bOffset, bLength), applet);
-    }
-
-    /**
-     * Return if the applet is currently being selected
-     * @param aThis applet
-     * @return true if applet is being selected
-     */
-    public static boolean isAppletSelecting(Applet aThis) {
-    	return runtime.isAppletSelecting(aThis);
-    }
-    
-    /**
-     * Return <code>SimulatorRuntime</code>
-     * @return instance of the SimulatorRuntime
-     */
-    static SimulatorRuntime getRuntime() {
-        return runtime;
-    }
-    
-    public static void resetRuntime() {
-        runtime.resetRuntime();
-    }
-    
-    public static void setJavaOwner(Object obj, Object owner) {
-    }
-    
-    public static Object getJavaOwner(Object obj) {
-        return obj;
-    }
-    
-    public static short getJavaContext(Object obj) {
-        return 0;
-    }
-
-    public static APDU getCurrentAPDU() {
-        return runtime.getCurrentAPDU();
+    static SimulatorRuntime setCurrentInstance(SimulatorRuntime simulatorRuntime) {
+        currentRuntime.set(simulatorRuntime);
+        return simulatorRuntime;
     }
 }

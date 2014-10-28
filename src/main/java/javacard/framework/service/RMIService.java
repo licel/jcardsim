@@ -32,7 +32,7 @@ public class RMIService extends BasicService implements RemoteService {
 
     public RMIService(Remote initialObject) throws NullPointerException {
         if (initialObject == null)
-            throw SimulatorSystem.nullPointerException;
+            throw new NullPointerException("initialObject");
         _remoteObject = initialObject;
     }
 

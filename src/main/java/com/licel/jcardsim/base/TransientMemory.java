@@ -26,14 +26,15 @@ import javacard.framework.SystemException;
  * Basic implementation of storage transient memory of JCRE
  */
 public class TransientMemory {
-
-    private final ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
-    private final ArrayList<Object> clearOnReset = new ArrayList<Object>();
+    /** List of <code>CLEAR_ON_DESELECT</code> arrays */
+    protected final ArrayList<Object> clearOnDeselect = new ArrayList<Object>();
+    /** List of <code>CLEAR_ON_RESET</code> arrays */
+    protected final ArrayList<Object> clearOnReset = new ArrayList<Object>();
 
     /**
      * @see javacard.framework.JCSystem#makeTransientBooleanArray(short, byte)
      */
-    boolean[] makeBooleanArray(short length, byte event) {
+    public boolean[] makeBooleanArray(short length, byte event) {
         boolean[] array = new boolean[length];
         storeArray(array, event);
         return array;
@@ -42,7 +43,7 @@ public class TransientMemory {
     /**
      * @see javacard.framework.JCSystem#makeTransientByteArray(short, byte)
      */
-    byte[] makeByteArray(int length, byte event) {
+    public byte[] makeByteArray(int length, byte event) {
         byte[] array = new byte[length];
         storeArray(array, event);
         return array;
@@ -51,7 +52,7 @@ public class TransientMemory {
     /**
      * @see javacard.framework.JCSystem#makeTransientShortArray(short, byte)
      */
-    short[] makeShortArray(short length, byte event) {
+    public short[] makeShortArray(short length, byte event) {
         short[] array = new short[length];
         storeArray(array, event);
         return array;
@@ -60,7 +61,7 @@ public class TransientMemory {
     /**
      * @see javacard.framework.JCSystem#makeTransientObjectArray(short, byte)
      */
-    Object[] makeObjectArray(short length, byte event) {
+    public Object[] makeObjectArray(short length, byte event) {
         Object[] array = new Object[length];
         storeArray(array, event);
         return array;
@@ -69,7 +70,7 @@ public class TransientMemory {
     /**
      * @see javacard.framework.JCSystem#isTransient(Object)
      */
-    byte isTransient(Object theObj) {
+    public byte isTransient(Object theObj) {
         if (clearOnDeselect.contains(theObj)) {
             return JCSystem.CLEAR_ON_DESELECT;
         } else if (clearOnReset.contains(theObj)) {
@@ -83,7 +84,7 @@ public class TransientMemory {
      * @param arrayRef array reference
      * @param event event type
      */
-    private void storeArray(Object arrayRef, byte event) {
+    protected void storeArray(Object arrayRef, byte event) {
         switch (event) {
             case JCSystem.CLEAR_ON_DESELECT:
                 clearOnDeselect.add(arrayRef);
@@ -125,7 +126,7 @@ public class TransientMemory {
      * Zero all arrays in list
      * @param list list of arrays
      */
-    protected final void zero(List<Object> list) {
+    protected void zero(List<Object> list) {
         for (Object obj : list) {
             if (obj instanceof byte[]) {
                 Arrays.fill((byte[]) obj, (byte) 0);
