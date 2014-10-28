@@ -344,7 +344,7 @@ public final class APDU {
      * @see <CODE>PROTOCOL_T0</CODE>
      */
     public static byte getProtocol() {
-        APDU apdu = SimulatorSystem.getCurrentAPDU();
+        APDU apdu = SimulatorSystem.instance().getCurrentAPDU();
         return (byte) apdu.ramVars[ACTIVE_PROTOCOL];
     }
 
@@ -584,7 +584,7 @@ public final class APDU {
         if (len > Lr) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
-        SimulatorSystem.sendAPDU(buffer, bOff, len);
+        SimulatorSystem.instance().sendAPDU(buffer, bOff, len);
 
         Lr -= len;
         if (Lr == 0) {
@@ -723,7 +723,7 @@ public final class APDU {
      */
     public static APDU getCurrentAPDU()
             throws SecurityException {
-        APDU currentAPDU = SimulatorSystem.getCurrentAPDU();
+        APDU currentAPDU = SimulatorSystem.instance().getCurrentAPDU();
         if (!currentAPDU.flags[ACCESS_ALLOWED_FLAG]) {
             throw new SecurityException("getCurrentAPDU must not be called outside of Applet#process()");
         }
@@ -765,7 +765,7 @@ public final class APDU {
      * @return logical channel number, if present, within the CLA byte, 0 otherwise
      */
     public static byte getCLAChannel() {
-        APDU apdu = SimulatorSystem.getCurrentAPDU();
+        APDU apdu = SimulatorSystem.instance().getCurrentAPDU();
         return (byte) apdu.ramVars[LOGICAL_CHN];
     }
 
@@ -786,7 +786,7 @@ public final class APDU {
      */
     public static void waitExtension()
             throws APDUException {
-        APDU apdu = SimulatorSystem.getCurrentAPDU();
+        APDU apdu = SimulatorSystem.instance().getCurrentAPDU();
         if (!apdu.flags[ACCESS_ALLOWED_FLAG] || apdu.flags[NO_CHAINING_FLAG]) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }

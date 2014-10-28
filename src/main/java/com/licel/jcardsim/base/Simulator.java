@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Properties;
 
 import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.ByteUtil;
@@ -31,7 +32,7 @@ import javacard.framework.*;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
- * Main class for deal with Applets
+ * Simulates a JavaCard
  */
 public class Simulator implements JavaCardInterface {
 
@@ -55,29 +56,57 @@ public class Simulator implements JavaCardInterface {
     private String protocol = "T=0";
 
     /**
-     * Construct Simulator object and init base systems
+     * Create a Simulator object using the default SimulatorRuntime.
+     *
+     * <ul>
+     *     <li>All <code>Simulator</code> instances share one <code>SimulatorRuntime</code>.</li>
+     *     <li>SimulatorRuntime#resetRuntime is called</li>
+     *     <li>If your want multiple independent simulators use <code>Simulator(SimulatorRuntime)</code></li>
+     * </ul>
      */
     public Simulator() {
-        this.runtime = SimulatorSystem.getRuntime();
+        this(SimulatorSystem.DEFAULT_RUNTIME, System.getProperties());
+    }
+
+    /**
+     * Create a Simulator object using a provided Runtime.
+     *
+     * <ul>
+     *     <li>SimulatorRuntime#resetRuntime is called</li>
+     * </ul>
+     *
+     * @param runtime SimulatorRuntime instance to use
+     * @throws java.lang.NullPointerException if <code>runtime</code> is null
+     */
+    public Simulator(SimulatorRuntime runtime) {
+        this(runtime, System.getProperties());
+    }
+
+    protected Simulator(SimulatorRuntime runtime, Properties properties) {
+        if (runtime == null) {
+            throw new NullPointerException("runtime");
+        }
+
+        this.runtime = runtime;
         runtime.resetRuntime();
+
         changeProtocol(protocol);
 
-        JCSystem.getVersion();
-        atr = Hex.decode(System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
+        atr = Hex.decode(properties.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
         // init pre-installed applets
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10 && !properties.isEmpty(); i++) {
             String selectedPrefix = PROPERTY_PREFIX;
             String aidPropertyName = PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
             String aidPropertyOldName = OLD_PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
-            String appletAID = System.getProperty(aidPropertyName);
+            String appletAID = properties.getProperty(aidPropertyName);
             if (appletAID == null) {
-                appletAID = System.getProperty(aidPropertyOldName);
+                appletAID = properties.getProperty(aidPropertyOldName);
                 if (appletAID != null) {
                     selectedPrefix = OLD_PROPERTY_PREFIX;
                 }
             }
             if (appletAID != null) {
-                String appletClassName = System.getProperty(selectedPrefix + APPLET_CLASS_SP_TEMPLATE.format(new Object[]{i}));
+                String appletClassName = properties.getProperty(selectedPrefix + APPLET_CLASS_SP_TEMPLATE.format(new Object[]{i}));
                 if (appletClassName != null) {
                     byte[] aidBytes = Hex.decode(appletAID);
                     if (aidBytes == null || aidBytes.length < 5 || aidBytes.length > 16) {
@@ -88,7 +117,6 @@ public class Simulator implements JavaCardInterface {
                 }
             }
         }
-
     }
 
     public AID loadApplet(AID aid, String appletClassName, byte[] appletJarContents) throws SystemException {

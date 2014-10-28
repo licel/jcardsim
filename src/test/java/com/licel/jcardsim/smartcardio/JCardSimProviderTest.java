@@ -45,7 +45,6 @@ public class JCardSimProviderTest extends TestCase {
     }
 
     public void testProvider() throws CardException, NoSuchAlgorithmException, UnsupportedEncodingException {
-        SimulatorSystem.resetRuntime();
         System.setProperty("com.licel.jcardsim.card.applet.0.AID", TEST_APPLET_AID);
         System.setProperty("com.licel.jcardsim.card.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
         if (Security.getProvider("jCardSim") == null) {

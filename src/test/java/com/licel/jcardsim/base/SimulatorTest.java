@@ -238,4 +238,29 @@ public class SimulatorTest extends TestCase {
         byte[] result = instance.getATR();
         assertEquals(Arrays.areEqual(ETALON_ATR, result), true);
     }
+
+    /**
+     * Test of selectApplet method, of class Simulator.
+     */
+    public void testSelectAppletWith2Simulators() {
+        System.out.println("selectAppletWith2Simulators");
+        Simulator instance1 = new Simulator(new SimulatorRuntime());
+        Simulator instance2 = new Simulator(new SimulatorRuntime());
+
+        instance1.installApplet(TEST_APPLET_AID, TEST_APPLET_CLASS);
+        assertTrue(instance1.selectApplet(TEST_APPLET_AID));
+        assertFalse(instance2.selectApplet(TEST_APPLET_AID));
+
+        instance2.installApplet(TEST_APPLET_AID, TEST_APPLET_CLASS);
+        assertTrue(instance1.selectApplet(TEST_APPLET_AID));
+        assertTrue(instance2.selectApplet(TEST_APPLET_AID));
+
+        instance2.resetRuntime();
+        assertTrue(instance1.selectApplet(TEST_APPLET_AID));
+        assertFalse(instance2.selectApplet(TEST_APPLET_AID));
+
+        instance1.resetRuntime();
+        assertFalse(instance1.selectApplet(TEST_APPLET_AID));
+        assertFalse(instance2.selectApplet(TEST_APPLET_AID));
+    }
 }
