@@ -81,7 +81,6 @@ import com.licel.jcardsim.base.SimulatorSystem;
  * @see SystemException
  */
 public abstract class Applet {
-
     /**
      * Only this class's <code>install()</code> method should create the applet object.
      */
@@ -263,7 +262,7 @@ public abstract class Applet {
      */
     protected final void register()
             throws SystemException {
-        SimulatorSystem.registerApplet(this);
+        SimulatorSystem.instance().registerApplet(null, this);
     }
 
     /**
@@ -292,7 +291,7 @@ public abstract class Applet {
         if (bLength < 5 || bLength > 16) {
             SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
-        SimulatorSystem.registerApplet(this, bArray, bOffset, bLength);
+        SimulatorSystem.instance().registerApplet(new AID(bArray, bOffset, bLength), this);
     }
 
     /**
@@ -302,6 +301,6 @@ public abstract class Applet {
      * @return <code>true</code> if <code>this</code> applet is being selected
      */
     protected final boolean selectingApplet() {
-        return SimulatorSystem.isAppletSelecting(this);
+        return SimulatorSystem.instance().isAppletSelecting(this);
     }
 }

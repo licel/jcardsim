@@ -17,6 +17,8 @@
 package javacard.framework.service;
 
 import java.rmi.Remote;
+
+import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.base.SimulatorSystem;
 
 public class CardRemoteObject implements Remote {
@@ -26,16 +28,18 @@ public class CardRemoteObject implements Remote {
     }
 
     public static void export(Remote obj) throws SecurityException {
-        if (SimulatorSystem.getJavaContext(SimulatorSystem.getJavaOwner(obj)) != SimulatorSystem
-                .getJavaContext(SimulatorSystem
-                        .getJavaOwner(SimulatorSystem.previousActiveObject)))
-            throw SimulatorSystem.securityException;
+        SimulatorRuntime runtime = SimulatorSystem.instance();
+
+        if (runtime.getJavaContext(runtime.getJavaOwner(obj)) !=
+            runtime.getJavaContext(runtime.getJavaOwner(runtime.getPreviousActiveObject())))
+            throw new SecurityException();
     }
 
     public static void unexport(Remote obj) throws SecurityException {
-        if (SimulatorSystem.getJavaContext(SimulatorSystem.getJavaOwner(obj)) != SimulatorSystem
-                .getJavaContext(SimulatorSystem
-                        .getJavaOwner(SimulatorSystem.previousActiveObject)))
-            throw SimulatorSystem.securityException;
+        SimulatorRuntime runtime = SimulatorSystem.instance();
+
+        if (runtime.getJavaContext(runtime.getJavaOwner(obj)) !=
+            runtime.getJavaContext(runtime.getJavaOwner(runtime.getPreviousActiveObject())))
+            throw new SecurityException();
     }
 }
