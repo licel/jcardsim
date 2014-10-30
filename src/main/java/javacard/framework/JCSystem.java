@@ -98,7 +98,7 @@ public final class JCSystem {
      * @see #makeTransientShortArray(short, byte)
      */
     public static byte isTransient(Object theObj) {
-        return SimulatorSystem.isTransient(theObj);
+        return SimulatorSystem.instance().getTransientMemory().isTransient(theObj);
     }
 
     /**
@@ -117,7 +117,7 @@ public final class JCSystem {
      */
     public static boolean[] makeTransientBooleanArray(short length, byte event)
             throws NegativeArraySizeException, SystemException {
-        return SimulatorSystem.makeTransientBooleanArray(length, event);
+        return SimulatorSystem.instance().getTransientMemory().makeBooleanArray(length, event);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class JCSystem {
      */
     public static byte[] makeTransientByteArray(short length, byte event)
             throws NegativeArraySizeException, SystemException {
-        return SimulatorSystem.makeTransientByteArray(length, event);
+        return SimulatorSystem.instance().getTransientMemory().makeByteArray(length, event);
     }
 
     /**
@@ -155,7 +155,7 @@ public final class JCSystem {
      */
     public static short[] makeTransientShortArray(short length, byte event)
             throws NegativeArraySizeException, SystemException {
-        return SimulatorSystem.makeTransientShortArray(length, event);
+        return SimulatorSystem.instance().getTransientMemory().makeShortArray(length, event);
     }
 
     /**
@@ -174,7 +174,7 @@ public final class JCSystem {
      */
     public static Object[] makeTransientObjectArray(short length, byte event)
             throws NegativeArraySizeException, SystemException {
-        return SimulatorSystem.makeTransientObjectArray(length, event);
+        return SimulatorSystem.instance().getTransientMemory().makeObjectArray(length, event);
     }
 
     /**
@@ -197,7 +197,7 @@ public final class JCSystem {
      * @return the <code>AID</code> object
      */
     public static AID getAID() {
-        return SimulatorSystem.getAID();
+        return SimulatorSystem.instance().getAID();
     }
 
     /**
@@ -217,7 +217,7 @@ public final class JCSystem {
      * or if <code>offset</code> or <code>length</code> are out of range.
      */
     public static AID lookupAID(byte buffer[], short offset, byte length) {
-        return SimulatorSystem.lookupAID(buffer, offset, length);
+        return SimulatorSystem.instance().lookupAID(buffer, offset, length);
     }
 
     /**
@@ -239,7 +239,7 @@ public final class JCSystem {
      */
     public static void beginTransaction()
             throws TransactionException {
-        SimulatorSystem.beginTransaction();
+        SimulatorSystem.instance().beginTransaction();
     }
 
     /**
@@ -268,7 +268,7 @@ public final class JCSystem {
      */
     public static void abortTransaction()
             throws TransactionException {
-        SimulatorSystem.abortTransaction();
+        SimulatorSystem.instance().abortTransaction();
     }
 
     /**
@@ -291,7 +291,7 @@ public final class JCSystem {
      */
     public static void commitTransaction()
             throws TransactionException {
-        SimulatorSystem.commitTransaction();
+        SimulatorSystem.instance().commitTransaction();
     }
 
     /**
@@ -300,7 +300,7 @@ public final class JCSystem {
      * @return 1 if transaction in progress, 0 if not
      */
     public static byte getTransactionDepth() {
-        return SimulatorSystem.getTransactionDepth();
+        return SimulatorSystem.instance().getTransactionDepth();
     }
 
     /**
@@ -313,7 +313,7 @@ public final class JCSystem {
      * @see #getMaxCommitCapacity()
      */
     public static short getUnusedCommitCapacity() {
-        return SimulatorSystem.getUnusedCommitCapacity();
+        return SimulatorSystem.instance().getUnusedCommitCapacity();
     }
 
     /**
@@ -334,7 +334,7 @@ public final class JCSystem {
      * @see #getUnusedCommitCapacity()
      */
     public static short getMaxCommitCapacity() {
-        return SimulatorSystem.getMaxCommitCapacity();
+        return SimulatorSystem.instance().getMaxCommitCapacity();
     }
 
     /**
@@ -349,7 +349,7 @@ public final class JCSystem {
      * @return the <code>AID</code> object of the previous context, or <code>null</code> if Java Card runtime environment
      */
     public static AID getPreviousContextAID() {
-        return SimulatorSystem.getPreviousContextAID();
+        return SimulatorSystem.instance().getPreviousContextAID();
     }
 
     /**
@@ -381,13 +381,13 @@ public final class JCSystem {
             throws SystemException {
         switch (memoryType) {
             case MEMORY_TYPE_PERSISTENT:
-                return SimulatorSystem.getAvailablePersistentMemory();
+                return SimulatorSystem.instance().getAvailablePersistentMemory();
 
             case MEMORY_TYPE_TRANSIENT_RESET:
-                return SimulatorSystem.getAvailableTransientResetMemory();
+                return SimulatorSystem.instance().getAvailableTransientResetMemory();
 
             case MEMORY_TYPE_TRANSIENT_DESELECT:
-                return SimulatorSystem.getAvailableTransientDeselectMemory();
+                return SimulatorSystem.instance().getAvailableTransientDeselectMemory();
         }
         SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         return 0;
@@ -408,7 +408,7 @@ public final class JCSystem {
      * @see Applet#getShareableInterfaceObject(AID, byte)
      */
     public static Shareable getAppletShareableInterfaceObject(AID serverAID, byte parameter) {
-        return SimulatorSystem.getSharedObject(serverAID, parameter);
+        return SimulatorSystem.instance().getSharedObject(serverAID, parameter);
     }
 
     /**
@@ -417,7 +417,7 @@ public final class JCSystem {
      * @return <CODE>true</CODE> if the object deletion mechanism is supported, <CODE>false</CODE> otherwise
      */
     public static boolean isObjectDeletionSupported() {
-        return SimulatorSystem.isObjectDeletionSupported();
+        return SimulatorSystem.instance().isObjectDeletionSupported();
     }
 
     /**
@@ -441,7 +441,7 @@ public final class JCSystem {
      */
     public static void requestObjectDeletion()
             throws SystemException {
-        SimulatorSystem.requestObjectDeletion();
+        SimulatorSystem.instance().requestObjectDeletion();
     }
 
     /**
@@ -459,7 +459,7 @@ public final class JCSystem {
      * currently selected applet instance
      */
     public static byte getAssignedChannel() {
-        return SimulatorSystem.getCurrentlySelectedChannel();
+        return SimulatorSystem.instance().getAssignedChannel();
     }
 
     /**
@@ -475,7 +475,7 @@ public final class JCSystem {
      * AID parameter is currently active on this or another logical channel
      */
     public static boolean isAppletActive(AID theApplet) {
-        return SimulatorSystem.isAppletActive(theApplet);
+        return (theApplet == SimulatorSystem.instance().getAID());
     }
 
     private JCSystem() {}

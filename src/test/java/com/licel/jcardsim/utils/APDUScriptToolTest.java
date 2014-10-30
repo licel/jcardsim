@@ -72,7 +72,6 @@ public class APDUScriptToolTest extends TestCase {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            SimulatorSystem.resetRuntime();
             APDUScriptTool.executeCommands(cfg, commandsStream, new PrintStream(baos));
             isException = false;
         } catch (Throwable t) {

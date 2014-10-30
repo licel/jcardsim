@@ -56,6 +56,10 @@ public class SimulatorRuntime {
     private boolean usingExtendedAPDUs = false;
     // current protocol
     private byte currentProtocol = APDU.PROTOCOL_T0;
+    // current depth of transaction
+    private byte transactionDepth = 0;
+    // previousActiveObject
+    private Object previousActiveObject;
 
     public SimulatorRuntime() {
         this(new TransientMemory());
@@ -76,6 +80,14 @@ public class SimulatorRuntime {
             throw new RuntimeException("Internal reflection error", e);
         }
     }
+
+    /**
+     * Register <code>this</code> with <code>SimulatorRuntime</code>
+     */
+    protected final void activateSimulatorRuntimeInstance() {
+        SimulatorSystem.setCurrentInstance(this);
+    }
+
 
     /**
      * Return current applet context AID or null
@@ -117,6 +129,7 @@ public class SimulatorRuntime {
     }
 
     public void appletInstalling(AID aid) {
+        activateSimulatorRuntimeInstance();
         appletToInstallAID = aid;
     }
 
@@ -191,7 +204,7 @@ public class SimulatorRuntime {
     /**
      * Register applet
      */
-    protected void registerApplet(AID aid, Applet applet) {
+    public void registerApplet(AID aid, Applet applet) {
         AppletHolder ah = null;
         // if register(Applet applet);
         if (aid == null && appletToInstallAID != null) {
@@ -222,7 +235,9 @@ public class SimulatorRuntime {
      * @param command command apdu
      * @return response apdu
      */
-    byte[] transmitCommand(byte[] command) throws SystemException {
+    public byte[] transmitCommand(byte[] command) throws SystemException {
+        activateSimulatorRuntimeInstance();
+
         final ApduCase apduCase = ApduCase.getCase(command);
         final byte[] theSW = new byte[2];
         byte[] response;
@@ -263,6 +278,7 @@ public class SimulatorRuntime {
             usingExtendedAPDUs = false;
         }
 
+        responseBufferSize = 0;
         APDU apdu = getCurrentAPDU();
         try {
             if (selecting) {
@@ -306,8 +322,6 @@ public class SimulatorRuntime {
             response = theSW;
         }
 
-        Util.arrayFillNonAtomic(responseBuffer, (short) 0, (short) 255, (byte) 0);
-        responseBufferSize = 0;
         return response;
     }
 
@@ -342,8 +356,8 @@ public class SimulatorRuntime {
                 // ignore all
             }
         }
-        if (SimulatorSystem.getTransactionDepth() != 0) {
-            SimulatorSystem.abortTransaction();
+        if (getTransactionDepth() != 0) {
+            abortTransaction();
         }
         transientMemory.clearOnDeselect();
     }
@@ -354,14 +368,14 @@ public class SimulatorRuntime {
      * @param bOff the starting offset in buffer
      * @param len the length in bytes of the response
      */
-    void sendAPDU(byte[] buffer, short bOff, short len) {
+    public void sendAPDU(byte[] buffer, short bOff, short len) {
         responseBufferSize = Util.arrayCopyNonAtomic(buffer, bOff, responseBuffer, responseBufferSize, len);
     }
 
     /**
      * powerdown/powerup
      */
-    void reset() {
+    public void reset() {
         Iterator<AID> aids = applets.keySet().iterator();
         ArrayList<AID> aidsToTrash = new ArrayList<AID>();
         while (aids.hasNext()) {
@@ -376,6 +390,7 @@ public class SimulatorRuntime {
         }
 
         Arrays.fill(responseBuffer, (byte) 0);
+        transactionDepth = 0;
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
@@ -383,7 +398,8 @@ public class SimulatorRuntime {
         transientMemory.clearOnReset();
     }
 
-    void resetRuntime() {
+    public void resetRuntime() {
+        activateSimulatorRuntimeInstance();
         Iterator<AID> aids = applets.keySet().iterator();
         ArrayList<AID> aidsToTrash = new ArrayList<AID>();
         while (aids.hasNext()) {
@@ -395,6 +411,7 @@ public class SimulatorRuntime {
         }
 
         Arrays.fill(responseBuffer, (byte) 0);
+        transactionDepth = 0;
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
@@ -403,7 +420,7 @@ public class SimulatorRuntime {
         transientMemory.forgetBuffers();
     }
 
-    final TransientMemory getTransientMemory() {
+    public TransientMemory getTransientMemory() {
         return transientMemory;
     }
 
@@ -429,6 +446,133 @@ public class SimulatorRuntime {
         this.currentProtocol = protocol;
         resetAPDU(shortAPDU, null);
         resetAPDU(extendedAPDU, null);
+    }
+
+    public byte getAssignedChannel() {
+        return 0; // basic channel
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#beginTransaction()
+     */
+    public void beginTransaction() {
+        if (transactionDepth != 0) {
+            TransactionException.throwIt(TransactionException.IN_PROGRESS);
+        }
+        transactionDepth = 1;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#abortTransaction()
+     */
+    public void abortTransaction() {
+        if (transactionDepth == 0) {
+            TransactionException.throwIt(TransactionException.NOT_IN_PROGRESS);
+        }
+        transactionDepth = 0;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#commitTransaction()
+     */
+    public void commitTransaction() {
+        if (transactionDepth == 0) {
+            TransactionException.throwIt(TransactionException.NOT_IN_PROGRESS);
+        }
+        transactionDepth = 0;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getTransactionDepth()
+     */
+    public byte getTransactionDepth() {
+        return transactionDepth;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
+     * @return The current implementation always returns 32767
+     */
+    public short getUnusedCommitCapacity() {
+        return Short.MAX_VALUE;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getMaxCommitCapacity()
+     * @return The current implementation always returns 32767
+     */
+    public short getMaxCommitCapacity() {
+        return Short.MAX_VALUE;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
+     * @return The current implementation always returns 32767
+     */
+    public short getAvailablePersistentMemory() {
+        return Short.MAX_VALUE;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
+     * @return The current implementation always returns 32767
+     */
+    public short getAvailableTransientResetMemory() {
+        return Short.MAX_VALUE;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getAvailableMemory(byte)
+     * @return The current implementation always returns 32767
+     */
+    public short getAvailableTransientDeselectMemory() {
+        return Short.MAX_VALUE;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#getAppletShareableInterfaceObject(javacard.framework.AID, byte)
+     */
+    public Shareable getSharedObject(AID serverAID, byte parameter) {
+        Applet serverApplet = getApplet(serverAID);
+        if (serverApplet != null) {
+            return serverApplet.getShareableInterfaceObject(getAID(),
+                    parameter);
+        }
+        return null;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#isObjectDeletionSupported()
+     */
+    public boolean isObjectDeletionSupported() {
+        return false;
+    }
+
+    /**
+     * @see javacard.framework.JCSystem#requestObjectDeletion()
+     */
+    public void requestObjectDeletion() {
+        if (!isObjectDeletionSupported()) {
+            throw new SystemException(SystemException.ILLEGAL_USE);
+        }
+    }
+
+    public void setJavaOwner(Object obj, Object owner) {}
+
+    public Object getJavaOwner(Object obj) {
+        return obj;
+    }
+
+    public short getJavaContext(Object obj) {
+        return 0;
+    }
+
+    public Object getPreviousActiveObject() {
+        return previousActiveObject;
+    }
+
+    public void setPreviousActiveObject(Object previousActiveObject) {
+        this.previousActiveObject = previousActiveObject;
     }
 
     static boolean isAppletSelectionApdu(byte[] apdu) {

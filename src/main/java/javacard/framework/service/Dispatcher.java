@@ -39,9 +39,9 @@ public class Dispatcher {
 
     public Dispatcher(short maxServices) throws ServiceException {
         _services = new Service[maxServices];
-    SimulatorSystem.setJavaOwner(_services, this);
+        SimulatorSystem.instance().setJavaOwner(_services, this);
         _phases = new byte[maxServices];
-    SimulatorSystem.setJavaOwner(_phases, this);
+        SimulatorSystem.instance().setJavaOwner(_phases, this);
         _maxServices = maxServices;
     }
 
