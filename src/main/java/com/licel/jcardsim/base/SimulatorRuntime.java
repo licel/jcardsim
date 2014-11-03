@@ -16,12 +16,16 @@
 package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.utils.AIDUtil;
+import com.licel.jcardsim.utils.BiConsumer;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Base implementation of Java Card Runtime
@@ -29,8 +33,14 @@ import java.util.*;
  * @see Applet
  */
 public class SimulatorRuntime {
-    // storage for registered applets
-    private final SortedMap<AID, AppletHolder> applets = new TreeMap<AID, AppletHolder>(AIDUtil.comparator());
+    // holds the Applet registration callback
+    private final ThreadLocal<BiConsumer<Applet,AID>> registrationCallback;
+    // storage for installed applets
+    private final SortedMap<AID, ApplicationInstance> applets = new TreeMap<AID, ApplicationInstance>(AIDUtil.comparator());
+    // storage for load files
+    private final SortedMap<AID, LoadFile> loadFiles = new TreeMap<AID, LoadFile>(AIDUtil.comparator());
+    // storage for automatically generated loadFile AIDs
+    private final SortedMap<AID, AID> generatedLoadFileAIDs = new TreeMap<AID, AID>(AIDUtil.comparator());
     // method for resetting APDUs
     private final Method apduPrivateResetMethod;
     // outbound response byte array buffer
@@ -46,8 +56,6 @@ public class SimulatorRuntime {
     private AID currentAID;
     // previous selected applet
     private AID previousAID;
-    // applet in INSTALL phase
-    private AID appletToInstallAID;
     // outbound response byte array buffer size
     private short responseBufferSize = 0;
     // if the applet is currently being selected
@@ -65,6 +73,7 @@ public class SimulatorRuntime {
         this(new TransientMemory());
     }
 
+    @SuppressWarnings("unchecked")
     public SimulatorRuntime(TransientMemory transientMemory) {
         this.transientMemory = transientMemory;
         try {
@@ -76,6 +85,10 @@ public class SimulatorRuntime {
 
             apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte.class, byte[].class);
             apduPrivateResetMethod.setAccessible(true);
+
+            Field f = Applet.class.getDeclaredField("registrationCallback");
+            f.setAccessible(true);
+            registrationCallback = (ThreadLocal<BiConsumer<Applet,AID>>) f.get(null);
         } catch (Exception e) {
             throw new RuntimeException("Internal reflection error", e);
         }
@@ -112,7 +125,7 @@ public class SimulatorRuntime {
     /**
      * Lookup applet by aid
      */
-    public AppletHolder lookupApplet(AID lookupAid) {
+    public ApplicationInstance lookupApplet(AID lookupAid) {
         for (AID aid : applets.keySet()) {
             if (aid.equals(lookupAid)) {
                 return applets.get(aid);
@@ -128,11 +141,6 @@ public class SimulatorRuntime {
         return previousAID;
     }
 
-    public void appletInstalling(AID aid) {
-        activateSimulatorRuntimeInstance();
-        appletToInstallAID = aid;
-    }
-
     /**
      * Return <code>Applet</code> by it's AID or null
      * @param aid applet <code>AID</code>
@@ -141,54 +149,52 @@ public class SimulatorRuntime {
         if (aid == null) {
             return null;
         }
-        AppletHolder a = lookupApplet(aid);
+        ApplicationInstance a = lookupApplet(aid);
         if(a == null) return null;
         else return a.getApplet();
-    }
-
-     /**
-     * Return <code>Applet class</code> by it's AID or null
-     * @param aid applet <code>AID</code>
-     */
-    protected Class<? extends Applet> getAppletClass(AID aid) {
-        if (aid == null) {
-            return null;
-        }
-        AppletHolder a = lookupApplet(aid);
-        if (a == null) {
-            return null;
-        }
-        return a.getAppletClass();
     }
 
     /**
      * Load applet
      */
-    protected void loadApplet(AID aid, Class<? extends Applet> appletClass) {
-        // see specification
-        if (lookupApplet(aid) != null) {
-            SystemException.throwIt(SystemException.ILLEGAL_AID);
+    public void loadApplet(AID aid, Class<? extends Applet> appletClass) {
+        if (generatedLoadFileAIDs.keySet().contains(aid)) {
+            throw new SystemException(SystemException.ILLEGAL_AID);
         }
-        applets.put(aid, new AppletHolder(appletClass));
+        // generate a load file AID
+        byte[] generated = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0, 0};
+        Util.setShort(generated, (short) 3, (short) generatedLoadFileAIDs.size());
+        AID generatedAID = AIDUtil.create(generated);
+
+        generatedLoadFileAIDs.put(aid, generatedAID);
+        loadLoadFile(new LoadFile(generatedAID, generatedAID, appletClass));
+    }
+
+    public void loadLoadFile(LoadFile loadFile) {
+        AID key = loadFile.getAid();
+        if (loadFiles.keySet().contains(key) || applets.keySet().contains(key)) {
+            throw new IllegalStateException("LoadFile AID already used");
+        }
+        loadFiles.put(key, loadFile);
     }
 
     /**
      * Delete applet
      */
     protected void deleteApplet(AID aid) {
-        AppletHolder appletHolder = lookupApplet(aid);
-        if (appletHolder == null) {
+        ApplicationInstance applicationInstance = lookupApplet(aid);
+        if (applicationInstance == null) {
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
 
         applets.remove(aid);
-        Applet applet = appletHolder.getApplet();
+        Applet applet = applicationInstance.getApplet();
         if (applet == null) {
             return;
         }
 
         if (getApplet(currentAID) == applet) {
-            deselect(appletHolder);
+            deselect(applicationInstance);
         }
 
         if (applet instanceof AppletEvent) {
@@ -199,26 +205,6 @@ public class SimulatorRuntime {
                 // ignore all
             }
         }
-    }
-
-    /**
-     * Register applet
-     */
-    public void registerApplet(AID aid, Applet applet) {
-        AppletHolder ah = null;
-        // if register(Applet applet);
-        if (aid == null && appletToInstallAID != null) {
-            ah = lookupApplet(appletToInstallAID);
-        } else if (aid != null) {
-            ah = lookupApplet(aid);
-        }
-        if (ah == null) {
-            throw new SystemException(SystemException.ILLEGAL_AID);
-        }
-        ah.setApplet(applet);
-        ah.register();
-        ah.install();
-        appletToInstallAID = null;
     }
 
     /**
@@ -347,10 +333,10 @@ public class SimulatorRuntime {
         return null;
     }
 
-    protected void deselect(AppletHolder appletHolder) {
-        if (appletHolder != null) {
+    protected void deselect(ApplicationInstance applicationInstance) {
+        if (applicationInstance != null) {
             try {
-                Applet applet = appletHolder.getApplet();
+                Applet applet = applicationInstance.getApplet();
                 applet.deselect();
             } catch (Exception e) {
                 // ignore all
@@ -376,25 +362,11 @@ public class SimulatorRuntime {
      * powerdown/powerup
      */
     public void reset() {
-        Iterator<AID> aids = applets.keySet().iterator();
-        ArrayList<AID> aidsToTrash = new ArrayList<AID>();
-        while (aids.hasNext()) {
-            AID aid = aids.next();
-            AppletHolder ah = lookupApplet(aid);
-            if (ah.getState() != AppletHolder.INSTALLED) {
-                aidsToTrash.add(aid);
-            }
-        }
-        for (AID anAidsToTrash : aidsToTrash) {
-            deleteApplet(anAidsToTrash);
-        }
-
         Arrays.fill(responseBuffer, (byte) 0);
         transactionDepth = 0;
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
-        appletToInstallAID = null;
         transientMemory.clearOnReset();
     }
 
@@ -410,12 +382,13 @@ public class SimulatorRuntime {
             deleteApplet(anAidsToTrash);
         }
 
+        loadFiles.clear();
+        generatedLoadFileAIDs.clear();
         Arrays.fill(responseBuffer, (byte) 0);
         transactionDepth = 0;
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
-        appletToInstallAID = null;
         transientMemory.clearOnReset();
         transientMemory.forgetBuffers();
     }
@@ -428,7 +401,6 @@ public class SimulatorRuntime {
         try {
             apduPrivateResetMethod.invoke(apdu, currentProtocol, buffer);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("Internal reflection error", e);
         }
     }
@@ -588,48 +560,87 @@ public class SimulatorRuntime {
                 p1 == 4 && p2 == 0;
     }
 
-    // internal class which is holds Applet instance and it's state
-    class AppletHolder {
-        final static byte DOWNLOADING = 0;
-        final static byte LOADED = 1;
-        final static byte INSTALLED = 2;
-        final static byte REGISTERED = 3;
-        private byte state;
-        private Applet applet;
-        private Class<? extends Applet> appletClass;
-        
-        AppletHolder(Applet applet, byte state){
+    public void installApplet(final AID appletAid, byte[] bArray, short bOffset, byte bLength) {
+        AID generatedAID = generatedLoadFileAIDs.get(appletAid);
+        if (generatedAID == null || !loadFiles.keySet().contains(generatedAID)) {
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
+        installApplet(generatedAID, generatedAID, appletAid, bArray, bOffset, bLength);
+    }
+
+    public void installApplet(AID loadFileAID, AID moduleAID, final AID appletAID,
+                              byte[] bArray, short bOffset, byte bLength) {
+        LoadFile loadFile = loadFiles.get(loadFileAID);
+        if (loadFile == null) {
+            throw new IllegalArgumentException("LoadFile AID not found " + AIDUtil.toString(loadFileAID));
+        }
+        Module module = loadFile.getModule(moduleAID);
+        if (module == null) {
+            throw new IllegalArgumentException("Module AID not found " + AIDUtil.toString(moduleAID));
+        }
+
+        Class<? extends Applet> appletClass = module.getAppletClass();
+        Method initMethod;
+        try {
+            initMethod = appletClass.getMethod("install",
+                    new Class[]{byte[].class, short.class, byte.class});
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Class does not provide install method");
+        }
+
+        final AtomicInteger callCount = new AtomicInteger(0);
+        registrationCallback.set(new BiConsumer<Applet,AID>() {
+            public void accept(Applet applet, AID installAID) {
+                // disallow second call to register
+                if (callCount.incrementAndGet() != 1) {
+                    throw new SystemException(SystemException.ILLEGAL_AID);
+                }
+
+                // register applet
+                if (installAID != null) {
+                    applets.put(installAID, new ApplicationInstance(installAID, applet));
+                }
+                else {
+                    applets.put(appletAID, new ApplicationInstance(appletAID, applet));
+                }
+            }
+        });
+
+        try {
+            initMethod.invoke(null, bArray, bOffset, bLength);
+        }
+        catch (SystemException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
+        finally {
+            registrationCallback.set(null);
+        }
+
+        if (callCount.get() != 1) {
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
+    }
+
+    /** Represents an Applet instance */
+    public static class ApplicationInstance {
+        private final AID aid;
+        private final Applet applet;
+
+        public ApplicationInstance(AID aid, Applet applet) {
+            this.aid = aid;
             this.applet = applet;
-            this.state = state;
         }
-        
-        AppletHolder(Class<? extends Applet> appletClass) {
-            this.appletClass = appletClass;
-            this.state = LOADED;
-        }
-        
-        void install(){
-            this.state = INSTALLED;
-        }
-        
-        void register(){
-            this.state = REGISTERED;
-        }
-        
-        byte getState(){
-            return state;
-        }
-        
-        void setApplet(Applet applet){
-            this.applet = applet;
-        }
-        
-        Applet getApplet(){
+
+        public Applet getApplet(){
             return applet;
         }
-        
-        Class<? extends Applet> getAppletClass(){
-            return appletClass;
+
+        @Override
+        public String toString() {
+            return String.format("ApplicationInstance (%s)", AIDUtil.toString(aid));
         }
     }
 }

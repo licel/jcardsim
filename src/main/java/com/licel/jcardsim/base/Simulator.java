@@ -168,15 +168,9 @@ public class Simulator implements JavaCardInterface {
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
         try {
-            Class<? extends Applet> appletClass = runtime.getAppletClass(aid);
-            if (appletClass == null) {
-                throw new SystemException(SystemException.ILLEGAL_AID);
-            }
-            runtime.appletInstalling(aid);
-            Method initMethod = appletClass.getMethod("install",
-                    new Class[]{byte[].class, short.class, byte.class});
-            initMethod.invoke(null, bArray, bOffset, bLength);
-        } catch (Exception ex) {
+            runtime.installApplet(aid, bArray, bOffset, bLength);
+        }
+        catch (Exception e) {
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CREATION_FAILED);
         }
         return aid;
