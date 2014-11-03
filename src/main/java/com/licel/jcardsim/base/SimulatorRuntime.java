@@ -34,40 +34,40 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SimulatorRuntime {
     // holds the Applet registration callback
-    private final ThreadLocal<BiConsumer<Applet,AID>> registrationCallback;
-    // storage for installed applets
-    private final SortedMap<AID, ApplicationInstance> applets = new TreeMap<AID, ApplicationInstance>(AIDUtil.comparator());
-    // storage for load files
-    private final SortedMap<AID, LoadFile> loadFiles = new TreeMap<AID, LoadFile>(AIDUtil.comparator());
-    // storage for automatically generated loadFile AIDs
-    private final SortedMap<AID, AID> generatedLoadFileAIDs = new TreeMap<AID, AID>(AIDUtil.comparator());
-    // method for resetting APDUs
-    private final Method apduPrivateResetMethod;
-    // outbound response byte array buffer
-    private final byte[] responseBuffer = new byte[Short.MAX_VALUE + 2];
-    // transient memory
-    private final TransientMemory transientMemory;
-    // regular APDU
-    private final APDU shortAPDU;
-    // extended APDU
-    private final APDU extendedAPDU;
+    protected final ThreadLocal<BiConsumer<Applet,AID>> registrationCallback;
+    /** storage for installed applets */
+    protected final SortedMap<AID, ApplicationInstance> applets = new TreeMap<AID, ApplicationInstance>(AIDUtil.comparator());
+    /** storage for load files */
+    protected final SortedMap<AID, LoadFile> loadFiles = new TreeMap<AID, LoadFile>(AIDUtil.comparator());
+    /** storage for automatically generated loadFile AIDs */
+    protected final SortedMap<AID, AID> generatedLoadFileAIDs = new TreeMap<AID, AID>(AIDUtil.comparator());
+    /** method for resetting APDUs */
+    protected final Method apduPrivateResetMethod;
+    /** outbound response byte array buffer */
+    protected final byte[] responseBuffer = new byte[Short.MAX_VALUE + 2];
+    /** transient memory */
+    protected final TransientMemory transientMemory;
+    /** regular APDU */
+    protected final APDU shortAPDU;
+    /** extended APDU */
+    protected final APDU extendedAPDU;
 
-    // current selected applet
-    private AID currentAID;
-    // previous selected applet
-    private AID previousAID;
-    // outbound response byte array buffer size
-    private short responseBufferSize = 0;
-    // if the applet is currently being selected
-    private boolean selecting = false;
-    // if extended APDUs are used
-    private boolean usingExtendedAPDUs = false;
-    // current protocol
-    private byte currentProtocol = APDU.PROTOCOL_T0;
-    // current depth of transaction
-    private byte transactionDepth = 0;
-    // previousActiveObject
-    private Object previousActiveObject;
+    /** current selected applet */
+    protected AID currentAID;
+    /** previous selected applet */
+    protected AID previousAID;
+    /** outbound response byte array buffer size */
+    protected short responseBufferSize = 0;
+    /** if the applet is currently being selected */
+    protected boolean selecting = false;
+    /** if extended APDUs are used  */
+    protected boolean usingExtendedAPDUs = false;
+    /** current protocol */
+    protected byte currentProtocol = APDU.PROTOCOL_T0;
+    /** current depth of transaction */
+    protected byte transactionDepth = 0;
+    /** previousActiveObject */
+    protected Object previousActiveObject;
 
     public SimulatorRuntime() {
         this(new TransientMemory());
@@ -547,7 +547,7 @@ public class SimulatorRuntime {
         this.previousActiveObject = previousActiveObject;
     }
 
-    static boolean isAppletSelectionApdu(byte[] apdu) {
+    protected static boolean isAppletSelectionApdu(byte[] apdu) {
         final byte channelMask = (byte) 0xFC; // mask out %b000000xx
         final byte p2Mask = (byte) 0xE3; // mask out %b000xxx00
 

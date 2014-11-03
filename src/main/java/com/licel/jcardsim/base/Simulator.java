@@ -19,7 +19,6 @@ import com.licel.jcardsim.io.JavaCardInterface;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
@@ -50,8 +49,8 @@ public class Simulator implements JavaCardInterface {
     static final MessageFormat APPLET_CLASS_SP_TEMPLATE = new MessageFormat("{0}.Class");
     // Applet Class Loader
     final AppletClassLoader cl = new AppletClassLoader(new URL[]{});
-    // runtime
-    private final SimulatorRuntime runtime;
+    /** The simulator runtime */
+    protected final SimulatorRuntime runtime;
     // current protocol
     private String protocol = "T=0";
 
@@ -88,7 +87,9 @@ public class Simulator implements JavaCardInterface {
         }
 
         this.runtime = runtime;
-        runtime.resetRuntime();
+        synchronized (this.runtime) {
+            this.runtime.resetRuntime();
+        }
 
         changeProtocol(protocol);
 
@@ -161,14 +162,18 @@ public class Simulator implements JavaCardInterface {
      * <code>javacard.framework.Applet</code>
      */
     public AID loadApplet(AID aid, Class<? extends Applet> appletClass) throws SystemException {
-        runtime.loadApplet(aid, requireExtendsApplet(appletClass));
+        synchronized (runtime) {
+            runtime.loadApplet(aid, requireExtendsApplet(appletClass));
+        }
         return aid;
     }
 
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
         try {
-            runtime.installApplet(aid, bArray, bOffset, bLength);
+            synchronized (runtime) {
+                runtime.installApplet(aid, bArray, bOffset, bLength);
+            }
         }
         catch (Exception e) {
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CREATION_FAILED);
@@ -209,20 +214,26 @@ public class Simulator implements JavaCardInterface {
      */
     public AID installApplet(AID aid, Class<? extends Applet> appletClass, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
-        loadApplet(aid, appletClass);
-        return createApplet(aid, bArray, bOffset, bLength);
+        synchronized (runtime) {
+            loadApplet(aid, appletClass);
+            return createApplet(aid, bArray, bOffset, bLength);
+        }
     }
 
     public AID installApplet(AID aid, String appletClassName, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
-        loadApplet(aid, appletClassName);
-        return createApplet(aid, bArray, bOffset, bLength);
+        synchronized (runtime) {
+            loadApplet(aid, appletClassName);
+            return createApplet(aid, bArray, bOffset, bLength);
+        }
     }
 
     public AID installApplet(AID aid, String appletClassName, byte[] appletContents, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
-        loadApplet(aid, appletClassName, appletContents);
-        return createApplet(aid, bArray, bOffset, bLength);
+        synchronized (runtime) {
+            loadApplet(aid, appletClassName, appletContents);
+            return createApplet(aid, bArray, bOffset, bLength);
+        }
     }
 
     /**
@@ -230,38 +241,45 @@ public class Simulator implements JavaCardInterface {
      * @param aid applet aid
      */
     public void deleteApplet(AID aid) {
-        runtime.deleteApplet(aid);
+        synchronized (runtime) {
+            runtime.deleteApplet(aid);
+        }
     }
 
     public boolean selectApplet(AID aid) throws SystemException {
-        byte[] resp = runtime.transmitCommand(AIDUtil.select(aid));
+        byte[] resp = selectAppletWithResult(aid);
         return ByteUtil.getSW(resp) == ISO7816.SW_NO_ERROR;
     }
     
     public byte[] selectAppletWithResult(AID aid) throws SystemException {
-        return runtime.transmitCommand(AIDUtil.select(aid));
+        synchronized (runtime) {
+            return runtime.transmitCommand(AIDUtil.select(aid));
+        }
     }
 
     public byte[] transmitCommand(byte[] command) {
-        return runtime.transmitCommand(command);
+        synchronized (runtime) {
+            return runtime.transmitCommand(command);
+        }
     }
 
     public void reset() {
-        runtime.reset();
+        synchronized (runtime) {
+            runtime.reset();
+        }
     }
 
     public final void resetRuntime() {
-        runtime.resetRuntime();
+        synchronized (runtime) {
+            runtime.resetRuntime();
+        }
     }
 
     public byte[] getATR() {
         return atr;
     }
 
-    /**
-     * @see com.licel.jcardsim.io.JavaCardInterface#changeProtocol(String)
-     */
-    public void changeProtocol(String protocol) {
+    protected byte getProtocolByte(String protocol) {
         if (protocol == null) {
             throw new NullPointerException("protocol");
         }
@@ -293,9 +311,17 @@ public class Simulator implements JavaCardInterface {
         else {
             throw new IllegalArgumentException("Unknown protocol: " + protocol);
         }
+        return protocolByte;
+    }
 
-        this.protocol = p;
-        runtime.changeProtocol(protocolByte);
+    /**
+     * @see com.licel.jcardsim.io.JavaCardInterface#changeProtocol(String)
+     */
+    public void changeProtocol(String protocol) {
+        synchronized (runtime) {
+            runtime.changeProtocol(getProtocolByte(protocol));
+            this.protocol = protocol;
+        }
     }
 
     /**
