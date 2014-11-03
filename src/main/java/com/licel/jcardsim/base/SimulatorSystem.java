@@ -27,11 +27,19 @@ public class SimulatorSystem {
     /**
      * Response status : Applet creation failed = 0x6444
      */
-    public static final short SW_APPLET_CRATION_FAILED = 0x6444;
+    public static final short SW_APPLET_CREATION_FAILED = 0x6444;
+
     /**
-     * Response status : Exception occured = 0x6424
+     * Response status : Exception occurred = 0x6424
      */
-    public static final short SW_EXCEPTION_OCCURED = 0x6424;
+    public static final short SW_EXCEPTION_OCCURRED = 0x6424;
+
+    /** @deprecated Use <code>SW_APPLET_CREATION_FAILED</code> */
+    public static final short SW_APPLET_CRATION_FAILED = SW_APPLET_CREATION_FAILED;
+
+    /** @deprecated Use <code>SW_EXCEPTION_OCCURRED</code> */
+    public static final short SW_EXCEPTION_OCCURED = SW_EXCEPTION_OCCURRED;
+
 
     /**
      * Holds the currently active instance

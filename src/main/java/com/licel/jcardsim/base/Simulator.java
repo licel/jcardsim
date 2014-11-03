@@ -177,7 +177,7 @@ public class Simulator implements JavaCardInterface {
                     new Class[]{byte[].class, short.class, byte.class});
             initMethod.invoke(null, bArray, bOffset, bLength);
         } catch (Exception ex) {
-            SystemException.throwIt(SimulatorSystem.SW_APPLET_CRATION_FAILED);
+            SystemException.throwIt(SimulatorSystem.SW_APPLET_CREATION_FAILED);
         }
         return aid;
     }
