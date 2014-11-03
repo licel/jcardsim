@@ -31,7 +31,7 @@ import org.bouncycastle.crypto.paddings.BlockCipherPadding;
  * on BouncyCastle CryptoAPI
  * @see Cipher
  */
-public class AssymetricCipherImpl extends Cipher {
+public class AsymmetricCipherImpl extends Cipher {
 
     byte algorithm;
     AsymmetricBlockCipher engine;
@@ -40,7 +40,7 @@ public class AssymetricCipherImpl extends Cipher {
     byte[] buffer;
     short bufferPos;
 
-    public AssymetricCipherImpl(byte algorithm) {
+    public AsymmetricCipherImpl(byte algorithm) {
         this.algorithm = algorithm;
         switch (algorithm) {
             case ALG_RSA_NOPAD:

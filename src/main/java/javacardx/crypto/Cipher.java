@@ -15,7 +15,7 @@
  */
 package javacardx.crypto;
 
-import com.licel.jcardsim.crypto.AssymetricCipherImpl;
+import com.licel.jcardsim.crypto.AsymmetricCipherImpl;
 import com.licel.jcardsim.crypto.SymmetricCipherImpl;
 import javacard.security.CryptoException;
 import javacard.security.Key;
@@ -238,7 +238,7 @@ public abstract class Cipher {
             case ALG_RSA_ISO14888:
             case ALG_RSA_ISO9796:
             case ALG_RSA_PKCS1_OAEP:
-                instance = new AssymetricCipherImpl(algorithm);
+                instance = new AsymmetricCipherImpl(algorithm);
                 break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);

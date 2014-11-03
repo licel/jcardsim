@@ -26,9 +26,9 @@ import org.bouncycastle.util.Arrays;
  * Test for <code>AsymmetricCipherImpl</code>
  * Test data from NXP JCOP31-36 JavaCard
  */
-public class AssymetricCipherImplTest extends TestCase {
+public class AsymmetricCipherImplTest extends TestCase {
 
-    public AssymetricCipherImplTest(String testName) {
+    public AsymmetricCipherImplTest(String testName) {
         super(testName);
     }
 
@@ -41,7 +41,7 @@ public class AssymetricCipherImplTest extends TestCase {
     }
 
     /**
-     * SelfTest of RSA Encryption/Decryption, of class AssymetricCipherImpl.
+     * SelfTest of RSA Encryption/Decryption, of class AsymmetricCipherImpl.
      */
     public void testSelftRSA() {
         Cipher cipher = Cipher.getInstance(Cipher.ALG_RSA_NOPAD, false);
