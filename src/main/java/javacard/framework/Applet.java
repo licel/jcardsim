@@ -16,6 +16,7 @@
 package javacard.framework;
 
 import com.licel.jcardsim.base.SimulatorSystem;
+import com.licel.jcardsim.utils.BiConsumer;
 
 /**
  * This abstract class defines an Java Card technology-based applet.
@@ -81,6 +82,12 @@ import com.licel.jcardsim.base.SimulatorSystem;
  * @see SystemException
  */
 public abstract class Applet {
+    /**
+     * The current registration callback, set by SimulatorRuntime via reflection.
+     */
+    private static final ThreadLocal<BiConsumer<Applet,AID>> registrationCallback
+            = new ThreadLocal<BiConsumer<Applet,AID>>();
+
     /**
      * Only this class's <code>install()</code> method should create the applet object.
      */
@@ -262,7 +269,13 @@ public abstract class Applet {
      */
     protected final void register()
             throws SystemException {
-        SimulatorSystem.instance().registerApplet(null, this);
+        BiConsumer<Applet,AID> callback = registrationCallback.get();
+        if (callback == null) { // not called from install()
+            SystemException.throwIt(SystemException.ILLEGAL_AID);
+        }
+        else {
+            callback.accept(this, null);
+        }
     }
 
     /**
@@ -289,9 +302,13 @@ public abstract class Applet {
     protected final void register(byte bArray[], short bOffset, byte bLength)
             throws SystemException {
         if (bLength < 5 || bLength > 16) {
-            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+            throw new SystemException(SystemException.ILLEGAL_VALUE);
         }
-        SimulatorSystem.instance().registerApplet(new AID(bArray, bOffset, bLength), this);
+        BiConsumer<Applet,AID> callback = registrationCallback.get();
+        if (callback == null) { // not called from install()
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
+        callback.accept(this, new AID(bArray, bOffset, bLength));
     }
 
     /**
