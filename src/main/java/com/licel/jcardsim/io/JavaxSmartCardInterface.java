@@ -16,13 +16,41 @@
 package com.licel.jcardsim.io;
 
 import com.licel.jcardsim.base.Simulator;
+import com.licel.jcardsim.base.SimulatorRuntime;
+
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 /**
- * Class with javacardx.smartcardio Command/Response support
+ * Simulator with javacardx.smartcardio Command/Response support
  */
 public class JavaxSmartCardInterface extends Simulator {
+    /**
+     * Create a JavaxSmartCardInterface object using the default SimulatorRuntime.
+     *
+     * <ul>
+     *     <li>All <code>JavaxSmartCardInterface</code> instances share one <code>SimulatorRuntime</code>.</li>
+     *     <li>SimulatorRuntime#resetRuntime is called</li>
+     *     <li>If your want multiple independent simulators use <code>JavaxSmartCardInterface(SimulatorRuntime)</code></li>
+     * </ul>
+     */
+    public JavaxSmartCardInterface() {
+        super();
+    }
+
+    /**
+     * Create a JavaxSmartCardInterface object using a provided Runtime.
+     *
+     * <ul>
+     *     <li>SimulatorRuntime#resetRuntime is called</li>
+     * </ul>
+     *
+     * @param runtime SimulatorRuntime instance to use
+     * @throws java.lang.NullPointerException if <code>runtime</code> is null
+     */
+    public JavaxSmartCardInterface(SimulatorRuntime runtime) {
+        super(runtime);
+    }
 
     /**
      * Wrapper for transmitCommand(byte[])
