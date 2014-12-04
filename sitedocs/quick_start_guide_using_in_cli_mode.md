@@ -1,6 +1,6 @@
 ### Downloading jCardSim
 Follow the link to download jCardSim jar archive:  
-[https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar](https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar)
+[https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar](https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar)
 
 ### Starting jCardSim in a CLI mode
 To simplify the development and debugging processes, jCardSim is working with a files of classes directly. You haven't to convert your application to CAP for an execution in simulator.
