@@ -23,7 +23,7 @@ package javacard.security;
  * the <code>DSAKey</code> interface methods.
  * <p>When all four components of the key (X,P,Q,G) are set, the key is
  * initialized and ready for use.
- * <p>
+ *
  * @see DSAPublicKey
  * @see KeyBuilder
  * @see Signature

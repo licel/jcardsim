@@ -18,7 +18,7 @@ package com.licel.jcardsim.samples;
 import javacard.framework.*;
 
 /**
- * Basic HelloWorld JavaCard Applet
+ * Basic HelloWorld JavaCard Applet.
  * @author LICEL LLC
  */
 public class HelloWorldApplet extends BaseApplet {
@@ -70,6 +70,9 @@ public class HelloWorldApplet extends BaseApplet {
 
     /**
      * Only this class's install method should create the applet object.
+     * @param bArray the array containing installation parameters
+     * @param bOffset the starting offset in bArray
+     * @param bLength the length in bytes of the parameter data in bArray
      */
     protected HelloWorldApplet(byte[] bArray, short bOffset, byte bLength) {
         echoBytes = new byte[LENGTH_ECHO_BYTES];
@@ -88,10 +91,10 @@ public class HelloWorldApplet extends BaseApplet {
 
     /**
      * This method is called once during applet instantiation process.
-     * @param bArray
-     * @param bOffset
-     * @param bLength
-     * @throws ISOException
+     * @param bArray the array containing installation parameters
+     * @param bOffset the starting offset in bArray
+     * @param bLength the length in bytes of the parameter data in bArray
+     * @throws ISOException if the install method failed
      */
     public static void install(byte[] bArray, short bOffset, byte bLength)
             throws ISOException {

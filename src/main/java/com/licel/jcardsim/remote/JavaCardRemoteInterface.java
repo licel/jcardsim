@@ -19,7 +19,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * RMI Wrapper for the <code>JavaCardInterface</code>
+ * RMI Wrapper for the <code>JavaCardInterface</code>.
  * 
  * @author LICEL LLC
  */

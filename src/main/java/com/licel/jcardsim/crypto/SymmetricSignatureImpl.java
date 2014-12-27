@@ -40,7 +40,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 /**
  * Implementation
  * <code>Signature</code> with symmetric keys based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see Signature
  */
 public class SymmetricSignatureImpl extends Signature {

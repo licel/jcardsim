@@ -59,8 +59,8 @@ public class OwnerPIN implements PIN {
     /**
      * Constructor. Allocates a new <code>PIN</code> instance with validated flag
      * set to <code>false</code>
-     * @param tryLimit the maximum number of times an incorrect PIN can be presented. <code>tryLimit</code> must be >=1
-     * @param maxPINSize the maximum allowed PIN size. <code>maxPINSize</code> must be >=1
+     * @param tryLimit the maximum number of times an incorrect PIN can be presented. <code>tryLimit</code> must be &gt;=1
+     * @param maxPINSize the maximum allowed PIN size. <code>maxPINSize</code> must be &gt;=1
      * @throws PINException with the following reason codes:
      * <ul>
      *  <li><code>PINException.ILLEGAL_VALUE</code> if <code>tryLimit</code> parameter is less than 1.

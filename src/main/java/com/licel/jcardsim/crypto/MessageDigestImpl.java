@@ -31,7 +31,7 @@ import org.bouncycastle.crypto.util.Pack;
 /**
  * Implementation
  * <code>MessageDigest</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see MessageDigest
  * @see MD5Digest
  * @see RIPEMD160Digest

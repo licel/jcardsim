@@ -38,7 +38,6 @@ public abstract class InitializedMessageDigest extends MessageDigest {
 
     /**
      * protected constructor
-     * <P>
      */
     protected InitializedMessageDigest() {
     }

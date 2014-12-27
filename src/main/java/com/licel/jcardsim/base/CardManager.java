@@ -22,7 +22,7 @@ import javacard.framework.SystemException;
 import javacard.framework.Util;
 
 /**
- * CardManager
+ * CardManager.
  */
 public class CardManager {
 

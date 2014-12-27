@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
 
 /**
  * Implementation <code>DSAPublicKey</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see DSAPublicKey
  * @see DSAPublicKeyParameters
  */

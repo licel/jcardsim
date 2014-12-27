@@ -20,7 +20,7 @@ import javacard.framework.AID;
 import javacard.framework.Applet;
 
 /**
- * Represents a module (JavaCard Applet class)
+ * Represents a module (JavaCard Applet class).
  */
 public final class Module {
     private final AID aid;

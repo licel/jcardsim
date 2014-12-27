@@ -1,4 +1,4 @@
 /**
- * jCardSim crypto-support classes
+ * jCardSim cryptography support classes
  */
 package com.licel.jcardsim.crypto;

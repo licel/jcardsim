@@ -24,7 +24,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 /**
- * RMI Server
+ * RMI Server.
  * @author LICEL LLC
  */
 public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject

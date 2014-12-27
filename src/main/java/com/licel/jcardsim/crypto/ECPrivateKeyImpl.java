@@ -22,7 +22,7 @@ import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 
 /**
  * Implementation <code>ECPrivateKey</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see ECPrivateKey
  * @see ECPrivateKeyParameters
  */
@@ -32,7 +32,9 @@ public class ECPrivateKeyImpl extends ECKeyImpl implements ECPrivateKey {
 
     /**
      * Construct not-initialized ecc private key
+     * @param keyType key type
      * @param keySize key size it bits
+     *
      * @see javacard.security.KeyBuilder
      */
     public ECPrivateKeyImpl(byte keyType, short keySize) {

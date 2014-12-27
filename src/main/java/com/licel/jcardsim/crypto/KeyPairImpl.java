@@ -30,7 +30,7 @@ import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 
 /**
  * Implementation
- * <code>KeyPair</code> based on BouncyCastle CryptoAPI
+ * <code>KeyPair</code> based on BouncyCastle CryptoAPI.
  *
  * @see KeyPair
  * @see RSAKeyPairGenerator
@@ -62,7 +62,7 @@ public final class KeyPairImpl {
      * p, q and g parameters of the public key object are pre-initialized, they
      * will be retained. Otherwise, default precomputed parameter sets will be
      * used. The required default precomputed values are listed in </em>Appendix
-     * B<em> of </em>Java Cryptography Architecture API Specification &
+     * B<em> of </em>Java Cryptography Architecture API Specification &amp;
      * Reference<em> document.</em> <li><em>For the EC case, if the Field, A, B,
      * G and R parameters of the key pair are pre-initialized, then they will be
      * retained. Otherwise default pre-specified values MAY be used (e.g. WAP
@@ -104,9 +104,10 @@ public final class KeyPairImpl {
      * (example -
      * <code>RSAPublicKey</code> interface for the public key and
      * <code>RSAPrivateKey</code> interface for the private key within an
-     * <code>ALG_RSA</code> key pair).<p> <p>Notes:<ul> <li><em>The key objects
+     * <code>ALG_RSA</code> key pair).
+     * <p>Notes:</p> <p><em>The key objects
      * encapsulated in the generated </em><code>KeyPair</code><em> object need
-     * not support the </em><code>KeyEncryption</code><em> interface.</em> </ul>
+     * not support the </em><code>KeyEncryption</code><em> interface.</em></p>
      *
      * @param algorithm the type of algorithm whose key pair needs to be
      * generated. Valid codes listed in <code>ALG_..</code> constants above.

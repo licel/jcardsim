@@ -22,7 +22,7 @@ import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
 /**
- * Simulator with javacardx.smartcardio Command/Response support
+ * Simulator with javacardx.smartcardio Command/Response support.
  */
 public class JavaxSmartCardInterface extends Simulator {
     /**

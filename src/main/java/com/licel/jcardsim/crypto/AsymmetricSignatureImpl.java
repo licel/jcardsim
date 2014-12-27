@@ -36,7 +36,7 @@ import org.bouncycastle.crypto.signers.RSADigestSigner;
 
 /*
  * Implementation <code>Signature</code> with asymmetric keys based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see Signature
  */
 public class AsymmetricSignatureImpl extends Signature implements SignatureMessageRecovery{

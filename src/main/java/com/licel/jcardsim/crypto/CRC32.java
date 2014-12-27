@@ -23,7 +23,7 @@ import javacard.security.CryptoException;
 /*
  * Implementation <code>Checksum</code>
  * ISO/IEC 3309 compliant 32 bit CRC algorithm.
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see Checksum
  */
 public class CRC32 extends Checksum {

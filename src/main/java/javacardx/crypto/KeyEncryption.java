@@ -19,7 +19,6 @@ package javacardx.crypto;
 /**
  *<code>KeyEncryption</code> interface defines the methods used to enable encrypted
  * key data access to a key implementation.
- *<p>
  */
 public interface KeyEncryption {
 

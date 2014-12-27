@@ -67,7 +67,7 @@ public final class KeyPair {
      * <li><em>For the DSA algorithm, if the p, q and g parameters of the public key object are pre-initialized,
      * they will be retained. Otherwise, default precomputed parameter sets will be used. The required
      * default precomputed values are listed in </em>Appendix B<em> of </em>Java Cryptography Architecture
-     * API Specification & Reference<em> document.</em>
+     * API Specification &amp; Reference<em> document.</em>
      * <li><em>For the EC case, if the Field, A, B, G and R parameters of the
      * key pair are pre-initialized, then they will be retained. Otherwise
      * default pre-specified values MAY be used (e.g. WAP predefined curves),
@@ -100,7 +100,7 @@ public final class KeyPair {
      * The encapsulated key objects are of the specified <code>keyLength</code> size and
      * implement the appropriate <code>Key</code> interface associated with the specified algorithm
      * (example - <code>RSAPublicKey</code> interface for the public key and <code>RSAPrivateKey</code>
-     * interface for the private key within an <code>ALG_RSA</code> key pair).<p>
+     * interface for the private key within an <code>ALG_RSA</code> key pair).
      * <p>Notes:<ul>
      * <li><em>The key objects encapsulated in the generated </em><code>KeyPair</code><em> object
      * need not support the </em><code>KeyEncryption</code><em> interface.</em>

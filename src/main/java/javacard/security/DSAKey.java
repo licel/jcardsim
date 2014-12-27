@@ -17,13 +17,13 @@
 package javacard.security;
 
 /**
- * The </code>DSAKey</code> interface is the base interface for the DSA algorithm's private and
+ * The <code>DSAKey</code> interface is the base interface for the DSA algorithm's private and
  * public key implementations. A DSA private key implementation must also implement
  * the <code>DSAPrivateKey</code> interface methods. A DSA public key implementation must also implement
  * the <code>DSAPublicKey</code> interface methods.
  * <p>When all four components of the key (X or Y,P,Q,G) are set, the key is
- * initialized and ready for use.
- * <p>
+ * initialized and ready for use.</p>
+ *
  * @see DSAPublicKey
  * @see DSAPrivateKey
  * @see KeyBuilder
