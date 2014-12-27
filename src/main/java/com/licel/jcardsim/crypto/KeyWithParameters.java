@@ -20,7 +20,7 @@ import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.KeyGenerationParameters;
 
 /**
- *
+ * KeyWithParameters.
  */
 public interface KeyWithParameters {
 
@@ -33,7 +33,7 @@ public interface KeyWithParameters {
 
     /**
      * Get keypair generation parameters for use with BouncyCastle Crypto API
-     *
+     * @param rnd Secure Random Generator
      * @return key parameters
      */
     public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd);

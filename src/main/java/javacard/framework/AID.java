@@ -96,7 +96,7 @@ public class AID {
      * This method does not throw <code>NullPointerException</code>.
      * @param anObject the object to compare <code>this</code> <code>AID</code> against
      * @return <code>true</code> if the AID byte values are equal, <code>false</code> otherwise
-     * @throws SecurityException <if <code>anObject</code> object is not accessible in the caller's context
+     * @throws SecurityException if <code>anObject</code> object is not accessible in the caller's context
      */
     public final boolean equals(Object anObject)
             throws SecurityException {

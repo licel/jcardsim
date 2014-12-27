@@ -20,7 +20,7 @@ import com.licel.jcardsim.remote.JavaCardRemoteClient;
 import java.util.Properties;
 
 /**
- * Card Acceptance Device (CAD)
+ * Card Acceptance Device (CAD).
  *
  * @author LICEL LLC
  */

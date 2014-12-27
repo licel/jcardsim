@@ -18,7 +18,7 @@ package com.licel.jcardsim.samples;
 import javacard.framework.Applet;
 
 /**
- * Base class
+ * Base class.
  * @author LICEL LLC
  */
 

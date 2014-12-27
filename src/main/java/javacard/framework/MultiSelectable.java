@@ -63,6 +63,7 @@ public interface MultiSelectable
      *  </ul>
      * @param appInstAlreadyActive boolean flag is <code>true</code> when the same applet
      * instance is already active on another logical channel and <code>false</code> otherwise
+     * @return <code>true</code> to indicate success, <code>false</code> otherwise
      */
     public abstract boolean select(boolean appInstAlreadyActive);
 

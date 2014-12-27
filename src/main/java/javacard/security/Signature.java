@@ -100,7 +100,7 @@ public abstract class Signature {
      */
     public static final byte ALG_DES_MAC4_PKCS5 = 7;
     /**
-     * Signature algorithm </code>ALG_DES_MAC8_PKCS5</code> generates an 8-byte MAC
+     * Signature algorithm <code>ALG_DES_MAC8_PKCS5</code> generates an 8-byte MAC
      * using DES in CBC mode or triple DES in outer CBC mode.
      * Input data is padded according to the PKCS#5 scheme.
      * <p>Note:
@@ -141,7 +141,7 @@ public abstract class Signature {
      * and encrypts it using RSA.
      * <p>Note:<ul>
      * <li><em> The encryption block(EB) during signing is built as follows:<br>
-     * <&nbsp; EB = 00 || 01 || PS || 00 || T<br>
+     * &lt;&nbsp; EB = 00 || 01 || PS || 00 || T<br>
      * &nbsp; &nbsp; &nbsp; :: where T is the DER encoding of :<br>
      * &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; digestInfo ::= SEQUENCE {<br>
      * &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; digestAlgorithm AlgorithmIdentifier of MD5,<br>
@@ -166,7 +166,7 @@ public abstract class Signature {
      * and encrypts it using RSA.
      * <p>Note:<ul>
      * <li><em> The encryption block(EB) during signing is built as follows:<br>
-     * <&nbsp; EB = 00 || 01 || PS || 00 || T<br>
+     * &lt;&nbsp; EB = 00 || 01 || PS || 00 || T<br>
      * &nbsp; &nbsp; &nbsp; :: where T is the DER encoding of :<br>
      * &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; digestInfo ::= SEQUENCE {<br>
      * &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; digestAlgorithm AlgorithmIdentifier of RIPEMD160,<br>

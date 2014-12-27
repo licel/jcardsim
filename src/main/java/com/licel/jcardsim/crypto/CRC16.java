@@ -22,8 +22,8 @@ import javacard.security.CryptoException;
 
 /*
  * Implementation <code>Checksum</code>
- * ISO/IEC 3309 compliant 16 bit CRC algorithm.
- * on BouncyCastle CryptoAPI
+ * ISO/IEC 3309 compliant 16 bit CRC algorithm
+ * on BouncyCastle CryptoAPI.
  * @see Checksum
  */
 public class CRC16 extends Checksum {

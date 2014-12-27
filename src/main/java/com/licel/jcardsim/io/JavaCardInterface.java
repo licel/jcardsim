@@ -19,7 +19,7 @@ import javacard.framework.AID;
 import javacard.framework.SystemException;
 
 /**
- * Interface with JavaCard-specific functions
+ * Interface with JavaCard-specific functions.
  * @author LICEL LLC
  */
 public interface JavaCardInterface extends CardInterface {

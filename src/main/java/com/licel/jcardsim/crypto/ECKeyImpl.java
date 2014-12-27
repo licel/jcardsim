@@ -32,7 +32,7 @@ import org.bouncycastle.math.ec.ECCurve;
 
 /**
  * Base class for
- * <code>ECPublicKeyImpl/ECPrivateKeyImpl</code> on BouncyCastle CryptoAPI
+ * <code>ECPublicKeyImpl/ECPrivateKeyImpl</code> on BouncyCastle CryptoAPI.
  *
  * @see ECKey
  */

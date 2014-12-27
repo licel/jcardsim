@@ -51,7 +51,7 @@ package javacard.security;
  * <code>verify()</code> method to verify the
  * signature.
  *
- * <p>Note:<br/>
+ * <p>Note:<br>
  * A
  * <code>Signature</code> object implementing this interface must throw
  * <code>CryptoException</code> with

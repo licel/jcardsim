@@ -21,7 +21,7 @@ package javacard.framework;
  * <code>ISO7816</code> interface contains only static fields.<p>
  * The static fields with <code>SW_</code> prefixes define constants for the ISO 7816-4 defined response
  * status word. The fields which use the <code>_00</code> suffix require the low order byte to be
- * customized appropriately e.g (ISO7816.SW_CORRECT_LENGTH_00 + (0x0025 & 0xFF)).<p>
+ * customized appropriately e.g (ISO7816.SW_CORRECT_LENGTH_00 + (0x0025 &amp; 0xFF)).<p>
  * The static fields with <code>OFFSET_</code> prefixes define constants to be used to index into
  * the APDU buffer byte array to access ISO 7816-4 defined header information.
  *
@@ -37,7 +37,7 @@ public interface ISO7816
      */
     public static final short SW_BYTES_REMAINING_00 = 24832;
     /**
-     * >Response status : Wrong length = 0x6700
+     * Response status : Wrong length = 0x6700
      */
     public static final short SW_WRONG_LENGTH = 26368;
     /**

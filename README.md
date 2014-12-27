@@ -5,9 +5,9 @@ jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
 
 ![alt text](https://licel.ru/wp-content/uploads/DCA2013_Badge_Winner.jpg "jCardSim is a winner of Duke's Choice 2013")
 
-**Please note** that we moved our code repository here from Google Code. 
+**Please note** that we moved our code repository from Google Code to GitHub.
 
-jCardSim is an open source simulator implements Java Card, v.2.2.1/2:
+jCardSim is an open source simulator for Java Card, v.2.2.1/2:
 
 * `javacard.framework.*`
 * `javacard.framework.security.*`
@@ -16,7 +16,7 @@ jCardSim is an open source simulator implements Java Card, v.2.2.1/2:
 Key Features:
 
 * Rapid application prototyping
-* Ease of writing Unit-tests (5 lines of code)
+* Simplifies unit testing (5 lines of code)
 
 ```java
 //1. create simulator
@@ -26,14 +26,14 @@ simulator.installApplet(appletAID, HelloWorldApplet.class);
 //3. select applet
 simulator.selectApplet(appletAID);
 //4. send apdu
-ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x01, 0x01, 0x00, 0x00));
+ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
 //5. check response
 assertEquals(0x9000, response.getSW());
 ```
 
 * Emulation of Java Card Terminal, ability to use `javax.smartcardio`
 * APDU scripting (scripts are compatible with apdutool from Java Card Development Kit)
-* Ease of verification tests creation (Common Criteria)
+* Simplifies verification tests creation (Common Criteria)
 
 *JavaDoc*: https://jcardsim.googlecode.com/svn/trunk/javadoc/index.html
 
@@ -61,23 +61,23 @@ assertEquals(0x9000, response.getSW());
 
 * **Implementation of javacard.security.***
 
-One of the main differences is the implementation of `javacard.security.*`: current version is analogous with NXP JCOP 31/36k card. For example, in jCardSim we have support an on-card `KeyPair.ALG_EC_F2M/ALG_RSA_CRT` key generation. Simulator from Oracle has only `KeyPair.ALG_RSA` and `KeyPair.ALG_EC_FP` support, which not supported on real cards.
+One of the main differences is the implementation of `javacard.security.*`: the current version is analogous to an NXP JCOP 31/36k card. For example, in jCardSim we have support for on-card `KeyPair.ALG_EC_F2M/ALG_RSA_CRT` key generation. Oracle's simulator only supports `KeyPair.ALG_RSA` and `KeyPair.ALG_EC_FP`, which are not supported by real cards.
 
 * **Execution of Java Card applications without converting into CAP**
 
-jCardSim can work with class files, without any conversions. This allows us to simplify and accelerate the development and writing of unit-tests.
+jCardSim can work with class files without any conversions. This allows us to simplify and accelerate the development and writing of unit tests.
 
 * **Simulator API**
 
-jCardSim has simple and usable API, which allows you to work with simulator like with real Java Card using `javax.smartcardio.*`.
+jCardSim has a simple and usable API, which also allows you to work with the simulator using `javax.smartcardio.*`.
 
 * **Cross-platform**
 
-jCardSim completely written in Java and can therefore be used at all platforms which supports Java (Windows, Linux, MacOS, etc).
+jCardSim is completely written in Java and can therefore be used on all platforms which support Java (Windows, Linux, MacOS, etc).
 
 ### How to help jCardSim?
 
-* Join team of jCardSim developers.
+* Join the team of jCardSim developers.
 * Try out [DexProtector](http://dexprotector.com). The product is designed for strong and robust protection of Android applications against reverse engineering and modification.
 * Licel has one more product you may be interested in - [Stringer Java Obfuscator](https://jfxstore.com/stringer). This tool provides all the features you need to comprehensively protect your Java applications.
 

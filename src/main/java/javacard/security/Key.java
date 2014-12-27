@@ -18,7 +18,7 @@ package javacard.security;
 
 /**
  * The <code>Key</code> interface is the base interface for all keys.
- * <p>
+ *
  * <p>A <code>Key</code> object sets its initialized state to true only when all the associated
  * <code>Key</code> object parameters have been set at least once since the time the initialized state was set to false.
  * <p>A newly created <code>Key</code> object sets its initialized state to false. Invocation of the
@@ -43,7 +43,6 @@ public interface Key {
      * Returns the key interface type.
      * @return the key interface type. Valid codes listed in TYPE.. constants
      * See <CODE>KeyBuilder.TYPE_DES_TRANSIENT_RESET</CODE>
-     * <p>
      * @see KeyBuilder
      */
     public abstract byte getType();

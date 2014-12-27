@@ -30,7 +30,7 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
 
 /**
  * Implementation <code>Cipher</code> with symmetric keys based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see Cipher
  */
 public class SymmetricCipherImpl extends Cipher {

@@ -21,11 +21,10 @@ package javacard.security;
  * any length, but it is strongly recommended that the key is not shorter than the
  * byte length of the hash output used in the HMAC implementation.
  * Keys with length greater than the hash block length are first hashed with the
- * hash algorithm used for the HMAC implementation. <p>
+ * hash algorithm used for the HMAC implementation.
  * <p>Implementations must support an HMAC key length equal to the length of
  * the supported hash algorithm block size (e.g 64 bits for SHA-1)
  * <p>When the key data is set, the key is initialized and ready for use.
- * <p>
  * 
  * @see KeyBuilder
  * @see Signature 

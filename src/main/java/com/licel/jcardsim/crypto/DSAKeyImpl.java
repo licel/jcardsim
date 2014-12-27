@@ -29,7 +29,7 @@ import org.bouncycastle.crypto.params.DSAValidationParameters;
 
 /**
  * Base class for <code>DSAPublicKeyImpl/DSAPrivateKeyImpl</code>
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see DSAKey
  */
 public class DSAKeyImpl extends KeyImpl implements DSAKey {

@@ -60,8 +60,6 @@ public class JCSCard extends Card {
 
     /**
      * Always returns basic channel with id = 0
-     *
-     * @throws CardException
      */
     public CardChannel openLogicalChannel() throws CardException {
         return basicChannel;

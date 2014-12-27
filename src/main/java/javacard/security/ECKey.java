@@ -71,12 +71,12 @@ public interface ECKey {
      * of type <CODE>TYPE_EC_F2M_PUBLIC</CODE> or <CODE>TYPE_EC_F2M_PRIVATE</CODE> in
      * the case where the polynomial is a trinomial, of the form
      * x^n + x^e + 1 (where n is the bit length of the key).
-     * It is required that n > e > 0.
+     * It is required that n &gt; e &gt; 0.
      * @param e the value of the intermediate exponent of the trinomial
      * @throws CryptoException with the following reason codes:
      * <ul>
      * <li><code>CryptoException.ILLEGAL_VALUE</code> if the input parameter e
-     * is not such that 0 < e < n.
+     * is not such that 0 &lt; e &lt; n.
      * <li><code>CryptoException.NO_SUCH_ALGORITHM</code> if the key is neither
      * of type <code>TYPE_EC_F2M_PUBLIC</code> nor <code>TYPE_EC_F2M_PRIVATE</code>. </ul>
      */
@@ -88,7 +88,7 @@ public interface ECKey {
      * of type <CODE>TYPE_EC_F2M_PUBLIC</CODE> or <CODE>TYPE_EC_F2M_PRIVATE</CODE> in
      * the case where the polynomial is a pentanomial, of the form
      * x^n + x^e1 + x^e2 + x^e3 + 1 (where n is the bit length of the key).
-     * It is required for all ei where ei = {e1, e2, e3} that n > ei > 0.
+     * It is required for all ei where ei = {e1, e2, e3} that n &gt; ei &gt; 0.
      * @param e1 the value of the first of the intermediate exponents of the
      * pentanomial
      * @param e2 the value of the second of the intermediate exponent of the
@@ -98,7 +98,7 @@ public interface ECKey {
      * <ul>
      * <li><code>CryptoException.ILLEGAL_VALUE</code> if the input parameters
      * ei where ei = {<code>e1</code>, <code>e2</code>, <code>e3</code>}
-     * are not such that for all ei, n > ei > 0.
+     * are not such that for all ei, n &gt; ei &gt; 0.
      * <li><code>CryptoException.NO_SUCH_ALGORITHM</code> if the key is neither
      * of type <code>TYPE_EC_F2M_PUBLIC</code> nor <code>TYPE_EC_F2M_PRIVATE</code>.
      * </ul>
