@@ -19,8 +19,7 @@ package javacard.security;
 /**
  * <code>AESKey</code> contains a 16/24/32 byte key for AES computations based
  * on the Rijndael algorithm.
- * <p>When the key data is set, the key is initialized and ready for use.
- * <p>
+ * <p>When the key data is set, the key is initialized and ready for use.</p>
  * @see KeyBuilder
  * @see Signature
  * @see javacardx.crypto.Cipher

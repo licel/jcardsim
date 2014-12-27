@@ -28,7 +28,7 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 
 /**
  * Implementation
- * <code>RSAPublic/RSAPrivate</code> based on BouncyCastle CryptoAPI
+ * <code>RSAPublic/RSAPrivate</code> based on BouncyCastle CryptoAPI.
  *
  * @see RSAPrivateKey
  * @see RSAPublicKey

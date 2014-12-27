@@ -57,7 +57,7 @@ import java.util.Arrays;
  * 
  * For sending large byte arrays as response data,
  * the <code>APDU</code> class provides a special method <code>sendBytesLong()</code> which
- * manages the APDU buffer.<p>
+ * manages the APDU buffer.
  * 
  * <pre>
  * // The purpose of this example is to show most of the methods
@@ -73,11 +73,11 @@ import java.util.Arrays;
  * ...
  * // assume this command has incoming data
  * // Lc tells us the incoming apdu command length
- * short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] & 0x00FF);
- * if (bytesLeft < (short)55) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+ * short bytesLeft = (short) (buffer[ISO7816.OFFSET_LC] &amp; 0x00FF);
+ * if (bytesLeft &lt; (short)55) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
  * 
  * short readCount = apdu.setIncomingAndReceive();
- * while ( bytesLeft > 0){
+ * while ( bytesLeft &gt; 0){
  * // process bytes in buffer[5] to buffer[readCount+4];
  * bytesLeft -= readCount;
  * readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
@@ -86,12 +86,12 @@ import java.util.Arrays;
  * //...
  * //
  * // Note that for a short response as in the case illustrated here
- * // the three APDU method calls shown : setOutgoing(),setOutgoingLength() & sendBytes()
+ * // the three APDU method calls shown : setOutgoing(),setOutgoingLength() &amp; sendBytes()
  * // could be replaced by one APDU method call : setOutgoingAndSend().
  * 
  * // construct the reply APDU
  * short le = apdu.setOutgoing();
- * if (le < (short)2) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
+ * if (le &lt; (short)2) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH );
  * apdu.setOutgoingLength( (short)3 );
  * 
  * // build response data in apdu.buffer[ 0.. outCount-1 ];
@@ -109,8 +109,8 @@ import java.util.Arrays;
  * <code>getCurrentState()</code> method returns the current state.
  * <p>
  * Note that the state number assignments are ordered as follows:
- * STATE_INITIAL < STATE_PARTIAL_INCOMING < STATE_FULL_INCOMING <
- * STATE_OUTGOING < STATE_OUTGOING_LENGTH_KNOWN < STATE_PARTIAL_OUTGOING <
+ * STATE_INITIAL &lt; STATE_PARTIAL_INCOMING &lt; STATE_FULL_INCOMING &lt;
+ * STATE_OUTGOING &lt; STATE_OUTGOING_LENGTH_KNOWN &lt; STATE_PARTIAL_OUTGOING &lt;
  * STATE_FULL_OUTGOING.
  * <p>
  * The following are processing error states and have negative state number
@@ -286,10 +286,10 @@ public final class APDU {
     /**
      * Returns the APDU buffer byte array.
      * <p>Note:<ul>
-     * <li><em>References to the APDU buffer byte array
+     * <li>References to the APDU buffer byte array
      * cannot be stored in class variables or instance variables or array components.
      * See <em>Runtime
-     * Specification for the Java Card Platform</em>, section 6.2.2 for details.</em>
+     * Specification for the Java Card Platform</em>, section 6.2.2 for details.
      * </ul>
      * @return byte array containing the APDU buffer
      */
@@ -383,6 +383,7 @@ public final class APDU {
      * @throws APDUException with the following reason codes:<ul>
      * <li><code>APDUException.ILLEGAL_USE</code> if this method, or <code>setOutgoingNoChaining()</code> method already invoked.
      * <li><code>APDUException.IO_ERROR</code> on I/O error.
+     * </ul>
      */
     public short setOutgoing()
             throws APDUException {
@@ -425,6 +426,7 @@ public final class APDU {
      * @throws APDUException with the following reason codes:<ul>
      * <li><code>APDUException.ILLEGAL_USE</code> if this method, or <code>setOutgoingNoChaining()</code> method already invoked.
      * <li><code>APDUException.IO_ERROR</code> on I/O error.
+     * </ul>
      */
     public short setOutgoingNoChaining()
             throws APDUException {
@@ -441,7 +443,7 @@ public final class APDU {
      * Sets the actual length of response data. If a length of
      * <code>0</code> is specified, no data will be output.
      * <p>Note:<ul>
-     * <li><em>In T=0 (Case 2&4) protocol, the length is used by the Java Card runtime environment to prompt the CAD for GET RESPONSE commands.</em>
+     * <li><em>In T=0 (Case 2&amp;4) protocol, the length is used by the Java Card runtime environment to prompt the CAD for GET RESPONSE commands.</em>
      * <li><em>This method sets the state of the
      * <code>APDU</code> object to
      * <code>STATE_OUTGOING_LENGTH_KNOWN</code>.</em>
@@ -464,6 +466,7 @@ public final class APDU {
      * is in use and the CAD does not respond to <code>(ISO7816.SW_CORRECT_LENGTH_00+count)</code> response status by re-issuing same APDU command on the same origin 
      * logical channel number as that of the current APDU command with the corrected length. 
      * <li><code>APDUException.IO_ERROR</code> on I/O error.
+     * </ul>
      * @see #getOutBlockSize()
      */
     public void setOutgoingLength(short len)
@@ -526,7 +529,7 @@ public final class APDU {
      * This method should only be called on a case 3 or case 4 command, otherwise erroneous behavior may result.
      * <p>Notes:
      * <ul>
-     * <li><em>In T=0 ( Case 3&4 ) protocol, the P3 param is assumed to be Lc.</em>
+     * <li><em>In T=0 ( Case 3&amp;4 ) protocol, the P3 param is assumed to be Lc.</em>
      * <li><em>Data is read into the buffer at offset 5 for normal APDU semantics.</em>
      * <li><em>Data is read into the buffer at offset 7 for an extended length APDU (Case 3E/4E).</em>
      * <li><em>In T=1 protocol, if all the incoming bytes do not fit in the buffer, this method may

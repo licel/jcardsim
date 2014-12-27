@@ -47,7 +47,7 @@ public class Util {
      * <li><em>If </em><code>destOff+length</code><em> is greater than </em><code>dest.length</code><em>, the length
      *     of the </em><code>dest</code><em> array an </em><code>ArrayIndexOutOfBoundsException</code><em> exception is thrown
      *     and no copy is performed.</em></li>
-     * <li><em>If </em><code>src</code><em> or </em><code>dest</code><em> parameter is </em><code>null</code><em></li>
+     * <li><em>If </em><code>src</code><em> or </em><code>dest</code><em> parameter is </em><code>null</code><em>
      *     a </em><code>NullPointerException</code><em> exception is thrown.</em></li>
      * <li><em>If the <code>src</code> and <code>dest</code> arguments refer to the same array object,
      *     then the copying is performed as if the components at positions </em><code>srcOff</code><em>

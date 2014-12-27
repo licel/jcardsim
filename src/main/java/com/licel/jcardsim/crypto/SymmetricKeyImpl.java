@@ -31,7 +31,7 @@ import org.bouncycastle.crypto.engines.DESedeEngine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
- * Implementation of secret key
+ * Implementation of secret key.
  * @see DESKey
  * @see AESKey
  */

@@ -22,7 +22,7 @@ import org.bouncycastle.util.encoders.Hex;
 import java.util.Comparator;
 
 /**
- * Utility methods for dealing with AIDs
+ * Utility methods for dealing with AIDs.
  */
 public final class AIDUtil {
     private static final Comparator<AID> aidComparator = new Comparator<AID>() {

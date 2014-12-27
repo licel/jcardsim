@@ -24,7 +24,7 @@ import javacard.framework.AID;
 import javacard.framework.SystemException;
 
 /**
- * RMI client
+ * RMI client.
  *
  * @author LICEL LLC
  */

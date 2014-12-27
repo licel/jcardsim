@@ -18,11 +18,11 @@ package com.licel.jcardsim.samples;
 import javacard.framework.*;
 
 /**
- * Multi instance sample applet
+ * Multi instance sample applet.
  *
- * Returns <code>FCI</code> (file control information) on SELECT
+ * <p>Returns <code>FCI</code> (file control information) on SELECT</p>
  *
- * Supported APDUs:
+ * <p>Supported APDUs:</p>
  *
  * <ul>
  *     <li><code>CLA=0x80 INS=0</code> return AID</li>

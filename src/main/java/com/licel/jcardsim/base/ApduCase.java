@@ -19,7 +19,7 @@ import javacard.framework.ISO7816;
 import javacard.framework.Util;
 
 /**
- * Case of an <code>APDU</code>
+ * Case of an <code>APDU</code>.
  */
 public enum ApduCase {
     /**

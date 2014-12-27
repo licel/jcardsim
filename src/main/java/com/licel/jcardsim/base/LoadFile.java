@@ -57,6 +57,7 @@ public final class LoadFile {
      * Create a LoadFile containing one module (JavaCard applet)
      * @param loadFileAID AID of the LoadFile (JavaCard Package AID)
      * @param moduleAid AID of the module/class
+     * @param appletClass the Applet class
      * @throws java.lang.NullPointerException if any argument is null
      * @throws java.lang.IllegalArgumentException if <code>modules</code> is empty
      */

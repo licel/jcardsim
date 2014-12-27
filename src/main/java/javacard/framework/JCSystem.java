@@ -41,7 +41,6 @@ import com.licel.jcardsim.base.SimulatorSystem;
  * is written or nothing at all is written.
  * The <code>JCSystem</code> includes methods to control an atomic transaction.
  * See <em>Runtime Environment Specification for the Java Card Platform</em> for details.
- * <p>
  *
  */
 public final class JCSystem {
@@ -87,8 +86,8 @@ public final class JCSystem {
      * Checks if the specified object is transient.
      * <p>Note:
      * <ul>
-     * <em>This method returns </em><code>NOT_A_TRANSIENT_OBJECT</code><em> if the specified object is
-     * <code>null</code> or is not an array type.</em>
+     * <li><em>This method returns </em><code>NOT_A_TRANSIENT_OBJECT</code><em> if the specified object is
+     * <code>null</code> or is not an array type.</em></li>
      * </ul>
      * @param theObj the object being queried
      * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
@@ -438,6 +437,7 @@ public final class JCSystem {
      * @throws SystemException with the following reason codes:<ul>
      * <li><code>SystemException.ILLEGAL_USE</code> if the object deletion mechanism is
      * not implemented.
+     * </ul>
      */
     public static void requestObjectDeletion()
             throws SystemException {

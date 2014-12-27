@@ -21,9 +21,9 @@ import javacardx.apdu.ExtendedLength;
 
 
 /**
- * Applet for calculating SHA1 digests
+ * Applet for calculating SHA1 digests.
  *
- * Supported APDUs:
+ * <p>Supported APDUs:</p>
  *
  * <ul>
  *     <li><code>CLA=0x80 INS=0</code> digest of <code>CData</code></li>

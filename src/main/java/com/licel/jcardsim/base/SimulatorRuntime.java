@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Base implementation of Java Card Runtime
+ * Base implementation of Java Card Runtime.
  * @see JCSystem
  * @see Applet
  */
@@ -103,7 +103,7 @@ public class SimulatorRuntime {
 
 
     /**
-     * Return current applet context AID or null
+     * @return current applet context AID or null
      */
     public AID getAID() {
         return currentAID;
@@ -111,6 +111,10 @@ public class SimulatorRuntime {
 
     /**
      * Lookup applet by aid contains in byte array
+     * @param buffer the byte array containing the AID bytes
+     * @param offset the start of AID bytes in <code>buffer</code>
+     * @param length the length of the AID bytes in <code>buffer</code>
+     * @return Applet AID or null
      */
     public AID lookupAID(byte buffer[], short offset, byte length) {
         // no construct new AID, iterate applets
@@ -124,6 +128,8 @@ public class SimulatorRuntime {
 
     /**
      * Lookup applet by aid
+     * @param lookupAid applet AID
+     * @return ApplicationInstance or null
      */
     public ApplicationInstance lookupApplet(AID lookupAid) {
         for (AID aid : applets.keySet()) {
@@ -135,7 +141,7 @@ public class SimulatorRuntime {
     }
 
     /**
-     * Return previous selected applet context AID or null
+     * @return previous selected applet context AID or null
      */
     public AID getPreviousContextAID() {
         return previousAID;
@@ -144,6 +150,7 @@ public class SimulatorRuntime {
     /**
      * Return <code>Applet</code> by it's AID or null
      * @param aid applet <code>AID</code>
+     * @return Applet or null
      */
     protected Applet getApplet(AID aid) {
         if (aid == null) {
@@ -156,6 +163,8 @@ public class SimulatorRuntime {
 
     /**
      * Load applet
+     * @param aid Applet AID
+     * @param appletClass Applet class
      */
     public void loadApplet(AID aid, Class<? extends Applet> appletClass) {
         if (generatedLoadFileAIDs.keySet().contains(aid)) {
@@ -170,6 +179,10 @@ public class SimulatorRuntime {
         loadLoadFile(new LoadFile(generatedAID, generatedAID, appletClass));
     }
 
+    /**
+     * Load a LoadFile
+     * @param loadFile LoadFile to load
+     */
     public void loadLoadFile(LoadFile loadFile) {
         AID key = loadFile.getAid();
         if (loadFiles.keySet().contains(key) || applets.keySet().contains(key)) {
@@ -180,6 +193,7 @@ public class SimulatorRuntime {
 
     /**
      * Delete applet
+     * @param aid Applet AID to delete
      */
     protected void deleteApplet(AID aid) {
         ApplicationInstance applicationInstance = lookupApplet(aid);
@@ -456,6 +470,7 @@ public class SimulatorRuntime {
 
     /**
      * @see javacard.framework.JCSystem#getTransactionDepth()
+     * @return 1 if transaction in progress, 0 if not
      */
     public byte getTransactionDepth() {
         return transactionDepth;
@@ -503,6 +518,9 @@ public class SimulatorRuntime {
 
     /**
      * @see javacard.framework.JCSystem#getAppletShareableInterfaceObject(javacard.framework.AID, byte)
+     * @param serverAID the AID of the server applet
+     * @param parameter optional parameter data
+     * @return the shareable interface object or <code>null</code>
      */
     public Shareable getSharedObject(AID serverAID, byte parameter) {
         Applet serverApplet = getApplet(serverAID);
@@ -515,6 +533,7 @@ public class SimulatorRuntime {
 
     /**
      * @see javacard.framework.JCSystem#isObjectDeletionSupported()
+     * @return always false
      */
     public boolean isObjectDeletionSupported() {
         return false;

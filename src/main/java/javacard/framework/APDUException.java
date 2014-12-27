@@ -50,7 +50,7 @@ public class APDUException extends CardRuntimeException {
     public static final short IO_ERROR = 4;
     /**
      * This reason code indicates that during T=0 protocol, the CAD did not return a GET RESPONSE
-     * command in response to a <61xx> response status to send additional data. The outgoing
+     * command in response to a &lt;61xx&gt; response status to send additional data. The outgoing
      * transfer has been aborted. No more data or status can be sent to the CAD
      * in this <code>Applet.process()</code> method.
      */
@@ -65,7 +65,7 @@ public class APDUException extends CardRuntimeException {
     public static final short T1_IFD_ABORT = 171;
     /**
      * This reason code indicates that during T=0 protocol, the CAD did not reissue the
-     * same APDU command with the corrected length in response to a <6Cxx> response status
+     * same APDU command with the corrected length in response to a &lt;6Cxx&gt; response status
      * to request command reissue with the specified length. The outgoing
      * transfer has been aborted. No more data or status can be sent to the CAD
      * in this <code>Applet.process()</code> method
