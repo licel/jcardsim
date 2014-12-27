@@ -11,7 +11,7 @@ For sending APDUs via APDU scripts you should use the class `com.licel.jcardsim.
 
 **Start parameters:**
 
-	java -cp jcardsim-2.2.1-all.jar com.licel.jcardsim.utils.APDUScriptTool <jcardsim.cfg> <apdu script> [out file]
+	java -cp jcardsim-2.2.2-all.jar com.licel.jcardsim.utils.APDUScriptTool <jcardsim.cfg> <apdu script> [out file]
 
 
 *jcardsim.cfg*, is a file with settings for the simulator. In it you can set information about your applets. It has the following format:
