@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 
 /**
  * Implementation <code>ECPublicKey</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see ECPublicKey
  * @see ECPublicKeyParameters
  */
@@ -34,6 +34,7 @@ public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
 
     /**
      * Construct not-initialized ecc public key
+     * @param keyType key type
      * @param keySize key size it bits
      * @see javacard.security.KeyBuilder
      */

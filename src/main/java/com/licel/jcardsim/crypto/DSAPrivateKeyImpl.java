@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.params.DSAPrivateKeyParameters;
 
 /**
  * Implementation <code>DSAPrivateKey</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see DSAPrivateKey
  * @see DSAPrivateKeyParameters
  */

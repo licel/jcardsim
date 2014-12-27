@@ -19,7 +19,7 @@ import java.io.Serializable;
 import javacard.framework.AID;
 
 /**
- * Serializable AID container for the RMI calls
+ * Serializable AID container for the RMI calls.
  *
  * @author LICEL LLC
  */

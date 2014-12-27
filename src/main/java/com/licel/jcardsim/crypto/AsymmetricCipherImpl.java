@@ -28,7 +28,7 @@ import org.bouncycastle.crypto.paddings.BlockCipherPadding;
 
 /*
  * Implementation <code>Cipher</code> with asymmetric keys based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see Cipher
  */
 public class AsymmetricCipherImpl extends Cipher {

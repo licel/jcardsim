@@ -333,11 +333,11 @@ public abstract class Cipher {
      * </em><code>outBuff</code><em>
      * are the same array, then the output data area must not partially overlap the input data area such that
      * the input data is modified before it is used;
-     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>inOffset < outOffset < inOffset+inLength</code><em>,
+     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>inOffset &lt; outOffset &lt; inOffset+inLength</code><em>,
      * incorrect output may result.</em>
      * <li><em>When non-block aligned data is presented as input data, no amount of input
      * and output buffer data overlap is allowed;
-     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>outOffset < inOffset+inLength</code><em>,
+     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>outOffset &lt; inOffset+inLength</code><em>,
      * incorrect output may result.</em>
      * <li><em>AES, DES, and triple DES algorithms in CBC mode reset the initial vector(IV)
      * to 0. The initial vector(IV) can be re-initialized using the
@@ -396,11 +396,11 @@ public abstract class Cipher {
      * </em><code>outBuff</code><em>
      * are the same array, then the output data area must not partially overlap the input data area such that
      * the input data is modified before it is used;
-     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>inOffset < outOffset < inOffset+inLength</code><em>,
+     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>inOffset &lt; outOffset &lt; inOffset+inLength</code><em>,
      * incorrect output may result.</em>
      * <li><em>When non-block aligned data is presented as input data, no amount of input
      * and output buffer data overlap is allowed;
-     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>outOffset < inOffset+inLength</code><em>,
+     * if </em><code>inBuff==outBuff</code><em> and<br> </em><code>outOffset &lt; inOffset+inLength</code><em>,
      * incorrect output may result.</em>
      * <li><em>On decryption operations(except when ISO 9797 method 1 padding is used),
      * the padding bytes are not written to </em><code>outBuff</code><em>.</em>

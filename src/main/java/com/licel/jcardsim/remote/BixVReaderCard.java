@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 /**
- * BixVReader Card Implementation
+ * BixVReader Card Implementation.
  * 
  * @author LICEL LLC
  */

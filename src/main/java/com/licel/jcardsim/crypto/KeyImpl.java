@@ -18,7 +18,7 @@ package com.licel.jcardsim.crypto;
 import javacard.security.Key;
 
 /**
- * Base class for all <code>Key</code> instances
+ * Base class for all <code>Key</code> instances.
  * @see Key
  */
 public abstract class KeyImpl implements Key, KeyWithParameters {

@@ -67,7 +67,7 @@ import com.licel.jcardsim.utils.BiConsumer;
  *             // send response data to select command
  *             short Le =  apdu.setOutgoing();
  *             // assume data containing response bytes in replyData[] array.
- *             if ( Le < ..) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH);
+ *             if ( Le &lt; ..) ISOException.throwIt( ISO7816.SW_WRONG_LENGTH);
  *             apdu.setOutgoingLength( (short)replyData.length );
  *             apdu.sendBytesLong(replyData, (short) 0, (short)replyData.length);
  *             break;

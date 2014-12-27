@@ -16,7 +16,7 @@
 package com.licel.jcardsim.io;
 
 /**
- * Basic SmartCard Interface
+ * Basic SmartCard Interface.
  *
  * @author LICEL LLC
  */
@@ -29,6 +29,7 @@ public interface CardInterface {
 
     /**
      * Returns ATR
+     * @return ATR bytes
      */
     public byte[] getATR();
 

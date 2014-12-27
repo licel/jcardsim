@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * Client protocol impl (BixVReader (IPC))
- * http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader
+ * Client protocol impl (BixVReader (IPC)).
+ *
+ * See <a href="http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader"
+ * >http://www.codeproject.com/Articles/134010/An-UMDF-Driver-for-a-Virtual-Smart-Card-Reader</a>
  *
  * @author LICEL LLC
  */

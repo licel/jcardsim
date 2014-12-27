@@ -18,7 +18,7 @@ package com.licel.jcardsim.utils;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
- * Utility methods for dealing with byte arrays
+ * Utility methods for dealing with byte arrays.
  */
 public final class ByteUtil {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();

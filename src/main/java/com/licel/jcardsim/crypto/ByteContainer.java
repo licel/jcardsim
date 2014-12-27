@@ -22,7 +22,7 @@ import javacard.security.CryptoException;
 
 /**
  * This class contains byte array, initialization flag of this
- * array and memory type
+ * array and memory type.
  */
 public final class ByteContainer {
 
@@ -63,8 +63,8 @@ public final class ByteContainer {
      * with memory type <code>JCSystem.MEMORY_TYPE_PERSISTENT</code>
      * and fills it by defined byte array
      * @param buff byte array
-     * @param offset
-     * @param length
+     * @param offset offset in byte array
+     * @param length length of data in byte array
      */
     public ByteContainer(byte[] buff, short offset, short length) {
         setBytes(buff, offset, length);
@@ -93,7 +93,7 @@ public final class ByteContainer {
 
     /**
      * Fills <code>ByteContainer</code>by defined byte array
-     * @param buff
+     * @param buff byte array
      */
     public void setBytes(byte[] buff) {
         setBytes(buff, (short) 0, (short) buff.length);
@@ -101,9 +101,9 @@ public final class ByteContainer {
 
     /**
      * Fills <code>ByteContainer</code>by defined byte array
-     * @param buff
-     * @param offset
-     * @param length
+     * @param buff byte array
+     * @param offset offset in byte array
+     * @param length length of data in byte array
      */
     public void setBytes(byte[] buff, short offset, short length) {
         if (data == null) {
@@ -152,8 +152,8 @@ public final class ByteContainer {
     /**
      * Copy byte array representation of the <code>ByteContainer</code>
      * @param dest destination byte array
-     * @param offset
-     * @return bytes copies
+     * @param offset destination byte array offset
+     * @return bytes copied
      */
     public short getBytes(byte[] dest, short offset) {
         if (length == 0) {

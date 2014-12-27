@@ -95,30 +95,30 @@ public class JCardSimProviderTest extends TestCase {
         response = jcsChannel.transmit(selectApplet);
         assertEquals(response.getSW(), 0x9000);
         // test NOP
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x02, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x02, 0x00, 0x00));
         assertEquals(0x9000, response.getSW());
         // test SW_INS_NOT_SUPPORTED
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x05, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x05, 0x00, 0x00));
         assertEquals(ISO7816.SW_INS_NOT_SUPPORTED, response.getSW());
         // test hello world from card
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x01, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
         assertEquals(0x9000, response.getSW());
         assertEquals("Hello world !", new String(response.getData()));
         // test echo
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
         assertEquals(0x9000, response.getSW());
         assertEquals("Hello javacard world !", new String(response.getData()));
         // test echo v2
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x03, 0x00, 0x00, ("Hello javacard world !").getBytes()));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x03, 0x00, 0x00, ("Hello javacard world !").getBytes()));
         assertEquals(0x9000, response.getSW());
         assertEquals("Hello javacard world !", new String(response.getData()));
         // test echo install params
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x04, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x04, 0x00, 0x00));
         assertEquals(0x9000, response.getSW());
         assertEquals(0xF, response.getData()[0]);
         assertEquals(0xF, response.getData()[1]);
         // test continued data
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x06, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x06, 0x00, 0x00));
         assertEquals(0x6107, response.getSW());
         assertEquals("Hello ", new String(response.getData()));
         // test https://github.com/licel/jcardsim/issues/13
@@ -131,11 +131,11 @@ public class JCardSimProviderTest extends TestCase {
         response = jcsChannel.transmit(new CommandAPDU(listObjectsCmd));
         assertEquals(0x9C12, response.getSW());
         // application specific sw + data
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x07, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x07, 0x00, 0x00));
         assertEquals(0x9B00, response.getSW());
         assertEquals("Hello world !", new String(response.getData()));
         // sending maximum data
-        response = jcsChannel.transmit(new CommandAPDU(0x01, 0x08, 0x00, 0x00));
+        response = jcsChannel.transmit(new CommandAPDU(0x00, 0x08, 0x00, 0x00));
         assertEquals(0x9000, response.getSW());
     }
 }

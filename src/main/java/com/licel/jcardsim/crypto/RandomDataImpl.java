@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.prng.RandomGenerator;
 
 /**
  * Implementation <code>RandomData</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see RandomData
  */
 public class RandomDataImpl extends RandomData {

@@ -20,7 +20,7 @@ import javacard.framework.*;
 import java.lang.reflect.Constructor;
 
 /**
- * Base implementation of <code>JCSystem</code>
+ * Base implementation of <code>JCSystem</code>.
  * @see JCSystem
  */
 public class SimulatorSystem {

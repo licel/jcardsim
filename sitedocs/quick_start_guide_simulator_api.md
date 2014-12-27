@@ -1,17 +1,17 @@
-jCardSim was originally developed for a fast prototyping of the Java Card applications, and writing unit-tests.
+jCardSim is intended for rapid prototyping of Java Card applications and unit testing.
 
 There are two ways to use the simulator:
 
- - Using of Simulator API
- - Using the `javax.smartcardio` for an interaction with JavaCard
+ - Using the Simulator API
+ - Using the `javax.smartcardio` API
 
 In both cases it is possible to interact with a remote instance of jCardSim. For example you may run one or multiple instances of virtual Java Card and connect to it via TCP/IP.  
 
 ### Using Simulator API's methods
 
-The main interface for working with simulator is `com.licel.jcardsim.io.JavaCardInterface`, its specification available [here](http://jcardsim.org/jcardsim/com/licel/jcardsim/io/JavaCardInterface.html). In order to get its implementation use `com.licel.jcardsim.io.CAD`.
+The main interface for working with the simulator is `com.licel.jcardsim.io.JavaCardInterface`, its specification is available [here](http://jcardsim.org/jcardsim/com/licel/jcardsim/io/JavaCardInterface.html). In order to get its implementation use `com.licel.jcardsim.io.CAD`.
 
-At first it is necessary to set connection parameters:
+At first it is necessary to set the connection parameters:
 
 	// 0 - Local Mode
 	// 1 - Remote Mode
@@ -33,13 +33,13 @@ Selecting:
 
 Sending an APDU command:
 
-	ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x01, 0x01, 0x00, 0x00));
+	ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
 
-And check a result of the execution:
+And check the result of the execution:
 
 	assertEquals(0x9000, response.getSW());
 
-The example of how to work with HelloWorldApplet (from first part of [Quick Start Guide: Using in CLI mode](http://jcardsim.org/docs/quick-start-guide-using-in-cli-mode)):
+An example of how to work with HelloWorldApplet (from the first part of [Quick Start Guide: Using in CLI mode](http://jcardsim.org/docs/quick-start-guide-using-in-cli-mode)):
 
 	System.setProperty("com.licel.jcardsim.terminal.type", "2");
 	CAD cad = new CAD(System.getProperties());
@@ -49,23 +49,23 @@ The example of how to work with HelloWorldApplet (from first part of [Quick Star
 	simulator.installApplet(appletAID, HelloWorldApplet.class);
 	simulator.selectApplet(appletAID);
 	// test NOP
-	ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x01, 0x02, 0x00, 0x00));
+	ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x00, 0x02, 0x00, 0x00));
 	assertEquals(0x9000, response.getSW());
 	// test hello world from card
-	response = simulator.transmitCommand(new CommandAPDU(0x01, 0x01, 0x00, 0x00));
+	response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
 	assertEquals(0x9000, response.getSW());
 	assertEquals("Hello world !", new String(response.getData()));
 	// test echo
-	response = simulator.transmitCommand(new CommandAPDU(0x01, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
+	response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
 	assertEquals(0x9000, response.getSW());
 	assertEquals("Hello javacard world !", new String(response.getData()));
 
 ### Using  `javax.smartcardio` for an interaction with JavaCard
-For ease of writing Unit tests for an applications which use `javax.smartcardio`, we have the provider for Java Card Terminal's emulation in jCardSim.
+To simplify unit testing of an applications that uses `javax.smartcardio`, we provide the jCardSim TerminalFactory.
 
 The complete example can be found at [JCardSimProviderTest.java](https://github.com/licel/jcardsim/blob/master/src/test/java/com/licel/jcardsim/smartcardio/JCardSimProviderTest.java).
 
-To use it you have to register jCardSim TerminalFactory Provider:
+To use it you have to register the jCardSim TerminalFactory Provider:
 
 	if (Security.getProvider("jCardSim") == null) {
 	       JCardSimProvider provider = new JCardSimProvider();
@@ -86,7 +86,7 @@ Choose terminal:
 	}
 
 Then, you can use `javax.smartcardio` API.
-> **Note:** Pre-installed applets can be configured using system properties: `System.setProperty(...)`, the format is equal with configuration file of the CLI mode of jCardSim.
+> **Note:** Pre-installed applets can be configured using system properties: `System.setProperty(...)`, the format is equal to the configuration file of the CLI mode of jCardSim.
 
 Example of how to work with HelloWorldApplet:  
 	
@@ -123,14 +123,14 @@ Example of how to work with HelloWorldApplet:
 	 response = jcsChannel.transmit(selectApplet);
 	 assertEquals(response.getSW(), 0x9000);
 	 // test NOP
-	 response = jcsChannel.transmit(new CommandAPDU(0x01, 0x02, 0x00, 0x00));
+	 response = jcsChannel.transmit(new CommandAPDU(0x00, 0x02, 0x00, 0x00));
 	 assertEquals(0x9000, response.getSW());
 	 // test hello world from card
-	 response = jcsChannel.transmit(new CommandAPDU(0x01, 0x01, 0x00, 0x00));
+	 response = jcsChannel.transmit(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
 	 assertEquals(0x9000, response.getSW());
 	 assertEquals("Hello world !", new String(response.getData()));
 	 // test echo
-	 response = jcsChannel.transmit(new CommandAPDU(0x01, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
+	 response = jcsChannel.transmit(new CommandAPDU(0x00, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
 	 assertEquals(0x9000, response.getSW());
 	 assertEquals("Hello javacard world !", new String(response.getData()));
 

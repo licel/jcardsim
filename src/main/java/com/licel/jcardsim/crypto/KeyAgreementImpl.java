@@ -27,7 +27,7 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 
 /**
  * Implementation <code>KeyAgreement</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see KeyAgreement
  * @see ECDHBasicAgreement
  * @see ECDHCBasicAgreement

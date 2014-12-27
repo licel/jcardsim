@@ -31,7 +31,7 @@ import javacard.framework.*;
 import org.bouncycastle.util.encoders.Hex;
 
 /**
- * Simulates a JavaCard
+ * Simulates a JavaCard.
  */
 public class Simulator implements JavaCardInterface {
 

@@ -19,9 +19,9 @@ import javacard.framework.*;
 
 
 /**
- * Dual interface applet
+ * Dual interface applet.
  *
- * Supported APDUs:
+ * <p>Supported APDUs:</p>
  *
  * <ul>
  *     <li><code>CLA=0x80 INS=0</code> read value</li>

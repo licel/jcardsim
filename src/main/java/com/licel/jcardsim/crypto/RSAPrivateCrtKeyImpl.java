@@ -24,7 +24,7 @@ import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 
 /**
  * Implementation <code>RSAPrivateCrtKey</code> based
- * on BouncyCastle CryptoAPI
+ * on BouncyCastle CryptoAPI.
  * @see RSAPrivateCrtKey
  * @see RSAPrivateCrtKeyParameters
  */
