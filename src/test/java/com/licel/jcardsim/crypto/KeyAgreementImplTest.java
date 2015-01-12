@@ -75,16 +75,16 @@ public class KeyAgreementImplTest extends TestCase {
         byte[] public2 = new byte[128];
         short publicKeyLength = publicKey2.getW(public2, (short) 0);
         ka.init(privateKey1);
-        ka.generateSecret(public2, (short) 0, publicKeyLength, secret1, (short) 0);
+        short secret1Size = ka.generateSecret(public2, (short) 0, publicKeyLength, secret1, (short) 0);
         // generate second secret
         byte[] secret2 = new byte[20];
         byte[] public1 = new byte[128];
         publicKeyLength = publicKey1.getW(public1, (short) 0);
         ka.init(privateKey2);
-        ka.generateSecret(public1, (short) 0, publicKeyLength, secret2, (short) 0);
+        short secret2Size = ka.generateSecret(public1, (short) 0, publicKeyLength, secret2, (short) 0);
         // sha1 size = 20
-        assertEquals(secret1.length, 20);
-        assertEquals(secret2.length, 20);
+        assertEquals(secret1Size, 20);
+        assertEquals(secret2Size, 20);
         assertEquals(true, Arrays.areEqual(secret1, secret2));
     }
 }
