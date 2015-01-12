@@ -22,6 +22,7 @@ import javacard.security.PrivateKey;
 import org.bouncycastle.crypto.BasicAgreement;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
 import org.bouncycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 
@@ -35,6 +36,8 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 public class KeyAgreementImpl extends KeyAgreement {
 
     BasicAgreement engine;
+    SHA1Digest digestEngine;
+    
     byte algorithm;
     ECPrivateKeyImpl privateKey;
 
@@ -51,6 +54,7 @@ public class KeyAgreementImpl extends KeyAgreement {
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
         }
+        digestEngine = new SHA1Digest();
     }
 
     public void init(PrivateKey privateKey) throws CryptoException {
@@ -78,10 +82,11 @@ public class KeyAgreementImpl extends KeyAgreement {
         ECPublicKeyParameters ecp = new ECPublicKeyParameters(
                 ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters().getCurve().decodePoint(publicKey), ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters());
         byte[] result = engine.calculateAgreement(ecp).toByteArray();
-        if (result.length > secret.length - secretOffset) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-        }
-        Util.arrayCopyNonAtomic(result, (short) 0, secret, secretOffset, (short) result.length);
-        return (short) result.length;
+        // apply SHA1-hash (see spec)
+        byte[] hashResult = new byte[20];
+        digestEngine.update(result, 0, result.length);
+        digestEngine.doFinal(hashResult, 0);
+        Util.arrayCopyNonAtomic(hashResult, (short) 0, secret, secretOffset, (short) hashResult.length);
+        return (short) hashResult.length;
     }
 }
