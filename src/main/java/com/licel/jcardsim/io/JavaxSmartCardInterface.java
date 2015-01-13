@@ -23,6 +23,8 @@ import javax.smartcardio.ResponseAPDU;
 
 /**
  * Simulator with javacardx.smartcardio Command/Response support.
+ *
+ * NOTE: New code should use {@link com.licel.jcardsim.smartcardio.CardSimulator} instead.
  */
 public class JavaxSmartCardInterface extends Simulator {
     /**

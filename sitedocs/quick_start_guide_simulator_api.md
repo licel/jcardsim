@@ -1,139 +1,179 @@
 jCardSim is intended for rapid prototyping of Java Card applications and unit testing.
 
-There are two ways to use the simulator:
+There are three ways to use the simulator:
 
  - Using the Simulator API
  - Using the `javax.smartcardio` API
+ - Using the remote API
 
-In both cases it is possible to interact with a remote instance of jCardSim. For example you may run one or multiple instances of virtual Java Card and connect to it via TCP/IP.  
+### Using the Simulator API
 
-### Using Simulator API's methods
+Working with the simulator:
 
-The main interface for working with the simulator is `com.licel.jcardsim.io.JavaCardInterface`, its specification is available [here](http://jcardsim.org/jcardsim/com/licel/jcardsim/io/JavaCardInterface.html). In order to get its implementation use `com.licel.jcardsim.io.CAD`.
+	// 1. Create simulator
+	CardSimulator simulator = new CardSimulator();
 
-At first it is necessary to set the connection parameters:
-
-	// 0 - Local Mode
-	// 1 - Remote Mode
-	// 2 - Local Mode with ResponseAPDU transmitCommand(CommandAPDU) method
-	System.setProperty("com.licel.jcardsim.terminal.type", "2");
-	CAD cad = new CAD(System.getProperties());
-
-Create connection:
-
-	JavaxSmartCardInterface simulator = (JavaxSmartCardInterface) cad.getCardInterface();
-
-Next, installing an applet:
-
+	// 2. Install applet
+	AID appletAID = AIDUtil.create("F000000001");
 	simulator.installApplet(appletAID, HelloWorldApplet.class);
 
-Selecting:
-
+	// 3. Select applet
 	simulator.selectApplet(appletAID);
 
-Sending an APDU command:
+	// 4. Send APDU
+	CommandAPDU commandAPDU = new CommandAPDU(0x00, 0x01, 0x00, 0x00);
+	ResponseAPDU response = simulator.transmitCommand(commandAPDU);
 
-	ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
-
-And check the result of the execution:
-
+	// 5. Check response status word
 	assertEquals(0x9000, response.getSW());
 
-An example of how to work with HelloWorldApplet (from the first part of [Quick Start Guide: Using in CLI mode](http://jcardsim.org/docs/quick-start-guide-using-in-cli-mode)):
+An example of how to work with `HelloWorldApplet` from the first part of [Quick Start Guide: Using in CLI mode](http://jcardsim.org/docs/quick-start-guide-using-in-cli-mode):
 
-	System.setProperty("com.licel.jcardsim.terminal.type", "2");
-	CAD cad = new CAD(System.getProperties());
-	JavaxSmartCardInterface simulator = (JavaxSmartCardInterface) cad.getCardInterface();
+	CardSimulator simulator = new CardSimulator();
+
 	byte[] appletAIDBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
 	AID appletAID = new AID(appletAIDBytes, (short) 0, (byte) appletAIDBytes.length);
+
 	simulator.installApplet(appletAID, HelloWorldApplet.class);
 	simulator.selectApplet(appletAID);
+
 	// test NOP
 	ResponseAPDU response = simulator.transmitCommand(new CommandAPDU(0x00, 0x02, 0x00, 0x00));
 	assertEquals(0x9000, response.getSW());
+
 	// test hello world from card
 	response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
 	assertEquals(0x9000, response.getSW());
 	assertEquals("Hello world !", new String(response.getData()));
+
 	// test echo
-	response = simulator.transmitCommand(new CommandAPDU(0x00, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
+	CommandAPDU echo = new CommandAPDU(0x00, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes());
+	response = simulator.transmitCommand(echo);
 	assertEquals(0x9000, response.getSW());
 	assertEquals("Hello javacard world !", new String(response.getData()));
 
-### Using  `javax.smartcardio` for an interaction with JavaCard
-To simplify unit testing of an applications that uses `javax.smartcardio`, we provide the jCardSim TerminalFactory.
+It is also possible to work with plain `byte` arrays, for example:
 
-The complete example can be found at [JCardSimProviderTest.java](https://github.com/licel/jcardsim/blob/master/src/test/java/com/licel/jcardsim/smartcardio/JCardSimProviderTest.java).
+	// test NOP
+	byte[] response = simulator.transmitCommand(new byte[]{0,2,0,0});
+	ByteUtil.requireSW(response, 0x9000);
 
-To use it you have to register the jCardSim TerminalFactory Provider:
+To simplify the handling of AIDs and byte arrays we provide `AIDUtil` and `ByteUtil`:
 
-	if (Security.getProvider("jCardSim") == null) {
-	       JCardSimProvider provider = new JCardSimProvider();
-	       Security.addProvider(provider);
-	}
+	// AID from byte array
+	AID applet1AID = AIDUtil.create(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
 
-Choose terminal:
+	// AID form String
+	AID applet2AID = AIDUtil.create("010203040506070809");
 
-	TerminalFactory tf = TerminalFactory.getInstance("jCardSim", null);
-	CardTerminals ct = tf.terminals();
-	List<CardTerminal> list = ct.list();
-	CardTerminal jcsTerminal = null;
-	for (int i = 0; i < list.size(); i++) {
-	     if (list.get(i).getName().equals("jCardSim.Terminal")) {
-	         jcsTerminal = list.get(i);
-	         break;
-	      }
-	}
+	assertEquals(applet1AID, applet2AID);
 
-Then, you can use `javax.smartcardio` API.
+	// String to byte array
+	String hexString = ByteUtil.hexString(new byte[]{0,2,0,0});
+
+	// byte array from String
+	byte[] bytes = ByteUtil.byteArray("00 02 00 00");
+
+	assertEquals("00020000", hexString);
+	assertEquals("00020000", ByteUtil.hexString(bytes));
+
+### Using `javax.smartcardio` for an interaction with JavaCard
+
+To simplify unit testing of applications that use `javax.smartcardio`,
+we provide a simulated `TerminalFactory` via `CardTerminalSimulator`.
+
+Using the `CardSimulator` via the `CardTerminal` API:
+
+	// 1. Create simulator and install applet
+	CardSimulator simulator = new CardSimulator();
+	AID appletAID = AIDUtil.create("F000000001");
+	simulator.installApplet(appletAID, HelloWorldApplet.class);
+
+	// 2. Create Terminal
+	CardTerminal terminal = CardTerminalSimulator.terminal(simulator);
+
+	// 3. Connect to Card
+	Card card = terminal.connect("T=1");
+	CardChannel channel = card.getBasicChannel();
+
+	// 4. Select applet
+	CommandAPDU selectCommand = new CommandAPDU(AIDUtil.select(appletAID));
+	channel.transmit(selectCommand);
+
+	// 5. Send APDU
+	CommandAPDU commandAPDU = new CommandAPDU(0x00, 0x01, 0x00, 0x00);
+	ResponseAPDU response = simulator.transmitCommand(commandAPDU);
+
+	// 6. Check response status word
+	assertEquals(0x9000, response.getSW());
+
 > **Note:** Pre-installed applets can be configured using system properties: `System.setProperty(...)`, the format is equal to the configuration file of the CLI mode of jCardSim.
 
-Example of how to work with HelloWorldApplet:  
-	
-	String TEST_APPLET_AID = "010203040506070809";
-	System.setProperty("com.licel.jcardsim.applet.0.AID", TEST_APPLET_AID);
-	System.setProperty("com.licel.jcardsim.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
-	if (Security.getProvider("jCardSim") == null) {
-	      JCardSimProvider provider = new JCardSimProvider();
-	       Security.addProvider(provider);
+It is also possible to simulate multiple terminals using `CardTerminals`.
+In this case each `CardTerminal` starts in an empty state (`isCardPresent()` returns `false`).
+Cards can be inserted via `CardSimulator#assignToTerminal(terminal)` and removed via
+`CardSimulator#assignToTerminal(null)`.
+
+Working with `CardTerminals`:
+
+	// Obtain CardTerminal
+	CardTerminals cardTerminals = CardTerminalSimulator.terminals("My terminal 1", "My terminal 2");
+	CardTerminal terminal1 = cardTerminals.getTerminal("My terminal 1");
+	CardTerminal terminal2 = cardTerminals.getTerminal("My terminal 2");
+
+	assertEquals(false, terminal1.isCardPresent());
+	assertEquals(false, terminal2.isCardPresent());
+
+	// Create simulator and install applet
+	CardSimulator simulator = new CardSimulator();
+	AID appletAID = AIDUtil.create("F000000001");
+	simulator.installApplet(appletAID, HelloWorldApplet.class);
+
+	// Insert Card into "My terminal 1"
+	simulator.assignToTerminal(terminal1);
+	assertEquals(true,  terminal1.isCardPresent());
+	assertEquals(false, terminal2.isCardPresent());
+
+Creating a terminal via the `TerminalFactory` API:
+
+	// Register security provider
+	if (Security.getProvider("CardTerminalSimulator") == null) {
+		Security.addProvider(new CardTerminalSimulator.SecurityProvider());
 	}
-	TerminalFactory tf = TerminalFactory.getInstance("jCardSim", null);
-	CardTerminals ct = tf.terminals();
-	List<CardTerminal> list = ct.list();
-	CardTerminal jcsTerminal = null;
-	for (int i = 0; i < list.size(); i++) {
-	     if (list.get(i).getName().equals("jCardSim.Terminal")) {
-	           jcsTerminal = list.get(i);
-	          break;
-	      }
-	 }
-	 Card jcsCard = jcsTerminal.connect("T=0");
-	 CardChannel jcsChannel = jcsCard.getBasicChannel();
-	 // create applet data = aid len (byte), aid bytes, params lenth (byte), param 
-	 byte[] aidBytes = Hex.decode(TEST_APPLET_AID);
-	 byte[] createData = new byte[1+aidBytes.length+1];
-	 createData[0] = (byte) aidBytes.length;
-	 System.arraycopy(aidBytes, 0, createData, 1, aidBytes.length);
-	 CommandAPDU createApplet = new CommandAPDU(0x80, 0xb8, 0, 0, createData);
-	 ResponseAPDU response = jcsChannel.transmit(createApplet);
-	 assertEquals(response.getSW(), 0x9000);
-	 assertEquals(true, Arrays.equals(response.getData(), aidBytes));
-	 // select applet
-	 CommandAPDU selectApplet = new CommandAPDU(ISO7816.CLA_ISO7816, ISO7816.INS_SELECT, 0, 0, Hex.decode(TEST_APPLET_AID));
-	 response = jcsChannel.transmit(selectApplet);
-	 assertEquals(response.getSW(), 0x9000);
-	 // test NOP
-	 response = jcsChannel.transmit(new CommandAPDU(0x00, 0x02, 0x00, 0x00));
-	 assertEquals(0x9000, response.getSW());
-	 // test hello world from card
-	 response = jcsChannel.transmit(new CommandAPDU(0x00, 0x01, 0x00, 0x00));
-	 assertEquals(0x9000, response.getSW());
-	 assertEquals("Hello world !", new String(response.getData()));
-	 // test echo
-	 response = jcsChannel.transmit(new CommandAPDU(0x00, 0x01, 0x01, 0x00, ("Hello javacard world !").getBytes()));
-	 assertEquals(0x9000, response.getSW());
-	 assertEquals("Hello javacard world !", new String(response.getData()));
+
+	// Get TerminalFactory
+	Object params = null;
+	TerminalFactory factory = TerminalFactory.getInstance("CardTerminalSimulator", params);
+
+	// Get CardTerminal
+	CardTerminals cardTerminals = factory.terminals();
+	CardTerminal terminal = cardTerminals.getTerminal("jCardSim.Terminal");
+	assertNotNull(terminal);
+
+	// Insert Card
+	simulator.assignToTerminal(terminal);
+
+Creating multiple terminals via the `TerminalFactory` API:
+
+	String[] names = new String[] {"My terminal 1", "My terminal 2"};
+	TerminalFactory factory = TerminalFactory.getInstance("CardTerminalSimulator", names);
+
+	CardTerminals cardTerminals = factory.terminals();
+	assertNotNull(cardTerminals.getTerminal("My terminal 1"));
+	assertNotNull(cardTerminals.getTerminal("My terminal 2"));
 
 **Current version's limitations:**  
 
-The `openLogicalChannel()` method always returns the `basicChannel`.
+- The `Card#openLogicalChannel` method is not supported.
+- The `Card#transmitControlCommand` method is not supported.
+
+**Legacy TerminalFactory**
+
+Previous versions of jCardSim provided a limited `TerminalFactory` implementation (`JCSTerminal`). An example is provided in [JCardSimProviderTest.java](https://github.com/licel/jcardsim/blob/master/src/test/java/com/licel/jcardsim/smartcardio/JCardSimProviderTest.java).
+
+### Using the remote API
+
+It is possible to interact with a remote instance of jCardSim. For example you may
+run one or multiple instances of virtual Java Card and connect to it via TCP/IP.
+
+An example is provided in [JavaCardRemoteServerTest.java](https://github.com/licel/jcardsim/blob/master/src/test/java/com/licel/jcardsim/remote/JavaCardRemoteServerTest.java).
