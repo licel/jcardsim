@@ -16,6 +16,8 @@
 package com.licel.jcardsim.remote;
 
 import com.licel.jcardsim.base.Simulator;
+import com.licel.jcardsim.base.SimulatorRuntime;
+
 import java.io.FileInputStream;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -30,13 +32,13 @@ import java.util.Properties;
 public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject
         implements JavaCardRemoteInterface {
     
-    Simulator sim;
+    protected final Simulator sim;
 
     public JavaCardRemoteServer(String host, int port) throws RemoteException {
+        sim = new Simulator(new SimulatorRuntime());
         System.setProperty("java.rmi.server.hostname", host);
         Registry registry = LocateRegistry.createRegistry(port);
         registry.rebind(RMI_SERVER_ID, this);
-        sim = new Simulator();
     }
 
     static public void main(String args[]) throws Exception {
@@ -75,7 +77,8 @@ public class JavaCardRemoteServer extends java.rmi.server.UnicastRemoteObject
             System.err.println("Invalid configuration: missing 'com.licel.jcardsim.terminal.port' property");
             System.exit(-1);
         }
-        JavaCardRemoteServer server = new JavaCardRemoteServer(serverHost, Integer.parseInt(serverPort));
+
+        new JavaCardRemoteServer(serverHost, Integer.parseInt(serverPort));
     }
 
     /**

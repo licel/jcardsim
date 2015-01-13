@@ -1,4 +1,4 @@
 /**
- * JavaCard API
+ * JavaCard API.
  */
 package javacardx.crypto;
