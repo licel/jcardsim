@@ -73,7 +73,7 @@ public final class ByteUtil {
 
     /**
      * Extract status word from APDU
-     * @param apduBuffer apdu bytes
+     * @param apduBuffer APDU bytes
      * @return status word
      * @throws java.lang.NullPointerException if <code>apduBuffer</code> is null
      * @throws java.lang.IllegalArgumentException if <code>apduBuffer.length</code>  is &lt; 2
@@ -86,6 +86,33 @@ public final class ByteUtil {
             throw new IllegalArgumentException("bytes.length must be at least 2");
         }
         return getShort(apduBuffer, apduBuffer.length - 2);
+    }
+
+    /**
+     * Check status word from APDU
+     * @param apduBuffer APDU bytes
+     * @param expected expected status word
+     * @throws java.lang.NullPointerException if <code>apduBuffer</code> is null
+     * @throws java.lang.IllegalArgumentException if <code>apduBuffer.length</code>  is &lt; 2
+     * @throws java.lang.AssertionError if <code>expected</code> does not match the status word from <code>apduBuffer</code>
+     */
+    public static void requireSW(byte[] apduBuffer, int expected) {
+        int sw = getSW(apduBuffer) & 0xFFFF;
+        if (sw != expected) {
+            throw new AssertionError(String.format("Expected status word %x but got %x", expected, sw));
+        }
+    }
+
+    /**
+     * Check status word from APDU
+     * @param apduBuffer APDU bytes
+     * @param expected expected status word
+     * @throws java.lang.NullPointerException if <code>apduBuffer</code> is null
+     * @throws java.lang.IllegalArgumentException if <code>apduBuffer.length</code>  is &lt; 2
+     * @throws java.lang.AssertionError if <code>expected</code> does not match the status word from <code>apduBuffer</code>
+     */
+    public static void requireSW(byte[] apduBuffer, short expected) {
+        requireSW(apduBuffer, expected & 0xFFFF);
     }
 
     /**

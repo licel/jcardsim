@@ -39,8 +39,8 @@ public class Simulator implements JavaCardInterface {
     static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
     // ATR system property name
     static final String ATR_SYSTEM_PROPERTY = "com.licel.jcardsim.card.ATR";
-    // card ATR 
-    byte[] atr = null;
+    // card ATR
+    private byte[] atr = null;
     static final String PROPERTY_PREFIX = "com.licel.jcardsim.card.applet.";
     static final String OLD_PROPERTY_PREFIX = "com.licel.jcardsim.smartcardio.applet.";
     // Applet AID system property template

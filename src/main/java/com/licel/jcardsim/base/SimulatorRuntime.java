@@ -196,6 +196,7 @@ public class SimulatorRuntime {
      * @param aid Applet AID to delete
      */
     protected void deleteApplet(AID aid) {
+        activateSimulatorRuntimeInstance();
         ApplicationInstance applicationInstance = lookupApplet(aid);
         if (applicationInstance == null) {
             throw new SystemException(SystemException.ILLEGAL_AID);
@@ -348,6 +349,7 @@ public class SimulatorRuntime {
     }
 
     protected void deselect(ApplicationInstance applicationInstance) {
+        activateSimulatorRuntimeInstance();
         if (applicationInstance != null) {
             try {
                 Applet applet = applicationInstance.getApplet();
@@ -589,6 +591,7 @@ public class SimulatorRuntime {
 
     public void installApplet(AID loadFileAID, AID moduleAID, final AID appletAID,
                               byte[] bArray, short bOffset, byte bLength) {
+        activateSimulatorRuntimeInstance();
         LoadFile loadFile = loadFiles.get(loadFileAID);
         if (loadFile == null) {
             throw new IllegalArgumentException("LoadFile AID not found " + AIDUtil.toString(loadFileAID));
