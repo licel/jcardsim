@@ -868,7 +868,7 @@ public final class APDU {
         if (extended) {
             return Util.getShort(buffer, (short) (ISO7816.OFFSET_LC + 1));
         }
-        return buffer[ISO7816.OFFSET_LC];
+        return  (short)(0xFF & buffer[ISO7816.OFFSET_LC]);
     }
 
     /**
