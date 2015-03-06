@@ -170,7 +170,7 @@ Implementation <code>ECPrivateKey</code> based
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct not-initialized ecc private key</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/ECPrivateKeyImpl.html#ECPrivateKeyImpl(org.bouncycastle.crypto.params.ECPrivateKeyParameters)">ECPrivateKeyImpl</A></B>(org.bouncycastle.crypto.params.ECPrivateKeyParameters&nbsp;params)</CODE>
+<TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/ECPrivateKeyImpl.html#ECPrivateKeyImpl(org.spongycastle.crypto.params.ECPrivateKeyParameters)">ECPrivateKeyImpl</A></B>(org.spongycastle.crypto.params.ECPrivateKeyParameters&nbsp;params)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct and initialize ecc key with ECPrivateKeyParameters.</TD>
@@ -195,7 +195,7 @@ Implementation <code>ECPrivateKey</code> based
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;org.bouncycastle.crypto.CipherParameters</CODE></FONT></TD>
+<CODE>&nbsp;org.spongycastle.crypto.CipherParameters</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/ECPrivateKeyImpl.html#getParameters()">getParameters</A></B>()</CODE>
 
 <BR>
@@ -319,10 +319,10 @@ public <B>ECPrivateKeyImpl</B>(byte&nbsp;keyType,
 </DL>
 <HR>
 
-<A NAME="ECPrivateKeyImpl(org.bouncycastle.crypto.params.ECPrivateKeyParameters)"><!-- --></A><H3>
+<A NAME="ECPrivateKeyImpl(org.spongycastle.crypto.params.ECPrivateKeyParameters)"><!-- --></A><H3>
 ECPrivateKeyImpl</H3>
 <PRE>
-public <B>ECPrivateKeyImpl</B>(org.bouncycastle.crypto.params.ECPrivateKeyParameters&nbsp;params)</PRE>
+public <B>ECPrivateKeyImpl</B>(org.spongycastle.crypto.params.ECPrivateKeyParameters&nbsp;params)</PRE>
 <DL>
 <DD>Construct and initialize ecc key with ECPrivateKeyParameters.
  Use in KeyPairImpl
@@ -452,7 +452,7 @@ public void <B>clearKey</B>()</PRE>
 <A NAME="getParameters()"><!-- --></A><H3>
 getParameters</H3>
 <PRE>
-public org.bouncycastle.crypto.CipherParameters <B>getParameters</B>()</PRE>
+public org.spongycastle.crypto.CipherParameters <B>getParameters</B>()</PRE>
 <DL>
 <DD>Get <code>ECPrivateKeyParameters</code>
 <P>

@@ -17,7 +17,7 @@ package com.licel.jcardsim.utils;
 
 import javacard.framework.AID;
 import javacard.framework.ISO7816;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 import java.util.Comparator;
 

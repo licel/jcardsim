@@ -16,7 +16,7 @@
 package com.licel.jcardsim.crypto;
 
 import junit.framework.TestCase;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  * Test for <code>RSAPrivateCrtKeyImpl</code>

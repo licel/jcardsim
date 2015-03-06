@@ -3,7 +3,7 @@ package com.licel.jcardsim.base;
 import com.licel.jcardsim.samples.Sha1Applet;
 import javacard.framework.AID;
 import junit.framework.TestCase;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 import javax.smartcardio.ResponseAPDU;
 import java.nio.ByteBuffer;

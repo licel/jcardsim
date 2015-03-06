@@ -19,12 +19,12 @@ import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.KeyAgreement;
 import javacard.security.PrivateKey;
-import org.bouncycastle.crypto.BasicAgreement;
-import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
-import org.bouncycastle.crypto.agreement.ECDHCBasicAgreement;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
-import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.spongycastle.crypto.BasicAgreement;
+import org.spongycastle.crypto.agreement.ECDHBasicAgreement;
+import org.spongycastle.crypto.agreement.ECDHCBasicAgreement;
+import org.spongycastle.crypto.digests.SHA1Digest;
+import org.spongycastle.crypto.params.ECPrivateKeyParameters;
+import org.spongycastle.crypto.params.ECPublicKeyParameters;
 
 /**
  * Implementation <code>KeyAgreement</code> based

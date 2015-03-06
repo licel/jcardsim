@@ -19,8 +19,8 @@ import java.security.SecureRandom;
 
 import javacard.security.MessageDigest;
 import junit.framework.TestCase;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.Arrays;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  * Test for <code>MessageDigestImpl</code>

@@ -18,9 +18,9 @@ package com.licel.jcardsim.crypto;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.RandomData;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.prng.DigestRandomGenerator;
-import org.bouncycastle.crypto.prng.RandomGenerator;
+import org.spongycastle.crypto.digests.SHA1Digest;
+import org.spongycastle.crypto.prng.DigestRandomGenerator;
+import org.spongycastle.crypto.prng.RandomGenerator;
 
 /**
  * Implementation <code>RandomData</code> based

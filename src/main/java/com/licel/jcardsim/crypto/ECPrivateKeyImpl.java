@@ -17,8 +17,8 @@ package com.licel.jcardsim.crypto;
 
 import javacard.security.CryptoException;
 import javacard.security.ECPrivateKey;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.params.ECPrivateKeyParameters;
 
 /**
  * Implementation <code>ECPrivateKey</code> based

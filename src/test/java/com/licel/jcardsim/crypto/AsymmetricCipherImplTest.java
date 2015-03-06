@@ -20,7 +20,7 @@ import javacard.security.KeyPair;
 import javacard.security.RandomData;
 import javacardx.crypto.Cipher;
 import junit.framework.TestCase;
-import org.bouncycastle.util.Arrays;
+import org.spongycastle.util.Arrays;
 
 /**
  * Test for <code>AsymmetricCipherImpl</code>

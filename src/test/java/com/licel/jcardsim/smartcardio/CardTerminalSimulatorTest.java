@@ -3,7 +3,7 @@ package com.licel.jcardsim.smartcardio;
 import com.licel.jcardsim.utils.AutoResetEvent;
 import javacard.framework.ISO7816;
 import junit.framework.TestCase;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 import javax.smartcardio.*;
 import java.security.NoSuchAlgorithmException;

@@ -16,8 +16,8 @@
 package com.licel.jcardsim.crypto;
 
 import java.security.SecureRandom;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.KeyGenerationParameters;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.KeyGenerationParameters;
 
 /**
  * KeyWithParameters.

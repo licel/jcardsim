@@ -20,8 +20,8 @@ import javacard.security.Key;
 import javacard.security.KeyBuilder;
 import javacard.security.Signature;
 import junit.framework.TestCase;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.Arrays;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  * Test for
