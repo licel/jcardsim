@@ -648,13 +648,13 @@ public final class APDU {
      */
     public void sendBytesLong(byte outData[], short bOff, short len)
             throws APDUException, SecurityException {
-        short sendLength = (short) buffer.length;
+        int sendLength = buffer.length;
         while (len > 0) {
             if (len < sendLength) {
                 sendLength = len;
             }
-            Util.arrayCopy(outData, bOff, buffer, (short) 0, sendLength);
-            sendBytes((short) 0, sendLength);
+            Util.arrayCopy(outData, bOff, buffer, (short) 0, (short)sendLength);
+            sendBytes((short) 0, (short)sendLength);
             len -= sendLength;
             bOff += sendLength;
         }
