@@ -12,15 +12,15 @@
     <description>jCardSim is open-source library contains implementation of Java Card API</description>
     
     <organization>
-        <name>Licel LLC</name>
-        <url>https://licel.ru</url>
+        <name>Licel Corporation</name>
+        <url>https://licelus.com</url>
     </organization>
 
     <developers>
         <developer>
             <email>jcarsim@licelus.com</email>
             <name>jCardSim Team</name>
-            <organization>Licel LLC</organization>
+            <organization>Licel Corporation</organization>
         </developer>
     </developers>
     
