@@ -39,7 +39,8 @@ public class APDUScriptToolTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
+        System.clearProperty("com.licel.jcardsim.smartcardio.applet.0.AID");
+        System.clearProperty("com.licel.jcardsim.smartcardio.applet.0.Class");
     }
 
     /**
