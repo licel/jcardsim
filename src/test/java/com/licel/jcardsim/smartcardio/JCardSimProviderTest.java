@@ -40,8 +40,10 @@ public class JCardSimProviderTest extends TestCase {
         super.setUp();
     }
 
+    @Override
     protected void tearDown() throws Exception {
-        super.tearDown();
+        System.clearProperty("com.licel.jcardsim.card.applet.0.AID");
+        System.clearProperty("com.licel.jcardsim.card.applet.0.Class");
     }
 
     public void testProvider() throws CardException, NoSuchAlgorithmException, UnsupportedEncodingException {

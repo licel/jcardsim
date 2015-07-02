@@ -35,4 +35,10 @@ public class JavaCardRemoteServerTest extends TestCase {
         assertEquals(Arrays.areEqual(new byte[]{(byte) 0x90, 0x00}, response), true);
         System.out.println("testServer ... done");
     }
+
+    @Override
+    protected void tearDown() throws Exception {
+        System.clearProperty("com.licel.jcardsim.card.applet.0.AID");
+        System.clearProperty("com.licel.jcardsim.card.applet.0.Class");
+    }
 }
