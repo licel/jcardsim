@@ -4,6 +4,7 @@
  */
 package javacard.framework;
 
+import com.licel.jcardsim.base.ApduCase;
 import com.licel.jcardsim.base.SimulatorSystem;
 import com.licel.jcardsim.utils.ByteUtil;
 
@@ -252,8 +253,10 @@ public final class APDU {
     private static final byte LOGICAL_CHN = 6;
     // ACTIVE_PROTOCOL variable offset in ramVars
     private static final byte ACTIVE_PROTOCOL = 7;
+    // REMAINING_BYTES variable offset in ramVars
+    private static final byte REMAINING_BYTES = 8;
     // total length ramVars
-    private static final byte RAM_VARS_LENGTH = 8;
+    private static final byte RAM_VARS_LENGTH = 9;
     // transient array to store boolean flags
     private boolean[] flags;
     // outgoingFlag;
@@ -280,7 +283,7 @@ public final class APDU {
         buffer = new byte[extended ? BUFFER_EXTENDED_SIZE : BUFFER_SIZE];
         ramVars = new short[RAM_VARS_LENGTH];
         flags = new boolean[FLAGS_LENGTH];
-        internalReset(PROTOCOL_T0, null);
+        internalReset(PROTOCOL_T0, ApduCase.Case1, null);
     }
 
     /**
@@ -392,7 +395,7 @@ public final class APDU {
         }
         flags[OUTGOING_FLAG] = true;
         ramVars[CURRENT_STATE] = STATE_OUTGOING;
-        return getLe();
+        return ramVars[LE];
     }
 
     /**
@@ -436,7 +439,7 @@ public final class APDU {
         flags[OUTGOING_FLAG] = true;
         flags[NO_CHAINING_FLAG] = true;
         ramVars[CURRENT_STATE] = STATE_OUTGOING;
-        return getLe();
+        return ramVars[LE];
     }
 
     /**
@@ -491,25 +494,25 @@ public final class APDU {
         if (!flags[INCOMING_FLAG] || flags[OUTGOING_FLAG]) {
             APDUException.throwIt(APDUException.ILLEGAL_USE);
         }
-        short Lc = ramVars[LC];
-        if (bOff < 0 || Lc >= 1 && (bOff + 1) > buffer.length) {
+        short remainingBytes = ramVars[REMAINING_BYTES];
+        if (bOff < 0 || remainingBytes >= 1 && (bOff + 1) > buffer.length) {
             APDUException.throwIt(APDUException.BUFFER_BOUNDS);
         }
         short pre = (short) (ramVars[PRE_READ_LENGTH] & 0xff);
         if (pre != 0) {
             ramVars[PRE_READ_LENGTH] = 0;
-            if (Lc == 0) {
+            if (remainingBytes == 0) {
                 ramVars[CURRENT_STATE]= STATE_FULL_INCOMING;
             } else {
                 ramVars[CURRENT_STATE]= STATE_PARTIAL_INCOMING;
             }
             return pre;
         }
-        if (Lc != 0) {
+        if (remainingBytes != 0) {
             short len = getIncomingLength();
-            Lc -= len;
-            ramVars[LC] = Lc;
-            if (Lc == 0) {
+            remainingBytes -= len;
+            ramVars[REMAINING_BYTES] = remainingBytes;
+            if (remainingBytes == 0) {
                 ramVars[CURRENT_STATE]= STATE_FULL_INCOMING;
             } else {
                 ramVars[CURRENT_STATE] = STATE_PARTIAL_INCOMING;
@@ -562,11 +565,6 @@ public final class APDU {
                 APDUException.throwIt(APDUException.ILLEGAL_USE);
             }
             flags[INCOMING_FLAG] = true;
-            short Lc = (short) (0xFF & buffer[ISO7816.OFFSET_LC]);
-            if (extended) {
-                Lc = Util.getShort(buffer, (short) (ISO7816.OFFSET_LC + 1));
-            }
-            ramVars[LC] = Lc;
         }
         return receiveBytes(getOffsetCdata());
     }
@@ -861,14 +859,7 @@ public final class APDU {
         if (!flags[INCOMING_FLAG] || flags[OUTGOING_FLAG]) {
             throw new APDUException(APDUException.ILLEGAL_USE);
         }
-        return internalGetIncomingLength();
-    }
-
-    private short internalGetIncomingLength() {
-        if (extended) {
-            return Util.getShort(buffer, (short) (ISO7816.OFFSET_LC + 1));
-        }
-        return  (short)(0xFF & buffer[ISO7816.OFFSET_LC]);
+        return ramVars[LC];
     }
 
     /**
@@ -899,21 +890,12 @@ public final class APDU {
         }
         return ISO7816.OFFSET_CDATA;
     }
-    
-    // return Le variable
-    private short getLe() {
-        short le = ramVars[LE];
-        if (le == 0) {
-            return extended ? Short.MAX_VALUE : 256;
-        }
-        return le;
-    }
 
     /**
      * clear internal state of the APDU
      * called by SimulatorRuntime via reflection
      */
-    private void internalReset(byte protocol, byte[] inputBuffer) {
+    private void internalReset(byte protocol, ApduCase apduCase, byte[] inputBuffer) {
         if (inputBuffer == null) {
             flags[ACCESS_ALLOWED_FLAG] = false;
             ramVars[ACTIVE_PROTOCOL] = protocol;
@@ -928,13 +910,44 @@ public final class APDU {
         flags[ACCESS_ALLOWED_FLAG] = true;
         ramVars[ACTIVE_PROTOCOL] = protocol;
 
-        int offset = internalGetOffsetCdata() + internalGetIncomingLength();
-        short le;
-        if (extended) {
-            le = ByteUtil.getShort(buffer, offset);
-        } else {
-            le = (short) (0xFF & buffer[offset]);
+        final short lc;
+        final short le;
+        switch (apduCase) {
+            case Case2: {
+                lc = (short) 0;
+                final byte leByte = buffer[ISO7816.OFFSET_LC];
+                le = leByte == 0 ? 256 : (short) (0xFF & leByte);
+                break;
+            }
+            case Case2Extended:
+                lc = (short) 0;
+                le = ByteUtil.getShort(buffer, ISO7816.OFFSET_LC + 1);
+                break;
+            case Case3:
+                lc = (short) (0xFF & buffer[ISO7816.OFFSET_LC]);
+                le = (short) 0;
+                break;
+            case Case3Extended:
+                lc = ByteUtil.getShort(buffer, ISO7816.OFFSET_LC + 1);
+                le = (short) 0;
+                break;
+            case Case4: {
+                lc = (short) (0xFF & buffer[ISO7816.OFFSET_LC]);
+                final byte leByte = buffer[ISO7816.OFFSET_CDATA + lc];
+                le = leByte == 0 ? 256 : (short) (0xFF & leByte);
+                break;
+            }
+            case Case4Extended:
+                lc = ByteUtil.getShort(buffer, ISO7816.OFFSET_LC + 1);
+                le = ByteUtil.getShort(buffer, ISO7816.OFFSET_LC + 3 + lc);
+                break;
+            case Case1:
+            default:
+                lc = (short) 0;
+                le = (short) 0;
+                break;
         }
+        ramVars[LC] = ramVars[REMAINING_BYTES] = lc;
         ramVars[LE] = le;
     }
 }
