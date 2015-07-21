@@ -83,7 +83,7 @@ public class SimulatorRuntime {
             shortAPDU = (APDU) ctor.newInstance(false);
             extendedAPDU = (APDU) ctor.newInstance(true);
 
-            apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte.class, byte[].class);
+            apduPrivateResetMethod = APDU.class.getDeclaredMethod("internalReset", byte.class, ApduCase.class, byte[].class);
             apduPrivateResetMethod.setAccessible(true);
 
             Field f = Applet.class.getDeclaredField("registrationCallback");
@@ -296,7 +296,7 @@ public class SimulatorRuntime {
             }
 
             // set apdu
-            resetAPDU(apdu, command);
+            resetAPDU(apdu, apduCase, command);
 
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
@@ -310,7 +310,7 @@ public class SimulatorRuntime {
         }
         finally {
             selecting = false;
-            resetAPDU(apdu, null);
+            resetAPDU(apdu, null, null);
         }
 
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
@@ -413,9 +413,9 @@ public class SimulatorRuntime {
         return transientMemory;
     }
 
-    protected void resetAPDU(APDU apdu, byte[] buffer) {
+    protected void resetAPDU(APDU apdu, ApduCase apduCase, byte[] buffer) {
         try {
-            apduPrivateResetMethod.invoke(apdu, currentProtocol, buffer);
+            apduPrivateResetMethod.invoke(apdu, currentProtocol, apduCase, buffer);
         } catch (Exception e) {
             throw new RuntimeException("Internal reflection error", e);
         }
@@ -432,8 +432,8 @@ public class SimulatorRuntime {
      */
     public void changeProtocol(byte protocol) {
         this.currentProtocol = protocol;
-        resetAPDU(shortAPDU, null);
-        resetAPDU(extendedAPDU, null);
+        resetAPDU(shortAPDU, null, null);
+        resetAPDU(extendedAPDU, null, null);
     }
 
     public byte getAssignedChannel() {
