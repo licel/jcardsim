@@ -63,6 +63,20 @@ public class ExtendedLengthTest extends TestCase {
         assertEquals(Arrays.toString(expectedOutput), Arrays.toString(responseApdu.getData()));
     }
 
+    public void testRegularApduCase2Le() {
+        byte le = (byte) 0x4;
+        byte[] expectedOutput = new byte[]{0, 0, 0, le};
+
+        Simulator instance = prepareSimulator();
+
+        byte[] apdu = new byte[]{CLA, INS_LEN, P1, P2, le};
+        byte[] result = instance.transmitCommand(apdu);
+
+        ResponseAPDU responseApdu = new ResponseAPDU(result);
+        assertEquals(0x9000, responseApdu.getSW());
+        assertEquals(Arrays.toString(expectedOutput), Arrays.toString(responseApdu.getData()));
+    }
+
     public void testRegularApduEcho() throws NoSuchAlgorithmException {
         byte[] expectedOutput = new byte[]{DUMMY};
 
@@ -90,6 +104,34 @@ public class ExtendedLengthTest extends TestCase {
         assertEquals(0x9000, responseApdu.getSW());
         assertEquals(Arrays.toString(expectedOutput), Arrays.toString(responseApdu.getData()));
     }
+
+    public void testExtendedApduCase2Le4() {
+        byte le = (byte) 0x4;
+        byte[] expectedOutput = new byte[]{0, 0, 0, le};
+
+        Simulator instance = prepareSimulator();
+
+        byte[] apdu = new byte[]{CLA, INS_LEN, P1, P2, 0, 0, le};
+        byte[] result = instance.transmitCommand(apdu);
+
+        ResponseAPDU responseApdu = new ResponseAPDU(result);
+        assertEquals(0x9000, responseApdu.getSW());
+        assertEquals(Arrays.toString(expectedOutput), Arrays.toString(responseApdu.getData()));
+    }
+
+    public void testExtendedApduCase2Le() {
+        byte[] expectedOutput = new byte[]{0, 0, 1, 2};
+
+        Simulator instance = prepareSimulator();
+
+        byte[] apdu = new byte[]{CLA, INS_LEN, P1, P2, 0, 1, 2};
+        byte[] result = instance.transmitCommand(apdu);
+
+        ResponseAPDU responseApdu = new ResponseAPDU(result);
+        assertEquals(0x9000, responseApdu.getSW());
+        assertEquals(Arrays.toString(expectedOutput), Arrays.toString(responseApdu.getData()));
+    }
+
 
     public void testExtendedApduLcLe() {
         byte[] expectedOutput = {0x0, 0x1, 0x1F, (byte) 0xCA};
