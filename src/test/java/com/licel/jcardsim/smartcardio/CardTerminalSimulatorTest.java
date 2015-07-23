@@ -26,6 +26,12 @@ public class CardTerminalSimulatorTest extends TestCase {
         System.setProperty("com.licel.jcardsim.card.applet.0.Class", "com.licel.jcardsim.samples.HelloWorldApplet");
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        System.clearProperty("com.licel.jcardsim.card.applet.0.AID");
+        System.clearProperty("com.licel.jcardsim.card.applet.0.Class");
+    }
+
     public void testCreateSingleTerminal() throws CardException, InterruptedException {
         final AutoResetEvent autoResetEvent = new AutoResetEvent();
 

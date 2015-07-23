@@ -12,15 +12,15 @@
     <description>jCardSim is open-source library contains implementation of Java Card API</description>
     
     <organization>
-        <name>Licel LLC</name>
-        <url>https://licel.ru</url>
+        <name>Licel Corporation</name>
+        <url>https://licelus.com</url>
     </organization>
 
     <developers>
         <developer>
             <email>jcarsim@licelus.com</email>
             <name>jCardSim Team</name>
-            <organization>Licel LLC</organization>
+            <organization>Licel Corporation</organization>
         </developer>
     </developers>
     
@@ -36,6 +36,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.hint.license>apache20</netbeans.hint.license>
         <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+        <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
+        <junit.version>3.8.1</junit.version>
+        <java.version>1.5</java.version>
     </properties>
     
     <distributionManagement>
@@ -120,7 +123,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -137,8 +140,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -151,19 +154,44 @@
                         <link>http://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
                     </links>
                     <author>false</author>
-                </configuration>    
-            </plugin>            
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.7</version>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bouncycastle</pattern>
+                            <shadedPattern>com.licel.jcardsim.bouncycastle</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <artifactSet>
+                        <includes>
+                            <include>org.bouncycastle:*</include>
+                        </includes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>shade</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration> 
+                        <configuration>
                             <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
@@ -176,14 +204,125 @@
                                     <excludes>
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>                                       
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>shade-for-android</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.bouncycastle:*</include>
+                                </includes>
+                            </artifactSet>
+                            <minimizeJar>true</minimizeJar>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>android</shadedClassifierName>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>com/licel/jcardsim/smartcardio/*</exclude>
+                                        <exclude>com/licel/jcardsim/remote/*</exclude>
+                                        <exclude>com/licel/jcardsim/utils/APDUScriptTool*</exclude>
+                                        <exclude>com/licel/jcardsim/io/JavaxSmartCardInterface*</exclude>
+                                        <exclude>com/licel/jcardsim/io/CAD*</exclude>
+                                        <exclude>javacard/framework/service/CardRemoteObject*</exclude>
+                                        <exclude>javacard/framework/service/RMIService*</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun</groupId>
+                        <artifactId>tools</artifactId>
+                        <version>1.5.0</version>
+                        <scope>system</scope>
+                        <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-junit</artifactId>
+                        <version>1.9.5</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <target>
+                                <path id="compileClasspath">
+                                    <file name="target/jcardsim-${project.version}.jar" />
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
+                                </path>
+                                <path id="testClasspath">
+                                    <file name="target/jcardsim-${project.version}-android.jar" />
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
+                                </path>
+
+                                <delete dir="${ant.build.dir}" />
+                                <mkdir dir="${ant.build.dir}/src"/>
+                                <mkdir dir="${ant.build.dir}/bin"/>
+                                <mkdir dir="${ant.build.dir}/reports"/>
+
+                                <copy todir="${ant.build.dir}/src">
+                                    <fileset dir="${project.basedir}/src/test/java" />
+                                </copy>
+
+                                <replace dir="${ant.build.dir}/src" value="com.licel.jcardsim.bouncycastle.">
+                                    <include name="**/*.java"/>
+                                    <replacetoken>org.bouncycastle.</replacetoken>
+                                </replace>
+
+                                <javac srcdir="${ant.build.dir}/src" destdir="${ant.build.dir}/bin" classpathref="compileClasspath" includeantruntime="false" source="${java.version}" />
+
+                                <copy todir="${ant.build.dir}/bin">
+                                    <fileset dir="${project.basedir}/src/test/resources" />
+                                </copy>
+
+                                <echo>Testing shaded JAR: jcardsim-${project.version}-android.jar</echo>
+                                <junit fork="yes" forkmode="once" haltonfailure="yes" printsummary="true">
+                                    <classpath>
+                                        <path refid="testClasspath" />
+                                        <pathelement location="${ant.build.dir}/bin" />
+                                    </classpath>
+                                    <formatter type="brief" />
+                                    <batchtest todir="${ant.build.dir}/reports">
+                                        <fileset dir="${ant.build.dir}/src">
+                                            <include name="**/*Test.java" />
+                                            <exclude name="com/licel/jcardsim/smartcardio/*" />
+                                            <exclude name="com/licel/jcardsim/remote/*" />
+                                            <exclude name="com/licel/jcardsim/DocumentationCodeSamplesTest.*" />
+                                            <exclude name="com/licel/jcardsim/utils/APDUScriptToolTest.*" />
+                                        </fileset>
+                                    </batchtest>
+                                </junit>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
