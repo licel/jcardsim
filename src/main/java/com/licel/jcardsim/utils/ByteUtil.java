@@ -63,10 +63,10 @@ public final class ByteUtil {
             throw new NullPointerException("bytes");
         }
         char[] hexChars = new char[length * 2];
-        for ( int j = offset; j < (offset + length); j++ ) {
+        for ( int j = offset, i=0; j < (offset + length); j++, i++ ) {
             int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            hexChars[i * 2] = hexArray[v >>> 4];
+            hexChars[i * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
     }
