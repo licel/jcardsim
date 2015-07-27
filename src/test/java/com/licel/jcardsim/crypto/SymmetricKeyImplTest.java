@@ -19,9 +19,9 @@ import javacard.framework.Util;
 import javacard.security.AESKey;
 import javacard.security.KeyBuilder;
 import junit.framework.TestCase;
-import org.bouncycastle.crypto.engines.DESEngine;
-import org.bouncycastle.crypto.engines.DESedeEngine;
-import org.bouncycastle.util.Arrays;
+import org.spongycastle.crypto.engines.DESEngine;
+import org.spongycastle.crypto.engines.DESedeEngine;
+import org.spongycastle.util.Arrays;
 
 /**
  * Test for <code>SymmetricKeyImpl</code>

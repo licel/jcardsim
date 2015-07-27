@@ -24,7 +24,7 @@ import java.util.List;
 import javacard.framework.ISO7816;
 import javax.smartcardio.*;
 import junit.framework.TestCase;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  * Test Java Card Terminal emulation.

@@ -15,7 +15,7 @@
  */
 package com.licel.jcardsim.utils;
 
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  * Utility methods for dealing with byte arrays.

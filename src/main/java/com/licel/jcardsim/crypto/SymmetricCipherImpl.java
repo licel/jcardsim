@@ -20,13 +20,13 @@ import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacardx.crypto.Cipher;
-import org.bouncycastle.crypto.BufferedBlockCipher;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
-import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
-import org.bouncycastle.crypto.paddings.PKCS7Padding;
-import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
-import org.bouncycastle.crypto.paddings.ZeroBytePadding;
-import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.spongycastle.crypto.BufferedBlockCipher;
+import org.spongycastle.crypto.modes.CBCBlockCipher;
+import org.spongycastle.crypto.paddings.ISO7816d4Padding;
+import org.spongycastle.crypto.paddings.PKCS7Padding;
+import org.spongycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import org.spongycastle.crypto.paddings.ZeroBytePadding;
+import org.spongycastle.crypto.params.ParametersWithIV;
 
 /**
  * Implementation <code>Cipher</code> with symmetric keys based

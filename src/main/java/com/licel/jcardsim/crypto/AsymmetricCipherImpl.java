@@ -20,11 +20,11 @@ import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacardx.crypto.Cipher;
-import org.bouncycastle.crypto.AsymmetricBlockCipher;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.encodings.PKCS1Encoding;
-import org.bouncycastle.crypto.engines.RSAEngine;
-import org.bouncycastle.crypto.paddings.BlockCipherPadding;
+import org.spongycastle.crypto.AsymmetricBlockCipher;
+import org.spongycastle.crypto.InvalidCipherTextException;
+import org.spongycastle.crypto.encodings.PKCS1Encoding;
+import org.spongycastle.crypto.engines.RSAEngine;
+import org.spongycastle.crypto.paddings.BlockCipherPadding;
 
 /*
  * Implementation <code>Cipher</code> with asymmetric keys based

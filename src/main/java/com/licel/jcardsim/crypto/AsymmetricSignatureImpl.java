@@ -22,17 +22,17 @@ import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacard.security.Signature;
 import javacard.security.SignatureMessageRecovery;
-import org.bouncycastle.crypto.DataLengthException;
-import org.bouncycastle.crypto.Signer;
-import org.bouncycastle.crypto.SignerWithRecovery;
-import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.crypto.digests.RIPEMD160Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.engines.RSAEngine;
-import org.bouncycastle.crypto.signers.DSADigestSigner;
-import org.bouncycastle.crypto.signers.ECDSASigner;
-import org.bouncycastle.crypto.signers.ISO9796d2Signer;
-import org.bouncycastle.crypto.signers.RSADigestSigner;
+import org.spongycastle.crypto.DataLengthException;
+import org.spongycastle.crypto.Signer;
+import org.spongycastle.crypto.SignerWithRecovery;
+import org.spongycastle.crypto.digests.MD5Digest;
+import org.spongycastle.crypto.digests.RIPEMD160Digest;
+import org.spongycastle.crypto.digests.SHA1Digest;
+import org.spongycastle.crypto.engines.RSAEngine;
+import org.spongycastle.crypto.signers.DSADigestSigner;
+import org.spongycastle.crypto.signers.ECDSASigner;
+import org.spongycastle.crypto.signers.ISO9796d2Signer;
+import org.spongycastle.crypto.signers.RSADigestSigner;
 
 /*
  * Implementation <code>Signature</code> with asymmetric keys based
@@ -141,7 +141,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             sig = engine.generateSignature();
             Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
             return (short) sig.length;
-        } catch (org.bouncycastle.crypto.CryptoException ex) {
+        } catch (org.spongycastle.crypto.CryptoException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         } catch (DataLengthException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
@@ -210,7 +210,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             }
             recMsgLen[recMsgLenOffset] = (short) mR;
             return (short) sig.length;
-        } catch (org.bouncycastle.crypto.CryptoException ex) {
+        } catch (org.spongycastle.crypto.CryptoException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         } catch (DataLengthException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);

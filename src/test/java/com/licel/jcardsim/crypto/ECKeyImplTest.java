@@ -18,8 +18,8 @@ package com.licel.jcardsim.crypto;
 import java.security.SecureRandom;
 import javacard.security.KeyBuilder;
 import junit.framework.TestCase;
-import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
-import org.bouncycastle.math.ec.ECCurve;
+import org.spongycastle.crypto.params.ECKeyGenerationParameters;
+import org.spongycastle.math.ec.ECCurve;
 
 /**
  * Test for <code>ECKeyImplTest</code>.

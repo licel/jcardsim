@@ -19,14 +19,14 @@ import java.lang.reflect.Field;
 import javacard.security.CryptoException;
 import javacard.security.InitializedMessageDigest;
 import javacard.security.MessageDigest;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.crypto.digests.RIPEMD160Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.digests.SHA384Digest;
-import org.bouncycastle.crypto.digests.SHA512Digest;
-import org.bouncycastle.crypto.util.Pack;
+import org.spongycastle.crypto.Digest;
+import org.spongycastle.crypto.digests.MD5Digest;
+import org.spongycastle.crypto.digests.RIPEMD160Digest;
+import org.spongycastle.crypto.digests.SHA1Digest;
+import org.spongycastle.crypto.digests.SHA256Digest;
+import org.spongycastle.crypto.digests.SHA384Digest;
+import org.spongycastle.crypto.digests.SHA512Digest;
+import org.spongycastle.crypto.util.Pack;
 
 /**
  * Implementation

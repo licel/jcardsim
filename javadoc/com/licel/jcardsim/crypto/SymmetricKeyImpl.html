@@ -178,7 +178,7 @@ Implementation of secret key
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;org.bouncycastle.crypto.BlockCipher</CODE></FONT></TD>
+<CODE>&nbsp;org.spongycastle.crypto.BlockCipher</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/SymmetricKeyImpl.html#getCipher()">getCipher</A></B>()</CODE>
 
 <BR>
@@ -195,7 +195,7 @@ Implementation of secret key
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;org.bouncycastle.crypto.KeyGenerationParameters</CODE></FONT></TD>
+<CODE>&nbsp;org.spongycastle.crypto.KeyGenerationParameters</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/SymmetricKeyImpl.html#getKeyGenerationParameters(java.security.SecureRandom)">getKeyGenerationParameters</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/security/SecureRandom.html?is-external=true" title="class or interface in java.security">SecureRandom</A>&nbsp;rnd)</CODE>
 
 <BR>
@@ -203,7 +203,7 @@ Implementation of secret key
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;org.bouncycastle.crypto.CipherParameters</CODE></FONT></TD>
+<CODE>&nbsp;org.spongycastle.crypto.CipherParameters</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/SymmetricKeyImpl.html#getParameters()">getParameters</A></B>()</CODE>
 
 <BR>
@@ -373,7 +373,7 @@ public byte <B>getKey</B>(byte[]&nbsp;keyData,
 <A NAME="getParameters()"><!-- --></A><H3>
 getParameters</H3>
 <PRE>
-public org.bouncycastle.crypto.CipherParameters <B>getParameters</B>()
+public org.spongycastle.crypto.CipherParameters <B>getParameters</B>()
                                                        throws <A HREF="../../../../javacard/security/CryptoException.html" title="class in javacard.security">CryptoException</A></PRE>
 <DL>
 <DD>Return the BouncyCastle <code>KeyParameter</code> of the key
@@ -393,7 +393,7 @@ public org.bouncycastle.crypto.CipherParameters <B>getParameters</B>()
 <A NAME="getCipher()"><!-- --></A><H3>
 getCipher</H3>
 <PRE>
-public org.bouncycastle.crypto.BlockCipher <B>getCipher</B>()
+public org.spongycastle.crypto.BlockCipher <B>getCipher</B>()
                                               throws <A HREF="../../../../javacard/security/CryptoException.html" title="class in javacard.security">CryptoException</A></PRE>
 <DL>
 <DD>Return the BouncyCastle <code>BlockCipher</code> for using with this key
@@ -437,7 +437,7 @@ public boolean <B>isInitialized</B>()</PRE>
 <A NAME="getKeyGenerationParameters(java.security.SecureRandom)"><!-- --></A><H3>
 getKeyGenerationParameters</H3>
 <PRE>
-public org.bouncycastle.crypto.KeyGenerationParameters <B>getKeyGenerationParameters</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/security/SecureRandom.html?is-external=true" title="class or interface in java.security">SecureRandom</A>&nbsp;rnd)</PRE>
+public org.spongycastle.crypto.KeyGenerationParameters <B>getKeyGenerationParameters</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/security/SecureRandom.html?is-external=true" title="class or interface in java.security">SecureRandom</A>&nbsp;rnd)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../com/licel/jcardsim/crypto/KeyWithParameters.html#getKeyGenerationParameters(java.security.SecureRandom)">KeyWithParameters</A></CODE></B></DD>
 <DD>Get keypair generation parameters for use with BouncyCastle Crypto API

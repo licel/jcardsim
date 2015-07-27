@@ -23,8 +23,8 @@ import javacard.framework.Applet;
 import javacard.framework.ISO7816;
 import javacard.framework.Util;
 import junit.framework.TestCase;
-import org.bouncycastle.util.Arrays;
-import org.bouncycastle.util.encoders.Hex;
+import org.spongycastle.util.Arrays;
+import org.spongycastle.util.encoders.Hex;
 
 /**
  *

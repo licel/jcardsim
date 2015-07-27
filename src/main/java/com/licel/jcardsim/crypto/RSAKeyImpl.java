@@ -21,10 +21,10 @@ import javacard.security.CryptoException;
 import javacard.security.KeyBuilder;
 import javacard.security.RSAPrivateKey;
 import javacard.security.RSAPublicKey;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.KeyGenerationParameters;
+import org.spongycastle.crypto.params.RSAKeyGenerationParameters;
+import org.spongycastle.crypto.params.RSAKeyParameters;
 
 /**
  * Implementation

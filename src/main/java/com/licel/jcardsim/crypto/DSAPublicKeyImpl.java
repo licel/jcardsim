@@ -18,9 +18,9 @@ package com.licel.jcardsim.crypto;
 import javacard.security.CryptoException;
 import javacard.security.DSAPublicKey;
 import javacard.security.KeyBuilder;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.params.DSAKeyParameters;
-import org.bouncycastle.crypto.params.DSAPublicKeyParameters;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.params.DSAKeyParameters;
+import org.spongycastle.crypto.params.DSAPublicKeyParameters;
 
 /**
  * Implementation <code>DSAPublicKey</code> based

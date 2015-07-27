@@ -22,13 +22,13 @@ import javacard.security.CryptoException;
 import javacard.security.DESKey;
 import javacard.security.HMACKey;
 import javacard.security.KeyBuilder;
-import org.bouncycastle.crypto.BlockCipher;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.engines.AESEngine;
-import org.bouncycastle.crypto.engines.DESEngine;
-import org.bouncycastle.crypto.engines.DESedeEngine;
-import org.bouncycastle.crypto.params.KeyParameter;
+import org.spongycastle.crypto.BlockCipher;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.KeyGenerationParameters;
+import org.spongycastle.crypto.engines.AESEngine;
+import org.spongycastle.crypto.engines.DESEngine;
+import org.spongycastle.crypto.engines.DESedeEngine;
+import org.spongycastle.crypto.params.KeyParameter;
 
 /**
  * Implementation of secret key.

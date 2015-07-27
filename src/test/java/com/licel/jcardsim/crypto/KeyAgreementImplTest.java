@@ -21,7 +21,7 @@ import javacard.security.KeyBuilder;
 import javacard.security.KeyPair;
 import javacard.security.PrivateKey;
 import junit.framework.TestCase;
-import org.bouncycastle.util.Arrays;
+import org.spongycastle.util.Arrays;
 
 /**
  * Test for <code>KeyAgreementImpl</code>

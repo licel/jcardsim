@@ -180,7 +180,7 @@ Implementation
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct not-initialized rsa key</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/RSAKeyImpl.html#RSAKeyImpl(org.bouncycastle.crypto.params.RSAKeyParameters)">RSAKeyImpl</A></B>(org.bouncycastle.crypto.params.RSAKeyParameters&nbsp;params)</CODE>
+<TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/RSAKeyImpl.html#RSAKeyImpl(org.spongycastle.crypto.params.RSAKeyParameters)">RSAKeyImpl</A></B>(org.spongycastle.crypto.params.RSAKeyParameters&nbsp;params)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct and initialize rsa key with RSAKeyParameters.</TD>
@@ -214,7 +214,7 @@ Implementation
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;org.bouncycastle.crypto.KeyGenerationParameters</CODE></FONT></TD>
+<CODE>&nbsp;org.spongycastle.crypto.KeyGenerationParameters</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/RSAKeyImpl.html#getKeyGenerationParameters(java.security.SecureRandom)">getKeyGenerationParameters</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/security/SecureRandom.html?is-external=true" title="class or interface in java.security">SecureRandom</A>&nbsp;rnd)</CODE>
 
 <BR>
@@ -232,7 +232,7 @@ Implementation
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;org.bouncycastle.crypto.CipherParameters</CODE></FONT></TD>
+<CODE>&nbsp;org.spongycastle.crypto.CipherParameters</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../com/licel/jcardsim/crypto/RSAKeyImpl.html#getParameters()">getParameters</A></B>()</CODE>
 
 <BR>
@@ -360,10 +360,10 @@ public <B>RSAKeyImpl</B>(boolean&nbsp;isPrivate,
 </DL>
 <HR>
 
-<A NAME="RSAKeyImpl(org.bouncycastle.crypto.params.RSAKeyParameters)"><!-- --></A><H3>
+<A NAME="RSAKeyImpl(org.spongycastle.crypto.params.RSAKeyParameters)"><!-- --></A><H3>
 RSAKeyImpl</H3>
 <PRE>
-public <B>RSAKeyImpl</B>(org.bouncycastle.crypto.params.RSAKeyParameters&nbsp;params)</PRE>
+public <B>RSAKeyImpl</B>(org.spongycastle.crypto.params.RSAKeyParameters&nbsp;params)</PRE>
 <DL>
 <DD>Construct and initialize rsa key with RSAKeyParameters. Use in
  KeyPairImpl
@@ -538,7 +538,7 @@ public boolean <B>isInitialized</B>()</PRE>
 <A NAME="getParameters()"><!-- --></A><H3>
 getParameters</H3>
 <PRE>
-public org.bouncycastle.crypto.CipherParameters <B>getParameters</B>()</PRE>
+public org.spongycastle.crypto.CipherParameters <B>getParameters</B>()</PRE>
 <DL>
 <DD>Get
  <code>RSAKeyParameters</code>
@@ -556,7 +556,7 @@ public org.bouncycastle.crypto.CipherParameters <B>getParameters</B>()</PRE>
 <A NAME="getKeyGenerationParameters(java.security.SecureRandom)"><!-- --></A><H3>
 getKeyGenerationParameters</H3>
 <PRE>
-public org.bouncycastle.crypto.KeyGenerationParameters <B>getKeyGenerationParameters</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/security/SecureRandom.html?is-external=true" title="class or interface in java.security">SecureRandom</A>&nbsp;rnd)</PRE>
+public org.spongycastle.crypto.KeyGenerationParameters <B>getKeyGenerationParameters</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/security/SecureRandom.html?is-external=true" title="class or interface in java.security">SecureRandom</A>&nbsp;rnd)</PRE>
 <DL>
 <DD>Get
  <code>RSAKeyGenerationParameters</code>

@@ -18,9 +18,9 @@ package com.licel.jcardsim.crypto;
 import javacard.security.CryptoException;
 import javacard.security.KeyBuilder;
 import javacard.security.RSAPrivateCrtKey;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
+import org.spongycastle.crypto.CipherParameters;
+import org.spongycastle.crypto.params.RSAKeyParameters;
+import org.spongycastle.crypto.params.RSAPrivateCrtKeyParameters;
 
 /**
  * Implementation <code>RSAPrivateCrtKey</code> based
