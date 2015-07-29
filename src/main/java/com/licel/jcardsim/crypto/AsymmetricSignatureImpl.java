@@ -56,7 +56,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
                 break;
             case ALG_RSA_SHA_ISO9796_MR:    
-                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest(), true);
                 isRecovery = true;
                 break;
             case ALG_RSA_SHA_PKCS1:
