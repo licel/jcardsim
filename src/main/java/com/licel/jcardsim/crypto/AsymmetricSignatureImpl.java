@@ -237,4 +237,14 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         engine.reset();
         return b;
     }
+
+    @Override
+    public void setInitialDigest(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public short signPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2) throws CryptoException {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
 }
