@@ -227,7 +227,7 @@ public class SimulatorRuntime {
      * @param aThis applet
      * @return true if applet is being selected
      */
-    public boolean isAppletSelecting(Applet aThis) {
+    public boolean isAppletSelecting(Object aThis) {
         return aThis == getApplet(getAID()) && selecting;
     }
 

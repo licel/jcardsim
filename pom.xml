@@ -39,6 +39,7 @@
         <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
         <junit.version>3.8.1</junit.version>
         <java.version>1.5</java.version>
+        <jcApiVersion>3.0.4</jcApiVersion>
     </properties>
     
     <distributionManagement>
@@ -131,6 +132,17 @@
             <artifactId>bcprov-jdk14</artifactId>
             <version>1.46</version>
         </dependency>
+        <dependency>
+            <groupId>oracle.javacard</groupId>
+            <artifactId>api_classic</artifactId>
+            <version>${jcApiVersion}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>5.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -142,6 +154,73 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>oracle.javacard</groupId>
+                            <artifactId>api_classic</artifactId>
+                            <version>${jcApiVersion}</version>
+                            <packaging>jar</packaging>
+                            <file>${jcdkLocation}/lib/api_classic.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>  
+            <!-- extract java card api classes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>oracle.javacard</groupId>
+                                    <artifactId>api_classic</artifactId>
+                                    <version>${jcApiVersion}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                    <includes>**/*.class</includes>
+                                </artifactItem>
+                            </artifactItems>                                    
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>                                      
+            <!-- patch -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.licel.jcardsim.utils.JavaCardApiProcessor</mainClass>  
+                    <arguments>
+                        <argument>${project.build.directory}/classes</argument>
+                    </arguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -270,11 +349,7 @@
                         <configuration>
                             <target>
                                 <path id="compileClasspath">
-                                    <file name="target/jcardsim-${project.version}.jar" />
-                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
-                                </path>
-                                <path id="testClasspath">
-                                    <file name="target/jcardsim-${project.version}-android.jar" />
+                                    <file name="${project.build.directory}/jcardsim-${project.version}.jar" />
                                     <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
                                 </path>
 
@@ -282,7 +357,20 @@
                                 <mkdir dir="${ant.build.dir}/src"/>
                                 <mkdir dir="${ant.build.dir}/bin"/>
                                 <mkdir dir="${ant.build.dir}/reports"/>
-
+                                <mkdir dir="${ant.build.dir}/bin/unpacked"/>
+                                <!-- remove sign -->
+                                <unzip src="${project.build.directory}/jcardsim-${project.version}-android.jar"
+                                        dest="${ant.build.dir}/bin/unpacked">
+                                    <patternset>
+                                        <exclude name="**/*.SF"/>
+                                        <exclude name="**/*.RSA"/>
+                                    </patternset>
+                                </unzip>                   
+                                <path id="testClasspath">
+                                    <file name="${ant.build.dir}/bin/unpacked"/>
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
+                                </path>
+                                
                                 <copy todir="${ant.build.dir}/src">
                                     <fileset dir="${project.basedir}/src/test/java" />
                                 </copy>
