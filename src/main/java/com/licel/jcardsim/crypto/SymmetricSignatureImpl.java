@@ -181,12 +181,10 @@ public class SymmetricSignatureImpl extends Signature {
         return Util.arrayCompare(sig, (short) 0, sigBuff, sigOffset, (short) sig.length) == 0;
     }
 
-    @Override
     public void setInitialDigest(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
-    @Override
     public short signPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2) throws CryptoException {
         throw new UnsupportedOperationException("Not supported yet."); 
     }
