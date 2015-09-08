@@ -16,11 +16,13 @@
 package com.licel.jcardsim.framework;
 
 import com.licel.jcardsim.base.SimulatorSystem;
+import java.lang.reflect.Field;
 import javacard.framework.AID;
 import javacard.framework.JCSystem;
 import javacard.framework.Shareable;
 import javacard.framework.SystemException;
 import javacard.framework.TransactionException;
+import javacard.security.MessageDigest;
 
 
 /**
@@ -30,8 +32,20 @@ import javacard.framework.TransactionException;
 public class JCSystemProxy {
     
     // implementation api version
-    private static final short API_VERSION = 0x0202;
+    private static final short API_VERSION;
 
+    static {
+        short detectedVersion;
+        try {
+            Field f = MessageDigest.class.getDeclaredField("ALG_SHA_224");
+            detectedVersion = 0x0300;
+        } catch (Exception ex) {
+            detectedVersion = 0x0202;
+        }
+        API_VERSION = detectedVersion;
+        System.out.println("API VERSION"+API_VERSION);
+    }
+    
     /**
      * Checks if the specified object is transient.
      * <p>Note:
