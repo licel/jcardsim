@@ -61,7 +61,7 @@ public class JavaCardApiProcessor {
         proxyClass(buildDir, "com.licel.jcardsim.crypto.ChecksumProxy", "javacard.security.Checksum",true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.CipherProxy", "javacardx.crypto.Cipher",true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyAgreementProxy", "javacard.security.KeyAgreement",true);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyPairImpl", "javacard.security.KeyPair",false);
+        proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyPairProxy", "javacard.security.KeyPair",false);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyBuilderProxy", "javacard.security.KeyBuilder",true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.MessageDigestProxy", "javacard.security.MessageDigest",true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.RandomDataProxy", "javacard.security.RandomData",true);
