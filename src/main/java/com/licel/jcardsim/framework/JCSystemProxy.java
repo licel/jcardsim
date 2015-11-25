@@ -43,7 +43,6 @@ public class JCSystemProxy {
             detectedVersion = 0x0202;
         }
         API_VERSION = detectedVersion;
-        System.out.println("API VERSION"+API_VERSION);
     }
     
     /**
