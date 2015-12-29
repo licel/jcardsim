@@ -6,7 +6,7 @@ The official jCardSim source repository is located at [https://github.com/licel/
 
 ### Building
 1. jCardSim does not contain any Oracle's Java Card API source code, because of that it is needed to download JCDK from Oracle’s site and unpack it.
-2. Set `jcdkLocation` property in `setting.xml` (profiles - profile), for example:
+2. Set `jcdkLocation` property in `settings.xml` (profiles - profile). The settings.xml file is located in ${user.home}/.m2 (https://maven.apache.org/settings.html) and contains all the local Maven settings. For example:
 
 ~~~
     <jcdkLocation>/Users/developer/jcdk304</jcdkLocation>
