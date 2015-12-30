@@ -23,6 +23,7 @@ import javacardx.apdu.ExtendedLength;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -527,8 +528,24 @@ public class SimulatorRuntime {
     public Shareable getSharedObject(AID serverAID, byte parameter) {
         Applet serverApplet = getApplet(serverAID);
         if (serverApplet != null) {
-            return serverApplet.getShareableInterfaceObject(getAID(),
-                    parameter);
+
+            AID oldAID = previousAID;
+            previousAID = currentAID;
+            currentAID = serverAID;
+
+            final Shareable shareable = serverApplet.getShareableInterfaceObject(getAID(),
+                parameter);
+
+            currentAID = previousAID;
+            previousAID = oldAID;
+
+            if (shareable != null) {
+                return (Shareable) Proxy.newProxyInstance(
+                    shareable.getClass().getClassLoader(),
+                    shareable.getClass().getInterfaces(),
+                    new ShareableProxy(this, serverAID, shareable));
+            }
+            return null;
         }
         return null;
     }
