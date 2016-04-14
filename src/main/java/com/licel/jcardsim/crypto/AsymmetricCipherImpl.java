@@ -98,7 +98,7 @@ public class AsymmetricCipherImpl extends Cipher {
             }
         }
         try {
-            byte[] data = engine.processBlock(buffer, (short) 0, (short) buffer.length);
+            byte[] data = engine.processBlock(buffer, (short) 0, bufferPos);
             Util.arrayCopyNonAtomic(data, (short) 0, outBuff, outOffset, (short) data.length);
             return (short) data.length;
         } catch (InvalidCipherTextException ex) {
