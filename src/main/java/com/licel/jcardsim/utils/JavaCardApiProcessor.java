@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -44,9 +45,11 @@ public class JavaCardApiProcessor {
         if (!buildDir.exists() || !buildDir.isDirectory()) {
             throw new RuntimeException("Invalid directory: " + buildDir);
         }
+        HashMap<String, String> allMap = new HashMap();
         proxyClass(buildDir, "com.licel.jcardsim.framework.AIDProxy", "javacard.framework.AID", false);
+        allMap.put("com.licel.jcardsim.framework.APDUProxy".replace(".", "/"), "javacard.framework.APDU".replace(".", "/"));
         proxyClass(buildDir, "com.licel.jcardsim.framework.APDUProxy", "javacard.framework.APDU", false);
-        copyClass(buildDir, "com.licel.jcardsim.framework.APDUProxy$1", "javacard.framework.APDU$1");
+        copyClass(buildDir, "com.licel.jcardsim.framework.APDUProxy$1", "javacard.framework.APDU$1", allMap);
         proxyExceptionClass(buildDir, "javacard.framework.APDUException");
         proxyClass(buildDir, "com.licel.jcardsim.framework.AppletProxy", "javacard.framework.Applet", false);
         proxyClass(buildDir, "com.licel.jcardsim.framework.CardExceptionProxy", "javacard.framework.CardException", false);
@@ -105,20 +108,25 @@ public class JavaCardApiProcessor {
         proxyFile.delete();
     }
 
-    public static void copyClass(File buildDir, String proxyClassFile, String targetClassName) throws IOException {
-        FileInputStream fProxyClass = new FileInputStream(new File(buildDir, proxyClassFile.replace(".", File.separator) + ".class"));
+    public static void copyClass(File buildDir, String proxyClassFile, String targetClassName, Map map) throws IOException {
+        File sourceFile = new File(buildDir, proxyClassFile.replace(".", File.separator) + ".class");
+        FileInputStream fProxyClass = new FileInputStream(sourceFile);
         ClassReader crProxy = new ClassReader(fProxyClass);
         ClassNode cnProxy = new ClassNode();
         crProxy.accept(cnProxy, 0);
 
         ClassWriter cw = new ClassWriter(0);
-        RemappingClassAdapter ra = new RemappingClassAdapter(cw, new SimpleRemapper(cnProxy.name, targetClassName.replace(".", "/")));
+        map.put(cnProxy.name, targetClassName.replace(".", "/"));
+        RemappingClassAdapter ra = new RemappingClassAdapter(cw, new SimpleRemapper(map));
         cnProxy.accept(ra);
 
         fProxyClass.close();
         FileOutputStream fos = new FileOutputStream(new File(buildDir, targetClassName.replace(".", File.separator) + ".class"));
         fos.write(cw.toByteArray());
         fos.close();
+
+        // remove source class
+        sourceFile.delete();
     }
 
     public static void proxyExceptionClass(File buildDir, String targetClassName) throws IOException {
