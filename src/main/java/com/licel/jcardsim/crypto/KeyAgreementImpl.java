@@ -81,7 +81,18 @@ public class KeyAgreementImpl extends KeyAgreement {
         Util.arrayCopyNonAtomic(publicData, publicOffset, publicKey, (short) 0, publicLength);
         ECPublicKeyParameters ecp = new ECPublicKeyParameters(
                 ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters().getCurve().decodePoint(publicKey), ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters());
-        byte[] result = engine.calculateAgreement(ecp).toByteArray();
+        byte[] num = engine.calculateAgreement(ecp).toByteArray();
+
+        // truncate/zero-pad to field size as per the spec:
+        int fieldSize = privateKey.getDomainParameters().getCurve().getFieldSize();
+        byte[] result = new byte[(fieldSize + 7) / 8];
+        int numBytes = Math.min(num.length, result.length);
+        Util.arrayCopyNonAtomic(
+                num,    (short)(   num.length - numBytes),
+                result, (short)(result.length - numBytes),
+                (short)numBytes);
+        Util.arrayFillNonAtomic(result, (short)0, (short)(result.length - numBytes), (byte)0);
+
         // apply SHA1-hash (see spec)
         byte[] hashResult = new byte[20];
         digestEngine.update(result, 0, result.length);
