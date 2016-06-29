@@ -61,7 +61,7 @@ public class JavaCardApiProcessor {
         proxyExceptionClass(buildDir, "javacard.framework.TransactionException");
         proxyExceptionClass(buildDir, "javacard.framework.UserException");
         proxyClass(buildDir, "com.licel.jcardsim.framework.UtilProxy", "javacard.framework.Util", false);
-        proxyClass(buildDir, "com.licel.jcardsim.framework.OwnerPinProxy", "javacard.framework.OwnerPIN", false);
+        proxyClass(buildDir, "com.licel.jcardsim.framework.OwnerPINProxy", "javacard.framework.OwnerPIN", false);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.ChecksumProxy", "javacard.security.Checksum", true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.CipherProxy", "javacardx.crypto.Cipher", true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyAgreementProxy", "javacard.security.KeyAgreement", true);
