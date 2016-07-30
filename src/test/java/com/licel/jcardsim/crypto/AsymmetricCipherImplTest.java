@@ -18,6 +18,8 @@ package com.licel.jcardsim.crypto;
 import javacard.security.KeyBuilder;
 import javacard.security.KeyPair;
 import javacard.security.RandomData;
+import javacard.security.RSAPublicKey;
+import javacard.security.CryptoException;
 import javacardx.crypto.Cipher;
 import junit.framework.TestCase;
 import org.bouncycastle.util.Arrays;
@@ -60,6 +62,24 @@ public class AsymmetricCipherImplTest extends TestCase {
         cipher.doFinal(encryptedMsg, (short) 0, (short) encryptedMsg.length, decryptedMsg, (short) 0);
 
         assertEquals(true, Arrays.areEqual(msg, decryptedMsg));
+    }
 
+    public void testRegression_CipherDoFinal_bufferPosNotReset() throws Exception {
+        Cipher encryptEngine = Cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
+        KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA_CRT, KeyBuilder.LENGTH_RSA_1024);
+        keyPair.genKeyPair();
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        encryptEngine.init(publicKey, Cipher.MODE_ENCRYPT);
+
+        byte[] buffer = new byte[256];
+        encryptEngine.doFinal(buffer, (short) 0, (short) 59, buffer, (short) 0);
+        try {
+            encryptEngine.doFinal(buffer, (short) 0, (short) 59, buffer, (short) 0);
+        }
+        catch (CryptoException e) {
+            // For RSA1024, data len into PKCS1 frame is 117B, but because AssymetricCipherImpl.bufferPos is not set
+            // to 0 during doFinal(), it will emit exception because 68 + 68 > 117
+            assert(false);
+        }
     }
 }
