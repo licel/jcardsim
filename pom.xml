@@ -39,7 +39,7 @@
         <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
         <junit.version>3.8.1</junit.version>
         <java.version>1.5</java.version>
-        <jcApiVersion>3.0.4</jcApiVersion>
+        <jcApiVersion>3.0.5</jcApiVersion>
     </properties>
     
     <distributionManagement>
@@ -202,7 +202,13 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>                                      
+            </plugin>
+	    <plugin>
+        	<artifactId>maven-surefire-plugin</artifactId>
+		<configuration>
+		    <argLine>-noverify</argLine>
+		</configuration>
+	    </plugin>                                      
             <!-- patch -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -389,6 +395,7 @@
 
                                 <echo>Testing shaded JAR: jcardsim-${project.version}-android.jar</echo>
                                 <junit fork="yes" forkmode="once" haltonfailure="yes" printsummary="true">
+				    <jvmarg value="-noverify"/>
                                     <classpath>
                                         <path refid="testClasspath" />
                                         <pathelement location="${ant.build.dir}/bin" />

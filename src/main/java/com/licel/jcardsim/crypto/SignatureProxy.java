@@ -67,7 +67,8 @@ public class SignatureProxy {
             case Signature.ALG_HMAC_SHA_384:                
             case Signature.ALG_HMAC_SHA_512:                
             case Signature.ALG_HMAC_MD5:                
-            case Signature.ALG_HMAC_RIPEMD160:                
+            case Signature.ALG_HMAC_RIPEMD160:
+            case Signature.ALG_AES_CMAC_128:
                 instance = new SymmetricSignatureImpl(algorithm);
                 break;
 

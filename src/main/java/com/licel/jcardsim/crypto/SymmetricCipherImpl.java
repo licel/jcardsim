@@ -141,4 +141,10 @@ public class SymmetricCipherImpl extends Cipher {
                 break;
         }
     }
+    public byte getPaddingAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    public byte getCipherAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

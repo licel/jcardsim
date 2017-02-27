@@ -44,4 +44,10 @@ public class RandomDataImpl extends RandomData {
         Util.arrayCopyNonAtomic(buffer, offset, seed, (short) 0, length);
         engine.addSeedMaterial(seed);
     }
+    public byte getAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    public short nextBytes(byte[] bytes, short s, short s1) throws CryptoException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
