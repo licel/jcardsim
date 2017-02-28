@@ -118,4 +118,10 @@ public class AsymmetricCipherImpl extends Cipher {
         bufferPos = (short) (bufferPos + Util.arrayCopyNonAtomic(inBuff, inOffset, buffer, bufferPos, inLength));
         return bufferPos;
     }
+    public byte getPaddingAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    public byte getCipherAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

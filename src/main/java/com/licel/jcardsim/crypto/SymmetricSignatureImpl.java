@@ -30,6 +30,7 @@ import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.macs.CBCBlockCipherMac;
+import org.bouncycastle.crypto.macs.CMac;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.macs.ISO9797Alg3Mac;
 import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
@@ -107,6 +108,9 @@ public class SymmetricSignatureImpl extends Signature {
                 break;
             case ALG_AES_MAC_128_NOPAD:
                 engine = new CBCBlockCipherMac(cipher, 128, null);
+                break;
+            case ALG_AES_CMAC_128:
+                engine = new CMac(cipher, 128);
                 break;
             case ALG_HMAC_SHA1:
                 engine = new HMac(new SHA1Digest());
@@ -187,5 +191,18 @@ public class SymmetricSignatureImpl extends Signature {
 
     public short signPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2) throws CryptoException {
         throw new UnsupportedOperationException("Not supported yet."); 
+    }
+    public boolean verifyPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+    public byte getPaddingAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+    public byte getMessageDigestAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public byte getCipherAlgorithm() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
