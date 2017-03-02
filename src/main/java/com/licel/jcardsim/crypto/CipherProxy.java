@@ -17,7 +17,6 @@ package com.licel.jcardsim.crypto;
 
 import javacard.security.CryptoException;
 import javacardx.crypto.Cipher;
-
 /**
  * ProxyClass for <code>Cipher</code>
  * @see Cipher
@@ -55,6 +54,7 @@ public class CipherProxy {
             case Cipher.ALG_DES_ECB_PKCS5:
             case Cipher.ALG_AES_BLOCK_128_CBC_NOPAD:
             case Cipher.ALG_AES_BLOCK_128_ECB_NOPAD:
+            case Cipher.ALG_AES_CBC_ISO9797_M2:
                 instance = new SymmetricCipherImpl(algorithm);
                 break;
             case Cipher.ALG_RSA_PKCS1:
