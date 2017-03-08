@@ -81,28 +81,16 @@ public class KeyBuilderProxy {
 
             // ecc
             case KeyBuilder.TYPE_EC_F2M_PUBLIC:
-                if (keyLength != 113 && keyLength != 131 && keyLength != 163 && keyLength != 193) {
-                    CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-                }
                 key = new ECPublicKeyImpl(keyType, keyLength);
                 break;
             case KeyBuilder.TYPE_EC_F2M_PRIVATE:
-                if (keyLength != 113 && keyLength != 131 && keyLength != 163 && keyLength != 193) {
-                    CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-                }
                 key = new ECPrivateKeyImpl(keyType, keyLength);
                 break;
 
             case KeyBuilder.TYPE_EC_FP_PUBLIC:
-                if (keyLength != 112 && keyLength != 128 && keyLength != 160 && keyLength != 192 && keyLength != 256) {
-                    CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-                }
                 key = new ECPublicKeyImpl(keyType, keyLength);
                 break;
             case KeyBuilder.TYPE_EC_FP_PRIVATE:
-                if (keyLength != 112 && keyLength != 128 && keyLength != 160 && keyLength != 192 && keyLength != 256) {
-                    CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-                }
                 key = new ECPrivateKeyImpl(keyType, keyLength);
                 break;
 
