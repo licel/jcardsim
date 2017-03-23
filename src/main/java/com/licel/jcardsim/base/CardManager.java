@@ -20,14 +20,23 @@ import javacard.framework.AID;
 import javacard.framework.ISO7816;
 import javacard.framework.SystemException;
 import javacard.framework.Util;
-
 /**
  * CardManager.
  */
-public class CardManager {
-
-    // basic impl
+public class CardManager implements CardManagerInterface {
+    private static CardManagerInterface impl;
+    static {
+        try {
+            impl = (CardManagerInterface)Class.forName("com.licel.globalplatform.CardManager").newInstance();
+        } catch (Throwable ex) {
+            impl = new CardManager();
+        }
+    }
     public static byte[] dispatchApdu(JavaCardInterface sim, byte[] capdu) {
+        return impl.dispatchApduImpl(sim, capdu);
+    }
+    
+    public byte[] dispatchApduImpl(JavaCardInterface sim, byte[] capdu) {
         byte[] theSW = new byte[2];
         if (capdu[ISO7816.OFFSET_CLA] == (byte)0x80 && capdu[ISO7816.OFFSET_INS] == (byte)0xb8) {
             // handle CREATE APPLET command
