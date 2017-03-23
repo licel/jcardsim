@@ -16,8 +16,6 @@
 package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.io.JavaCardInterface;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javacard.framework.AID;
 import javacard.framework.ISO7816;
 import javacard.framework.SystemException;
@@ -30,9 +28,8 @@ public class CardManager implements CardManagerInterface {
     static {
         try {
             impl = (CardManagerInterface)Class.forName("com.licel.globalplatform.CardManager").newInstance();
-        } catch (ReflectiveOperationException ex) {
+        } catch (Throwable ex) {
             impl = new CardManager();
-            Logger.getLogger(CardManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public static byte[] dispatchApdu(JavaCardInterface sim, byte[] capdu) {
