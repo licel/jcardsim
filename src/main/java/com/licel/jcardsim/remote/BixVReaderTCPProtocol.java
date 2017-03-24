@@ -36,30 +36,6 @@ public class BixVReaderTCPProtocol implements BixVReaderProtocol {
     private DataOutputStream dataOutput;
     private DataOutputStream eventOutput;
 
-    private static String bytesToHex(byte[] bytes) {
-        Formatter formatter = new Formatter();
-
-        for (byte b : bytes) {
-            formatter.format("%02X ", b);
-        }
-
-        return formatter.toString();
-    }
-
-    private void closeSocket(Socket sock) {
-        try {
-            sock.close();
-        } catch (IOException ignored) {}
-    }
-
-    private int cmdFromBytes(byte[] cmd) {
-        return cmd[0] & 0xFF | (cmd[1] & 0xFF) << 8 | (cmd[2] & 0xFF) << 16 | (cmd[3] & 0xFF) << 24;
-    }
-
-    private byte[] cmdToBytes(int cmd) {
-        return new byte[] { (byte) (cmd), (byte) (cmd >>> 8), (byte) (cmd >>> 16), (byte) (cmd >>> 24) };
-    }
-
     public void connect(String host, int port, int event_port) throws IOException {
         socket = new Socket(host, port);
 
@@ -96,8 +72,49 @@ public class BixVReaderTCPProtocol implements BixVReaderProtocol {
 
         return dataBuf;
     }
+    
+    public void writeData(byte[] data) throws IOException {
+        byte[] dataBuf = new byte[4 + data.length];
+        byte[] dataLen = cmdToBytes(data.length);
 
-    void readFully(byte[] buf, InputStream stream) throws IOException {
+        System.arraycopy(dataLen, 0, dataBuf, 0, 4);
+        System.arraycopy(data, 0, dataBuf, 4, data.length);
+        dataOutput.write(dataBuf);
+    }
+
+    public void writeDataCommand(int cmd) throws IOException {
+        writeCommand(dataOutput, cmd);
+    }
+
+    public void writeEventCommand(int cmd) throws IOException {
+        writeCommand(eventOutput, cmd);
+    }
+    
+    private static String bytesToHex(byte[] bytes) {
+        Formatter formatter = new Formatter();
+
+        for (byte b : bytes) {
+            formatter.format("%02X ", b);
+        }
+
+        return formatter.toString();
+    }
+
+    private void closeSocket(Socket sock) {
+        try {
+            sock.close();
+        } catch (IOException ignored) {}
+    }
+
+    private int cmdFromBytes(byte[] cmd) {
+        return cmd[0] & 0xFF | (cmd[1] & 0xFF) << 8 | (cmd[2] & 0xFF) << 16 | (cmd[3] & 0xFF) << 24;
+    }
+
+    private byte[] cmdToBytes(int cmd) {
+        return new byte[] { (byte) (cmd), (byte) (cmd >>> 8), (byte) (cmd >>> 16), (byte) (cmd >>> 24) };
+    }
+    
+    private void readFully(byte[] buf, InputStream stream) throws IOException {
         int len    = buf.length;
         int offset = 0;
 
@@ -117,22 +134,5 @@ public class BixVReaderTCPProtocol implements BixVReaderProtocol {
         byte[] buf = cmdToBytes(cmd);
 
         stream.write(buf, 0, buf.length);
-    }
-
-    public void writeData(byte[] data) throws IOException {
-        byte[] dataBuf = new byte[4 + data.length];
-        byte[] dataLen = cmdToBytes(data.length);
-
-        System.arraycopy(dataLen, 0, dataBuf, 0, 4);
-        System.arraycopy(data, 0, dataBuf, 4, data.length);
-        dataOutput.write(dataBuf);
-    }
-
-    public void writeDataCommand(int cmd) throws IOException {
-        writeCommand(dataOutput, cmd);
-    }
-
-    public void writeEventCommand(int cmd) throws IOException {
-        writeCommand(eventOutput, cmd);
     }
 }

@@ -31,28 +31,19 @@ import java.util.Properties;
 public class BixVReaderCard {
     
     Simulator sim;
-    
-    void StartThread(BixVReaderProtocol driverProtocol) throws IOException {
-        sim = new Simulator();
-        final IOThread ioThread = new IOThread(sim, driverProtocol);
-        ShutDownHook hook = new ShutDownHook(ioThread);
-        Runtime.getRuntime().addShutdownHook(hook);
-        ioThread.start();
-        driverProtocol.writeEventCommand(BixVReaderProtocol.CARD_INSERTED);
-    }
-    
+        
     public BixVReaderCard(int idx) throws IOException {
         BixVReaderIPCProtocol driverProtocol = new BixVReaderIPCProtocol();
         driverProtocol.connect(idx);
-        StartThread(driverProtocol);
+        startThread(driverProtocol);
     }
     
     public BixVReaderCard(String host, int port, int event_port) throws IOException {
         BixVReaderTCPProtocol driverProtocol = new BixVReaderTCPProtocol();
         driverProtocol.connect(host, port, event_port);
-        StartThread(driverProtocol);
+        startThread(driverProtocol);
     }
-
+    
     static public void main(String args[]) throws Exception {
         if (args.length !=1) {
             System.out.println("Usage: java com.licel.jcardsim.remote.BixVReaderCard <jcardsim.cfg>");
@@ -102,7 +93,15 @@ public class BixVReaderCard {
         }
     }
 
-
+    private void startThread(BixVReaderProtocol driverProtocol) throws IOException {
+        sim = new Simulator();
+        final IOThread ioThread = new IOThread(sim, driverProtocol);
+        ShutDownHook hook = new ShutDownHook(ioThread);
+        Runtime.getRuntime().addShutdownHook(hook);
+        ioThread.start();
+        driverProtocol.writeEventCommand(BixVReaderProtocol.CARD_INSERTED);
+    }
+    
      static class ShutDownHook extends Thread {
 
         IOThread ioThread;
