@@ -19,6 +19,7 @@ import com.licel.jcardsim.base.CardManager;
 import com.licel.jcardsim.base.Simulator;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -30,18 +31,19 @@ import java.util.Properties;
 public class BixVReaderCard {
     
     Simulator sim;
-
+        
     public BixVReaderCard(int idx) throws IOException {
-        sim = new Simulator();
         BixVReaderIPCProtocol driverProtocol = new BixVReaderIPCProtocol();
         driverProtocol.connect(idx);
-        final IOThread ioThread = new IOThread(sim, driverProtocol);
-        ShutDownHook hook = new ShutDownHook(ioThread);
-        Runtime.getRuntime().addShutdownHook(hook);
-        ioThread.start();
-        driverProtocol.writeEventCommand(BixVReaderIPCProtocol.CARD_INSERTED);
+        startThread(driverProtocol);
     }
-
+    
+    public BixVReaderCard(String host, int port, int event_port) throws IOException {
+        BixVReaderTCPProtocol driverProtocol = new BixVReaderTCPProtocol();
+        driverProtocol.connect(host, port, event_port);
+        startThread(driverProtocol);
+    }
+    
     static public void main(String args[]) throws Exception {
         if (args.length !=1) {
             System.out.println("Usage: java com.licel.jcardsim.remote.BixVReaderCard <jcardsim.cfg>");
@@ -61,19 +63,45 @@ public class BixVReaderCard {
                 fis.close();
             }
         }
-        
         Enumeration keys = cfg.propertyNames();
         while(keys.hasMoreElements()) {
             String propertyName = (String) keys.nextElement();
             System.setProperty(propertyName, cfg.getProperty(propertyName));
         }
         
-        int readerIdx = Integer.parseInt(System.getProperty("com.licel.jcardsim.bixvreader.idx", "0"));
+        String host = System.getProperty("com.licel.jcardsim.bixvreader.host");
         
-        BixVReaderCard server = new BixVReaderCard(readerIdx);
+        if (host != null) {
+            String propKey = "com.licel.jcardsim.bixvreader.port";
+            String port = System.getProperty(propKey);
+            
+            if(port == null) {
+                throw new InvalidParameterException("Missing value for property: " + propKey);
+            }
+            
+            propKey = "com.licel.jcardsim.bixvreader.eport";
+            String eventPort = System.getProperty(propKey);
+            
+            if(eventPort == null) {
+                throw new InvalidParameterException("Missing value for property: " + propKey);
+            }
+
+            BixVReaderCard server = new BixVReaderCard(host, Integer.parseInt(port), Integer.parseInt(eventPort));
+        } else {
+            int readerIdx = Integer.parseInt(System.getProperty("com.licel.jcardsim.bixvreader.idx", "0"));
+            BixVReaderCard server = new BixVReaderCard(readerIdx);
+        }
     }
 
-
+    private void startThread(BixVReaderProtocol driverProtocol) throws IOException {
+        sim = new Simulator();
+        final IOThread ioThread = new IOThread(sim, driverProtocol);
+        ShutDownHook hook = new ShutDownHook(ioThread);
+        Runtime.getRuntime().addShutdownHook(hook);
+        ioThread.start();
+        driverProtocol.writeEventCommand(BixVReaderProtocol.CARD_INSERTED);
+    }
+    
      static class ShutDownHook extends Thread {
 
         IOThread ioThread;
@@ -93,14 +121,13 @@ public class BixVReaderCard {
          }
     }
     
-    
     static class IOThread extends Thread {
 
-        BixVReaderIPCProtocol driverProtocol;
+        BixVReaderProtocol driverProtocol;
         Simulator sim;
         boolean isRunning;
 
-        public IOThread(Simulator sim, BixVReaderIPCProtocol driverProtocol) {
+        public IOThread(Simulator sim, BixVReaderProtocol driverProtocol) {
             this.sim = sim;
             this.driverProtocol = driverProtocol;
             isRunning = true;
