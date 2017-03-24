@@ -27,13 +27,7 @@ import java.io.RandomAccessFile;
  *
  * @author LICEL LLC
  */
-public class BixVReaderIPCProtocol {
-
-    public final static int CARD_INSERTED = 1;
-    public final static int ATR_REQUEST = 1;
-    public final static int TRANSMIT_DATA = 2;
-    public final static int RESET = 0;
-    public final static int CARD_REMOVED = 0;
+public class BixVReaderIPCProtocol implements BixVReaderProtocol {
     RandomAccessFile dataPipe = null;
     RandomAccessFile eventsPipe = null;
 
