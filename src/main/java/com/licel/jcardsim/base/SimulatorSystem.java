@@ -49,8 +49,20 @@ public class SimulatorSystem {
     /**
      * the default instance. Used by <code>Simulator</code>
      */
-    public static final SimulatorRuntime DEFAULT_RUNTIME = setCurrentInstance(new SimulatorRuntime());
+    public static final SimulatorRuntime DEFAULT_RUNTIME;
 
+    static {
+        SimulatorRuntime sim;
+        
+        try {
+            sim = setCurrentInstance((SimulatorRuntime)Class.forName("com.licel.globalplatform.GpSimulatorRuntime").newInstance());
+        } catch (Throwable ex) {
+            sim = setCurrentInstance(new SimulatorRuntime());
+        }
+        
+        DEFAULT_RUNTIME = sim;
+    }
+    
     /**
      * Get the currently active SimulatorRuntime instance
      *
