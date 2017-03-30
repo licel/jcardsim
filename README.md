@@ -7,7 +7,7 @@ jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
 
 **Please note** that we moved our code repository from Google Code to GitHub.
 
-jCardSim is an open source simulator for Java Card, v.2.2/3.0.4:
+jCardSim is an open source simulator for Java Card, v.2.2/3.0.5:
 
 * `javacard.framework.*`
 * `javacard.framework.security.*`
