@@ -252,7 +252,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
             case 193:
             case 233:
             case 283:
-            case 408:
+            case 409:
             case 571:
                 if ((keyType != KeyBuilder.TYPE_EC_F2M_PRIVATE) & (keyType != KeyBuilder.TYPE_EC_F2M_PUBLIC)) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
