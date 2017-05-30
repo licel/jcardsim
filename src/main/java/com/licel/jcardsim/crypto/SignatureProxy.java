@@ -45,11 +45,19 @@ public class SignatureProxy {
         switch (algorithm) {
             case Signature.ALG_RSA_SHA_ISO9796:
             case Signature.ALG_RSA_SHA_PKCS1:
+            case Signature.ALG_RSA_SHA_224_PKCS1:
+            case Signature.ALG_RSA_SHA_256_PKCS1:
+            case Signature.ALG_RSA_SHA_384_PKCS1:
+            case Signature.ALG_RSA_SHA_512_PKCS1:
             case Signature.ALG_RSA_MD5_PKCS1:
             case Signature.ALG_RSA_RIPEMD160_ISO9796:
             case Signature.ALG_RSA_RIPEMD160_PKCS1:
             case Signature.ALG_ECDSA_SHA:
-            case Signature.ALG_RSA_SHA_ISO9796_MR:    
+            case Signature.ALG_ECDSA_SHA_224:
+            case Signature.ALG_ECDSA_SHA_256:
+            case Signature.ALG_ECDSA_SHA_384:
+            case Signature.ALG_ECDSA_SHA_512:
+            case Signature.ALG_RSA_SHA_ISO9796_MR:
                 instance = new AsymmetricSignatureImpl(algorithm);
                 break;
             case Signature.ALG_DES_MAC4_NOPAD:
