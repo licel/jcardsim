@@ -28,6 +28,10 @@ import org.bouncycastle.crypto.SignerWithRecovery;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.digests.SHA224Digest;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.digests.SHA384Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.signers.DSADigestSigner;
 import org.bouncycastle.crypto.signers.ECDSASigner;
@@ -62,6 +66,18 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_RSA_SHA_PKCS1:
                 engine = new RSADigestSigner(new SHA1Digest());
                 break;
+            case ALG_RSA_SHA_224_PKCS1:
+                engine = new RSADigestSigner(new SHA224Digest());
+                break;
+            case ALG_RSA_SHA_256_PKCS1:
+                engine = new RSADigestSigner(new SHA256Digest());
+                break;
+            case ALG_RSA_SHA_384_PKCS1:
+                engine = new RSADigestSigner(new SHA384Digest());
+                break;
+            case ALG_RSA_SHA_512_PKCS1:
+                engine = new RSADigestSigner(new SHA512Digest());
+                break;
             case ALG_RSA_MD5_PKCS1:
                 engine = new RSADigestSigner(new MD5Digest());
                 break;
@@ -73,6 +89,18 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 break;
             case ALG_ECDSA_SHA:
                 engine = new DSADigestSigner(new ECDSASigner(), new SHA1Digest());
+                break;
+            case ALG_ECDSA_SHA_224:
+                engine = new DSADigestSigner(new ECDSASigner(), new SHA224Digest());
+                break;
+            case ALG_ECDSA_SHA_256:
+                engine = new DSADigestSigner(new ECDSASigner(), new SHA256Digest());
+                break;
+            case ALG_ECDSA_SHA_384:
+                engine = new DSADigestSigner(new ECDSASigner(), new SHA384Digest());
+                break;
+            case ALG_ECDSA_SHA_512:
+                engine = new DSADigestSigner(new ECDSASigner(), new SHA512Digest());
                 break;
         }
     }
@@ -106,11 +134,19 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         switch (algorithm) {
             case ALG_RSA_SHA_ISO9796:
             case ALG_RSA_SHA_PKCS1:
+            case ALG_RSA_SHA_224_PKCS1:
+            case ALG_RSA_SHA_256_PKCS1:
+            case ALG_RSA_SHA_384_PKCS1:
+            case ALG_RSA_SHA_512_PKCS1:
             case ALG_RSA_MD5_PKCS1:
             case ALG_RSA_RIPEMD160_ISO9796:
             case ALG_RSA_RIPEMD160_PKCS1:
                 return (short)(key.getSize()>>3);
             case ALG_ECDSA_SHA:
+            case ALG_ECDSA_SHA_256:
+            case ALG_ECDSA_SHA_224:
+            case ALG_ECDSA_SHA_384:
+            case ALG_ECDSA_SHA_512:
                 // x,y + der payload
                 return (short)(((key.getSize()*2)>>3) + 8);
         }

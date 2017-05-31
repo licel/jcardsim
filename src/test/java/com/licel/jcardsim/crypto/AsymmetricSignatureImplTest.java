@@ -104,21 +104,73 @@ public class AsymmetricSignatureImplTest extends TestCase {
     /**
      * SelfTest of RSA sign/verify method, of class AsymmetricSignatureImpl.
      */
-    public void testSelfSignVerifyRSA() {
-        System.out.println("self test sign/verify rsa");
+    public void testSelfSignVerifyRSASHA1() {
+        System.out.println("self test sign/verify rsa SHA1");
         testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_PKCS1);
+    }
+    
+    public void testSelfSignVerifyRSASHA224() {
+        System.out.println("self test sign/verify rsa SHA-224");
+        testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_224_PKCS1);
+    }
+
+    public void testSelfSignVerifyRSASHA256() {
+        System.out.println("self test sign/verify rsa SHA-256");
+        testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_256_PKCS1);
+    }
+
+    public void testSelfSignVerifyRSASHA384() {
+        System.out.println("self test sign/verify rsa SHA-384");
+        testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_384_PKCS1);
+    }
+
+    public void testSelfSignVerifyRSASHA512() {
+        System.out.println("self test sign/verify rsa SHA-512");
+        testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_512_PKCS1);
     }
 
    
     /**
      * SelfTest of ECDSA sign/verify method, of class AsymmetricSignatureImpl.
      */
-    public void testSelfSignVerifyECDSA() {
-        System.out.println("self test sign/verify ecdsa");
+    public void testSelfSignVerifyECDSASHA1() {
+        System.out.println("self test sign/verify ecdsa SHA1");
         // ecf2m keys
         testSelfSignVerify(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, Signature.ALG_ECDSA_SHA);
         // ecfp keys
         testSelfSignVerify(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, Signature.ALG_ECDSA_SHA);
+    }
+
+    public void testSelfSignVerifyECDSASHA224() {
+        System.out.println("self test sign/verify ecdsa SHA-224");
+        // ecf2m keys
+        testSelfSignVerify(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, Signature.ALG_ECDSA_SHA_224);
+        // ecfp keys
+        testSelfSignVerify(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, Signature.ALG_ECDSA_SHA_224);
+    }
+
+    public void testSelfSignVerifyECDSASHA256() {
+        System.out.println("self test sign/verify ecdsa SHA-256");
+        // ecf2m keys
+        testSelfSignVerify(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, Signature.ALG_ECDSA_SHA_256);
+        // ecfp keys
+        testSelfSignVerify(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, Signature.ALG_ECDSA_SHA_256);
+    }
+
+    public void testSelfSignVerifyECDSASHA384() {
+        System.out.println("self test sign/verify ecdsa SHA-384");
+        // ecf2m keys
+        testSelfSignVerify(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, Signature.ALG_ECDSA_SHA_384);
+        // ecfp keys
+        testSelfSignVerify(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, Signature.ALG_ECDSA_SHA_384);
+    }
+
+    public void testSelfSignVerifyECDSASHA512() {
+        System.out.println("self test sign/verify ecdsa SHA-512");
+        // ecf2m keys
+        testSelfSignVerify(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, Signature.ALG_ECDSA_SHA_512);
+        // ecfp keys
+        testSelfSignVerify(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, Signature.ALG_ECDSA_SHA_512);
     }
 
     /**
