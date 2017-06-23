@@ -48,10 +48,14 @@ public class KeyAgreementImplTest extends TestCase {
     public void testGenerateSecretECDH() {
         System.out.println("test ecdh");
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DH);
+        testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DH_PLAIN);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DH);
+        testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DH_PLAIN);
         System.out.println("test ecdhc");
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DHC);
+        testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DHC_PLAIN);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DHC);
+        testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DHC_PLAIN);
     }
 
     /**
@@ -82,9 +86,26 @@ public class KeyAgreementImplTest extends TestCase {
         publicKeyLength = publicKey1.getW(public1, (short) 0);
         ka.init(privateKey2);
         short secret2Size = ka.generateSecret(public1, (short) 0, publicKeyLength, secret2, (short) 0);
-        // sha1 size = 20
-        assertEquals(secret1Size, 20);
-        assertEquals(secret2Size, 20);
+        
+        // check expected length
+        switch (keyAgreementAlg) {
+            case KeyAgreement.ALG_EC_SVDP_DH: // no break
+            case KeyAgreement.ALG_EC_SVDP_DHC: 
+                // sha1 size = 20
+                assertEquals(secret1Size, 20);
+                assertEquals(secret2Size, 20);
+                break;
+            case KeyAgreement.ALG_EC_SVDP_DHC_PLAIN: // no break
+            case KeyAgreement.ALG_EC_SVDP_DH_PLAIN:
+                // round up bit size of key to whole bytes
+                assertEquals(secret1Size, (int) Math.ceil(keySize / 8.0));
+                assertEquals(secret2Size, (int) Math.ceil(keySize / 8.0));
+                break;
+            default:
+                assertTrue(false); // unsupported algorithm
+        }
+
+        // check match of values
         assertEquals(true, Arrays.areEqual(secret1, secret2));
     }
 }

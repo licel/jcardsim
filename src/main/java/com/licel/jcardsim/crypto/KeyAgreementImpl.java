@@ -44,10 +44,12 @@ public class KeyAgreementImpl extends KeyAgreement {
     public KeyAgreementImpl(byte algorithm) {
         this.algorithm = algorithm;
         switch (algorithm) {
-            case ALG_EC_SVDP_DH:
+            case ALG_EC_SVDP_DH: // no break
+            case ALG_EC_SVDP_DH_PLAIN:
                 engine = new ECDHBasicAgreement();
                 break;
-            case ALG_EC_SVDP_DHC:
+            case ALG_EC_SVDP_DHC: // no break
+            case ALG_EC_SVDP_DHC_PLAIN:
                 engine = new ECDHCBasicAgreement();
                 break;
             default:
@@ -93,11 +95,25 @@ public class KeyAgreementImpl extends KeyAgreement {
                 (short)numBytes);
         Util.arrayFillNonAtomic(result, (short)0, (short)(result.length - numBytes), (byte)0);
 
-        // apply SHA1-hash (see spec)
-        byte[] hashResult = new byte[20];
-        digestEngine.update(result, 0, result.length);
-        digestEngine.doFinal(hashResult, 0);
-        Util.arrayCopyNonAtomic(hashResult, (short) 0, secret, secretOffset, (short) hashResult.length);
-        return (short) hashResult.length;
+        // post-process output key based on agreement type
+        switch (this.algorithm) {
+            case ALG_EC_SVDP_DH: // no break
+            case ALG_EC_SVDP_DHC: 
+                // apply SHA1-hash (see spec)
+                byte[] hashResult = new byte[20];
+                digestEngine.update(result, 0, result.length);
+                digestEngine.doFinal(hashResult, 0);
+                Util.arrayCopyNonAtomic(hashResult, (short) 0, secret, secretOffset, (short) hashResult.length);
+                return (short) hashResult.length;
+            case ALG_EC_SVDP_DHC_PLAIN: // no break
+            case ALG_EC_SVDP_DH_PLAIN:
+                // plain output
+                Util.arrayCopyNonAtomic(result, (short) 0, secret, secretOffset, (short) result.length);
+                return (short) result.length;
+            default:
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                break;
+        }
+        return (short) -1;
     }
 }
