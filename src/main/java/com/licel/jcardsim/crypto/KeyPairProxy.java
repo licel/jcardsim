@@ -21,7 +21,7 @@ import javacard.security.PublicKey;
 
 /**
  * ProxyClass for <code>KeyPair</code>
- * @see KeyPair
+ * @see javacard.security.KeyPair
  */
 
 public class KeyPairProxy {
@@ -53,11 +53,11 @@ public class KeyPairProxy {
      * the Field, A, B, G and R parameter set in EC is invalid.
      * </ul>
      * @see javacard.framework.APDU
-     * @see Signature
+     * @see javacard.security.Signature
      * @see javacardx.crypto.Cipher
-     * @see RSAPublicKey
-     * @see ECKey
-     * @see DSAKey
+     * @see javacard.security.RSAPublicKey
+     * @see javacard.security.ECKey
+     * @see javacard.security.DSAKey
      */
     public final void genKeyPair()
             throws CryptoException {
@@ -80,12 +80,12 @@ public class KeyPairProxy {
      * Valid codes listed in <code>ALG_..</code> constants above. See <A HREF="../../javacard/security/KeyPair.html#ALG_RSA"><CODE>ALG_RSA</CODE></A>
      * @param keyLength  the key size in bits. The valid key bit lengths are key type dependent.
      * See the <code>KeyBuilder</code> class.
-     * @see KeyBuilder
+     * @see javacard.security.KeyBuilder
      * @throws CryptoException with the following reason codes:<ul>
      * <li><code>CryptoException.NO_SUCH_ALGORITHM</code> if the requested algorithm
      * associated with the specified type, size of key is not supported.</ul>
-     * @see KeyBuilder
-     * @see Signature
+     * @see javacard.security.KeyBuilder
+     * @see javacard.security.Signature
      * @see javacardx.crypto.KeyEncryption
      * @see javacardx.crypto.Cipher
      */

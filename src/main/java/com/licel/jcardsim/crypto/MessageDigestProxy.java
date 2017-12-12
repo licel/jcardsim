@@ -52,7 +52,7 @@ public class MessageDigestProxy {
      * <p>
      *
      * @param algorithm the desired message digest algorithm. Valid codes listed in ALG_* constants above,
-     * for example, {@link #ALG_SHA}.
+     * for example, {@link MessageDigest#ALG_SHA}.
      * @param externalAccess true indicates that the instance will be shared among multiple applet 
      * instances and that the <code>InitializedMessageDigest</code> instance will also be accessed (via a <code>Shareable</code>. interface) 
      * when the owner of the <code>InitializedMessageDigest</code> instance is not the currently selected applet. 

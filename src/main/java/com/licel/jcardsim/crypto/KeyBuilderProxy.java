@@ -30,10 +30,10 @@ public class KeyBuilderProxy {
      * <code>Signature</code>, <code>Cipher</code> and <code>KeyPair</code>.
      * Note that the object returned must be cast to their appropriate key type interface.
      * @param keyType the type of key to be generated. Valid codes listed in TYPE.. constants.
-     * See {@link #TYPE_DES_TRANSIENT_RESET}.
+     * See {@link KeyBuilder#TYPE_DES_TRANSIENT_RESET}.
      * @param keyLength the key size in bits. The valid key bit lengths are key type dependent. Some common
      * key lengths are listed above above in the LENGTH_.. constants.
-     * See {@link #LENGTH_DES}.
+     * See {@link KeyBuilder#LENGTH_DES}.
      * @param keyEncryption if <code>true</code> this boolean requests a key implementation
      * which implements the <code>javacardx.crypto.KeyEncryption</code> interface.
      * The key implementation returned may implement the <code>javacardx.crypto.KeyEncryption</code>

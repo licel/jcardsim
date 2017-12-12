@@ -22,7 +22,7 @@ import javacard.framework.Util;
 
 /**
  * Implementation for <code>OwnerPin</code>
- * @see OwnerPin
+ * @see javacard.framework.OwnerPIN
  */
 
 public class OwnerPINProxy implements PIN {

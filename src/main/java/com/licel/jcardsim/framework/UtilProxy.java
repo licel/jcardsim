@@ -19,7 +19,7 @@ import javacard.framework.TransactionException;
 
 /**
  * ProxyClass for <code>Util</code>
- * @see Util
+ * @see javacard.framework.Util
  */
 public class UtilProxy {
     /**
@@ -58,8 +58,8 @@ public class UtilProxy {
      * @return destOff+length
      * @throws ArrayIndexOutOfBoundsException if copying would cause access of data outside array bounds
      * @throws NullPointerException if either <code>src</code> or <code>dest</code> is <code>null</code>
-     * @throws TransactionExceptionImpl f copying would cause the commit capacity to be exceeded
-     * @see JCSystem#getUnusedCommitCapacity()
+     * @throws TransactionException if copying would cause the commit capacity to be exceeded
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
      */
     public static final short arrayCopy(byte src[], short srcOff, byte dest[], short destOff, short length)
             throws ArrayIndexOutOfBoundsException, NullPointerException, TransactionException {
@@ -104,8 +104,8 @@ public class UtilProxy {
      * @return destOff+length
      * @throws ArrayIndexOutOfBoundsException if copying would cause access of data outside array bounds
      * @throws NullPointerException if either <code>src</code> or <code>dest</code> is <code>null</code>
-     * @throws TransactionExceptionImpl f copying would cause the commit capacity to be exceeded
-     * @see JCSystem#getUnusedCommitCapacity()
+     * @throws TransactionException if copying would cause the commit capacity to be exceeded
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
      */
     public static final short arrayCopyNonAtomic(byte src[], short srcOff, byte dest[], short destOff, short length)
             throws ArrayIndexOutOfBoundsException, NullPointerException {
@@ -138,7 +138,7 @@ public class UtilProxy {
      * @return bOff+bLen
      * @throws ArrayIndexOutOfBoundsException if the fill operation would cause access of data outside array bounds
      * @throws NullPointerException if bArray is <code>null</code>
-     * @see JCSystem#getUnusedCommitCapacity()
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
      */
     public static final short arrayFillNonAtomic(byte bArray[], short bOff, short bLen, byte bValue)
             throws ArrayIndexOutOfBoundsException, NullPointerException {
@@ -237,8 +237,8 @@ public class UtilProxy {
      * @throws ArrayIndexOutOfBoundsException if the <CODE>bOff</CODE> parameter is negative or if <CODE>bOff+2</CODE> is greater than the length of <code>bArray</code>
      * of <CODE>bArray</CODE>
      * @throws NullPointerException if the <CODE>bArray</CODE> parameter is <CODE>null</CODE>
-     * @throws TransactionExceptionImpl if the operation would cause the commit capacity to be exceeded
-     * @see JCSystem#getUnusedCommitCapacity()
+     * @throws TransactionException if the operation would cause the commit capacity to be exceeded
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
      */
     public static final short setShort(byte bArray[], short bOff, short sValue)
             throws TransactionException, ArrayIndexOutOfBoundsException, NullPointerException {

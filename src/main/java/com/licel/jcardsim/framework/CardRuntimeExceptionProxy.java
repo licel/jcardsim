@@ -17,7 +17,7 @@ package com.licel.jcardsim.framework;
 
 /**
  * ProxyClass for <code>CardRuntimeException</code>
- * @see CardRuntimeException
+ * @see javacard.framework.CardRuntimeException
  */
 public class CardRuntimeExceptionProxy extends RuntimeException {
 

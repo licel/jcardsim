@@ -25,7 +25,7 @@ public class CipherProxy {
     /**
      * Creates a <code>Cipher</code> object instance of the selected algorithm.
      * @param algorithm the desired Cipher algorithm. Valid codes listed in
-     * ALG_ .. constants above, for example, {@link #ALG_DES_CBC_NOPAD}
+     * ALG_ .. constants above, for example, {@link Cipher#ALG_DES_CBC_NOPAD}
      * @param externalAccess indicates that the instance will be shared among
      * multiple applet instances and that the <code>Cipher</code> instance will also be accessed (via a <code>Shareable</code>
      * interface) when the owner of the <code>Cipher</code> instance is not the currently selected applet.
