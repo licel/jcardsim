@@ -500,7 +500,7 @@ public class APDUProxy {
      * <CODE>APDU</CODE> object. It is used by the <CODE>BasicService</CODE> class to help
      * services collaborate in the processing of an incoming APDU command.
      * Valid codes are listed in STATE_ .. constants above.
-     * @see #STATE_INITIAL
+     * @see APDU#STATE_INITIAL
      * @return the current processing state of the APDU
      */
     public byte getCurrentState() {

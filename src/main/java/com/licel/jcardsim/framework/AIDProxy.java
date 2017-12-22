@@ -20,7 +20,7 @@ import javacard.framework.Util;
 
 /**
  * ProxyClass for <code>AID</code>
- * @see AID
+ * @see javacard.framework.AID
  */
 public class AIDProxy {
     byte aid[];
