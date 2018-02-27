@@ -170,12 +170,40 @@ public class Simulator implements JavaCardInterface {
 
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
+
         try {
             synchronized (runtime) {
                 runtime.installApplet(aid, bArray, bOffset, bLength);
             }
         }
         catch (Exception e) {
+            e.printStackTrace(System.err);
+            System.out.println("Fail to createApplet, got exception: " + e + " msg: " + e.getMessage());
+            if(e instanceof SystemException) {
+                String msg = "unknown";
+                short reason = ((SystemException) e).getReason();
+                switch(reason) {
+                    case SystemException.ILLEGAL_VALUE:
+                        msg = "ILLEGAL_VALUE";
+                        break;
+                    case SystemException.NO_TRANSIENT_SPACE:
+                        msg = "NO_TRANSIENT_SPACE";
+                        break;
+                    case SystemException.ILLEGAL_TRANSIENT:
+                        msg = "ILLEGAL_TRANSIENT";
+                        break;
+                    case SystemException.ILLEGAL_AID:
+                        msg = "ILLEGAL_AID";
+                        break;
+                    case SystemException.NO_RESOURCE:
+                        msg = "NO_RESOURCE";
+                        break;
+                    case SystemException.ILLEGAL_USE:
+                        msg = "ILLEGAL_USE";
+                        break;
+                }
+                System.out.println("CardRuntimeException reason code: " + reason + " msg: " + msg );
+            }
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CREATION_FAILED);
         }
         return aid;
