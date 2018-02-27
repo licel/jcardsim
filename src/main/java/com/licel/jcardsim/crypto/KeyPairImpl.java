@@ -24,6 +24,7 @@ import javacard.security.PublicKey;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
 import org.bouncycastle.crypto.KeyGenerationParameters;
+import org.bouncycastle.crypto.generators.DHKeyPairGenerator;
 import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
 import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
@@ -209,6 +210,10 @@ public final class KeyPairImpl {
             case KeyBuilder.TYPE_DSA_PRIVATE:
                 algorithm = KeyPair.ALG_DSA;
                 break;
+            case KeyBuilder.TYPE_DH_PUBLIC:
+            case KeyBuilder.TYPE_DH_PRIVATE:
+                algorithm = KeyPair.ALG_DH;
+                break;    
         }
     }
 
@@ -247,7 +252,14 @@ public final class KeyPairImpl {
                 }
                 engine = new ECKeyPairGenerator();
                 break;
-
+            //dh
+            case KeyPair.ALG_DH:
+                if (keyGenerationParameters == null) {
+                    keyGenerationParameters = DHKeyImpl.getDefaultKeyGenerationParameters(keyLength, rnd);
+                }
+                engine = new DHKeyPairGenerator();
+                break;
+                
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
@@ -282,6 +294,10 @@ public final class KeyPairImpl {
             case KeyPair.ALG_DSA:
                 publicKeyType = KeyBuilder.TYPE_DSA_PUBLIC;
                 privateKeyType = KeyBuilder.TYPE_DSA_PRIVATE;
+                break;
+            case KeyPair.ALG_DH:
+                publicKeyType = KeyBuilder.TYPE_DH_PUBLIC;
+                privateKeyType = KeyBuilder.TYPE_DH_PRIVATE;
                 break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
