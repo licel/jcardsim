@@ -28,11 +28,12 @@ import org.bouncycastle.crypto.prng.RandomGenerator;
  * @see RandomData
  */
 public class RandomDataImpl extends RandomData {
-
+    byte algorithm;
     RandomGenerator engine;
 
-    public RandomDataImpl() {
-        engine = new DigestRandomGenerator(new SHA1Digest());
+    public RandomDataImpl(byte algorithm) {
+        this.algorithm = algorithm;
+        this.engine = new DigestRandomGenerator(new SHA1Digest());
     }
 
     public void generateData(byte[] buffer, short offset, short length) throws CryptoException {
@@ -44,10 +45,13 @@ public class RandomDataImpl extends RandomData {
         Util.arrayCopyNonAtomic(buffer, offset, seed, (short) 0, length);
         engine.addSeedMaterial(seed);
     }
+
     public byte getAlgorithm() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return algorithm;
     }
-    public short nextBytes(byte[] bytes, short s, short s1) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet.");
+
+    public short nextBytes(byte[] buffer, short offset, short length) throws CryptoException {
+        engine.nextBytes(buffer, offset, length);
+        return (short) (offset + length);
     }
 }
