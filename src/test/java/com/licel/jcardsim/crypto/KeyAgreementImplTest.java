@@ -49,8 +49,10 @@ public class KeyAgreementImplTest extends TestCase {
         System.out.println("test ecdh");
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DH);
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DH_PLAIN);
+        testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DH_PLAIN_XY);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DH);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DH_PLAIN);
+        testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DH_PLAIN_XY);
         System.out.println("test ecdhc");
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DHC);
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DHC_PLAIN);
@@ -75,13 +77,13 @@ public class KeyAgreementImplTest extends TestCase {
         ECPublicKey publicKey2 = (ECPublicKey) kp.getPublic();
         // generate first secret
         KeyAgreement ka = KeyAgreement.getInstance(keyAgreementAlg, false);
-        byte[] secret1 = new byte[20];
+        byte[] secret1 = new byte[65];
         byte[] public2 = new byte[128];
         short publicKeyLength = publicKey2.getW(public2, (short) 0);
         ka.init(privateKey1);
         short secret1Size = ka.generateSecret(public2, (short) 0, publicKeyLength, secret1, (short) 0);
         // generate second secret
-        byte[] secret2 = new byte[20];
+        byte[] secret2 = new byte[65];
         byte[] public1 = new byte[128];
         publicKeyLength = publicKey1.getW(public1, (short) 0);
         ka.init(privateKey2);
@@ -100,6 +102,11 @@ public class KeyAgreementImplTest extends TestCase {
                 // round up bit size of key to whole bytes
                 assertEquals(secret1Size, (int) Math.ceil(keySize / 8.0));
                 assertEquals(secret2Size, (int) Math.ceil(keySize / 8.0));
+                break;
+            case KeyAgreement.ALG_EC_SVDP_DH_PLAIN_XY:
+                int fieldSize = (int) Math.ceil(keySize / 8.0);
+                assertEquals(secret1Size, 1 + fieldSize + fieldSize);
+                assertEquals(secret2Size, 1 + fieldSize + fieldSize);
                 break;
             default:
                 assertTrue(false); // unsupported algorithm
