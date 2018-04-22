@@ -171,7 +171,7 @@
                             <artifactId>api_classic</artifactId>
                             <version>${jcApiVersion}</version>
                             <packaging>jar</packaging>
-                            <file>${jcdkLocation}/lib/api_classic.jar</file>
+                            <file>${env.JC_CLASSIC_HOME}/lib/api_classic.jar</file>
                         </configuration>
                     </execution>
                 </executions>
