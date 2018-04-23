@@ -1,38 +1,28 @@
-jCardSim is an open source project and it would be pleasure for us to see you as commiters and contributors!
+## Building & Development
 
 ### Source code
 The official jCardSim source repository is located at [https://github.com/licel/jcardsim](https://github.com/licel/jcardsim).
 
 
 ### Building
-1. jCardSim does not contain any Oracle's Java Card API source code, because of that it is needed to download JCDK from Oracle’s site and unpack it.
-2. Set `jcdkLocation` property in `~/.m2/settings.xml` (profiles - profile). The settings.xml file is located in ${user.home}/.m2 (https://maven.apache.org/settings.html) and contains all the local Maven settings. For example:
+**NOTE:** jCardSim must be built on Windows, because the JCDK is no longer packaged for other platforms. However, the JAR files produced by the build are still cross-platform.
 
-~~~xml
-<?xml version="1.0" encoding="UTF-8"?>
-<settings>
-  <profiles>
-    <profile>
-        <id>jc304</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-        <properties>
-          <jcdkLocation>/Users/developer/jcdk304</jcdkLocation>
-        </properties>
-    </profile>
-  </profiles>
-</settings>
-~~~
+1. Install the [Java Development Kit (JDK) 8](http://www.oracle.com/technetwork/java/javase/downloads/) from Oracle.
 
-3. We use [Maven](http://http://maven.apache.org/) for building. After downloading the source code, you have to enter the directory with jCardSim and execute the following commands:
+2. Install the [Java Card Classic Development Kit](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/) from Oracle, which provides the Java Card API classes. The installer should automatically set the `JC_CLASSIC_HOME` environment variable system-wide.
 
-~~~
+3. Install [Apache Maven](https://maven.apache.org/download.html), which is used to build jCardSim. Follow the [installation tips](https://maven.apache.org/install.html) to set the `PATH` and `JAVA_HOME` environment variables.
+
+4. From the directory containing the jCardSim source code, execute the following commands:
+    ~~~
     mvn initialize
     mvn clean install
-~~~
+    ~~~
 
-### Development standards
+
+### Development
+jCardSim is an open source project, and it would be a pleasure for us to see you as committers and contributors!
+
 We are using the following principles in jCardSim's development process:
 
 - [Test-Driven Development](http://en.wikipedia.org/wiki/Test-driven_development)
