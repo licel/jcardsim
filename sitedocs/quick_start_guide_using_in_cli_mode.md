@@ -1,13 +1,11 @@
-### Downloading jCardSim
-Follow the link to download jCardSim jar archive:  
-[https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar](https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar)
+## Quick Start Guide: CLI
 
-### Starting jCardSim in a CLI mode
-To simplify the development and debugging process, jCardSim works directly with class files. You do not need to convert your Java Card applet to CAP in order to use it in the simulator.
+jCardSim includes two classes which run an instance of the simulator directly from the command line:
 
-The simulator has a CLI and an API, so you can choose what you want to use. See more about using API and unit testing in the second part of
-the [Quick Start Guide](http://jcardsim.org/docs/quick-start-guide-simulator-api).
-For sending APDUs via APDU scripts you should use the class `com.licel.jcardsim.utils.APDUScriptTool`.
+ - `APDUScriptTool` reads command APDUs from a file and writes the response APDUs
+ - `BixVReaderCard` connects to a PC/SC virtual reader
+
+### Using `APDUScriptTool`
 
 **Start parameters:**
 
@@ -20,7 +18,9 @@ For sending APDUs via APDU scripts you should use the class `com.licel.jcardsim.
 	com.licel.jcardsim.card.applet.{index}.Class=<Applet ClassName>
 
 where *{index}* is a number from 0 to 10.
->**NOTE:** Applet classes and it's dependencies must be in class path when simulator starts.
+
+To simplify the development and debugging process, jCardSim works directly with class files. You do not need to convert your Java Card applet to CAP in order to use it in the simulator.
+**NOTE:** Applet classes and their dependencies must be in the class path when the simulator starts.
 
 An example settings file:
 
@@ -29,7 +29,7 @@ An example settings file:
 
 `<apdu script>` - file with APDU commands in C-APDU format. This file is compatible with the script format of *apdutool* from the Java Card Development Kit.
 
-C-APDUs ends with `(;)` and comments begin with `//`
+C-APDUs ends with `;` and comments begin with `//`.
 
 APDU commands can be represented by DEC or HEX characters. HEX characters start with `0x`.
 One APDU command (C-APDU) can span multiple lines.
@@ -80,4 +80,6 @@ Now we save the C-APDU script into the file `helloworld.apdu` and start the simu
 
 The output matches the format used by *apdutool*.
 
-> The second part: [Quick Start Guide: Simulator API](http://jcardsim.org/docs/quick-start-guide-simulator-api).
+### Using `BixVReaderCard`
+
+See the blog post: [Work with jCardSim through PC/SC virtual reader](https://jcardsim.org/blogs/work-jcardsim-through-pcsc-virtual-reader)
