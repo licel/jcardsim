@@ -19,6 +19,9 @@ import javacard.security.CryptoException;
 import javacard.security.RandomData;
 import static javacard.security.RandomData.ALG_PSEUDO_RANDOM;
 import static javacard.security.RandomData.ALG_SECURE_RANDOM;
+import static javacard.security.RandomData.ALG_TRNG;
+import static javacard.security.RandomData.ALG_FAST;
+import static javacard.security.RandomData.ALG_KEYGENERATION;
 
 /**
  * ProxyClass for <code>RandomData</code>
@@ -38,8 +41,11 @@ public class RandomDataProxy {
         RandomData instance = null;
         switch (algorithm) {
             case ALG_PSEUDO_RANDOM: 
-            case ALG_SECURE_RANDOM: 
-                instance = new RandomDataImpl();
+            case ALG_SECURE_RANDOM:
+            case ALG_TRNG:
+            case ALG_FAST:
+            case ALG_KEYGENERATION:
+                instance = new RandomDataImpl(algorithm);
                 break;
             default:
                 CryptoException.throwIt((short) 3);

@@ -45,6 +45,30 @@ public class RandomDataImplTest extends TestCase {
         instance.generateData(buffer, (short) 0, (short) buffer.length);
         instance = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
         instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_TRNG);
+        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_FAST);
+        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_KEYGENERATION);
+        instance.generateData(buffer, (short) 0, (short) buffer.length);
+    }
+
+    /**
+     * Test of generateData method, of class RandomDataImpl.
+     */
+    public void testNextBytes() {
+        System.out.println("nextBytes");
+        byte[] buffer = new byte[8];
+        RandomData instance = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
+        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
+        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_TRNG);
+        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_FAST);
+        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_KEYGENERATION);
+        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
     }
 
     /**
@@ -57,6 +81,15 @@ public class RandomDataImplTest extends TestCase {
         instance.setSeed(buffer, (short) 0, (short) buffer.length);
         instance.generateData(buffer, (short) 0, (short) buffer.length);
         instance = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
+        instance.setSeed(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_TRNG);
+        instance.setSeed(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_FAST);
+        instance.setSeed(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance = RandomData.getInstance(RandomData.ALG_KEYGENERATION);
         instance.setSeed(buffer, (short) 0, (short) buffer.length);
         instance.generateData(buffer, (short) 0, (short) buffer.length);
     }
