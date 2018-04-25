@@ -583,28 +583,9 @@ public class SimulatorRuntime {
     }
 
     public void installApplet(final AID appletAid, byte[] bArray, short bOffset, byte bLength) {
-        System.err.println("installApplet");
-        System.err.println("input appletAid: " + AIDUtil.toString(appletAid));
-        System.err.println("input appletAid must be a key in generatedLoadFileAIDs");
-        
-        System.err.println("Content of 'SortedMap<AID, AID> generatedLoadFileAIDs'");
-        for (Map.Entry<AID, AID> entry : generatedLoadFileAIDs.entrySet()) {
-            System.err.println("Key: " + AIDUtil.toString(entry.getKey()) + ". Value: " + AIDUtil.toString(entry.getValue()));
-        }
-
         AID generatedAID = generatedLoadFileAIDs.get(appletAid);
         
-        System.err.println();
-        System.err.println("Content of 'SortedMap<AID, AID> loadFiles'");
-        for (Map.Entry<AID, LoadFile> entry : loadFiles.entrySet()) {
-            System.err.println("Key: " + AIDUtil.toString(entry.getKey()) + ". Value: " + entry.getValue());
-        }
-        System.err.println();
-        
         if (generatedAID == null || !loadFiles.keySet().contains(generatedAID)) {
-            System.err.println("Fail to install applet. 'generatedAID' is null or 'loadFiles.keySet().contains(generatedAID)' is false");
-            System.err.println("'loadFiles.keySet().contains(generatedAID)' : " + (loadFiles.keySet().contains(generatedAID) ? "false" : "true"));
-            System.err.println("'AID generatedAID = generatedLoadFileAIDs.get(appletAid)' : " + ((generatedAID == null) ? "null" : AIDUtil.toString(generatedAID)));
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
         installApplet(generatedAID, generatedAID, appletAid, bArray, bOffset, bLength);
@@ -636,7 +617,6 @@ public class SimulatorRuntime {
             public void accept(Applet applet, AID installAID) {
                 // disallow second call to register
                 if (callCount.incrementAndGet() != 1) {
-                    System.err.println("callCount.incrementAndGet() != 1'");
                     throw new SystemException(SystemException.ILLEGAL_AID);
                 }
 
@@ -651,19 +631,12 @@ public class SimulatorRuntime {
         });
 
         try {
-            System.err.println("***********Call Applet install method with parameters:*********");
-            System.err.println("bArray: " + ((bArray == null) ? "NULL" : ByteUtil.hexString(bArray)));
-            System.err.println("bOffset: " + bOffset);
-            System.err.println("bLength: " + (bLength & 0xff) );
             initMethod.invoke(null, bArray, bOffset, bLength);
         }
         catch (SystemException e) {
             throw e;
         }
         catch (Exception e) {
-            System.err.println("initMethod.invoke fail");
-            e.printStackTrace();
-            e.getCause().printStackTrace();
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
         finally {
@@ -671,7 +644,6 @@ public class SimulatorRuntime {
         }
 
         if (callCount.get() != 1) {
-            System.err.println("callCount.get() != 1");
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
     }
