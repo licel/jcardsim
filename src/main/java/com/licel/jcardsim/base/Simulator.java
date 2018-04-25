@@ -170,6 +170,7 @@ public class Simulator implements JavaCardInterface {
 
     public AID createApplet(AID aid, byte bArray[], short bOffset,
             byte bLength) throws SystemException {
+
         try {
             synchronized (runtime) {
                 runtime.installApplet(aid, bArray, bOffset, bLength);

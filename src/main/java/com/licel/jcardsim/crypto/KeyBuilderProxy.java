@@ -111,6 +111,19 @@ public class KeyBuilderProxy {
                 key = new SymmetricKeyImpl(keyType, keyLength);
                 break;
                 
+            // dh
+            case KeyBuilder.TYPE_DH_PUBLIC_TRANSIENT_RESET:
+            case KeyBuilder.TYPE_DH_PUBLIC_TRANSIENT_DESELECT:
+            case KeyBuilder.TYPE_DH_PUBLIC:
+                key = new DHPublicKeyImpl(keyLength);
+                break;
+                
+            case KeyBuilder.TYPE_DH_PRIVATE_TRANSIENT_RESET:
+            case KeyBuilder.TYPE_DH_PRIVATE_TRANSIENT_DESELECT:
+            case KeyBuilder.TYPE_DH_PRIVATE:
+                key = new DHPrivateKeyImpl(keyLength);
+                break;
+                
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;

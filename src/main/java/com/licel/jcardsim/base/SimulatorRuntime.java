@@ -17,6 +17,7 @@ package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.BiConsumer;
+import com.licel.jcardsim.utils.ByteUtil;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
@@ -583,6 +584,7 @@ public class SimulatorRuntime {
 
     public void installApplet(final AID appletAid, byte[] bArray, short bOffset, byte bLength) {
         AID generatedAID = generatedLoadFileAIDs.get(appletAid);
+        
         if (generatedAID == null || !loadFiles.keySet().contains(generatedAID)) {
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
