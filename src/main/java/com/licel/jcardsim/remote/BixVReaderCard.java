@@ -141,6 +141,7 @@ public class BixVReaderCard {
                     switch (cmd) {
                         case 0:
                         case 1:
+                            sim.reset();
                             driverProtocol.writeData(sim.getATR());
                             break;
                         case 2:
