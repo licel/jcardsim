@@ -20,11 +20,15 @@ import javacard.security.CryptoException;
 import javacard.security.KeyAgreement;
 import javacard.security.PrivateKey;
 import org.bouncycastle.crypto.BasicAgreement;
+import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
 import org.bouncycastle.crypto.agreement.ECDHCBasicAgreement;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.math.ec.ECPoint;
+
+import java.math.BigInteger;
 
 /**
  * Implementation <code>KeyAgreement</code> based
@@ -51,6 +55,9 @@ public class KeyAgreementImpl extends KeyAgreement {
             case ALG_EC_SVDP_DHC: // no break
             case ALG_EC_SVDP_DHC_PLAIN:
                 engine = new ECDHCBasicAgreement();
+                break;
+            case ALG_EC_SVDP_DH_PLAIN_XY:
+                engine = new ECDHFullAgreement();
                 break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
@@ -85,15 +92,21 @@ public class KeyAgreementImpl extends KeyAgreement {
                 ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters().getCurve().decodePoint(publicKey), ((ECPrivateKeyParameters) privateKey.getParameters()).getParameters());
         byte[] num = engine.calculateAgreement(ecp).toByteArray();
 
-        // truncate/zero-pad to field size as per the spec:
-        int fieldSize = privateKey.getDomainParameters().getCurve().getFieldSize();
-        byte[] result = new byte[(fieldSize + 7) / 8];
-        int numBytes = Math.min(num.length, result.length);
-        Util.arrayCopyNonAtomic(
-                num,    (short)(   num.length - numBytes),
-                result, (short)(result.length - numBytes),
-                (short)numBytes);
-        Util.arrayFillNonAtomic(result, (short)0, (short)(result.length - numBytes), (byte)0);
+        byte[] result;
+        if (algorithm != ALG_EC_SVDP_DH_PLAIN_XY) {
+            // truncate/zero-pad to field size as per the spec:
+            int fieldSize = privateKey.getDomainParameters().getCurve().getFieldSize();
+            result = new byte[(fieldSize + 7) / 8];
+            int numBytes = Math.min(num.length, result.length);
+            Util.arrayCopyNonAtomic(
+                    num,    (short)(   num.length - numBytes),
+                    result, (short)(result.length - numBytes),
+                    (short)numBytes);
+            Util.arrayFillNonAtomic(result, (short)0, (short)(result.length - numBytes), (byte)0);
+        } else {
+            // keep the whole result:
+            result = num;
+        }
 
         // post-process output key based on agreement type
         switch (this.algorithm) {
@@ -106,7 +119,8 @@ public class KeyAgreementImpl extends KeyAgreement {
                 Util.arrayCopyNonAtomic(hashResult, (short) 0, secret, secretOffset, (short) hashResult.length);
                 return (short) hashResult.length;
             case ALG_EC_SVDP_DHC_PLAIN: // no break
-            case ALG_EC_SVDP_DH_PLAIN:
+            case ALG_EC_SVDP_DH_PLAIN: // no break
+            case ALG_EC_SVDP_DH_PLAIN_XY:
                 // plain output
                 Util.arrayCopyNonAtomic(result, (short) 0, secret, secretOffset, (short) result.length);
                 return (short) result.length;
@@ -115,5 +129,28 @@ public class KeyAgreementImpl extends KeyAgreement {
                 break;
         }
         return (short) -1;
+    }
+
+    /**
+     * BouncyCastle doesn't offer ECDH Agreement that provides both coordinates.
+     * This is needed for <code>ALG_EC_SVDP_DH_PLAIN_XY</code>.
+     * So do it here instead and squeeze the resulting point through byte encodingä
+     * in a BigInteger.
+     */
+    static class ECDHFullAgreement implements BasicAgreement {
+        private ECPrivateKeyParameters key;
+
+        public ECDHFullAgreement() {
+        }
+
+        public void init(CipherParameters privateKey) {
+            this.key = (ECPrivateKeyParameters)privateKey;
+        }
+
+        public BigInteger calculateAgreement(CipherParameters publicKey) {
+            ECPublicKeyParameters pub = (ECPublicKeyParameters)publicKey;
+            ECPoint result = pub.getQ().multiply(this.key.getD());
+            return new BigInteger(1, result.getEncoded());
+        }
     }
 }
