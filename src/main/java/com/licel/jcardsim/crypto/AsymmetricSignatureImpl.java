@@ -36,6 +36,7 @@ import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.signers.DSADigestSigner;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.ISO9796d2Signer;
+import org.bouncycastle.crypto.signers.PSSSigner;
 import org.bouncycastle.crypto.signers.RSADigestSigner;
 
 /*
@@ -77,6 +78,21 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 break;
             case ALG_RSA_SHA_512_PKCS1:
                 engine = new RSADigestSigner(new SHA512Digest());
+                break;
+            case ALG_RSA_SHA_PKCS1_PSS:
+                engine = new PSSSigner(new RSAEngine(), new SHA1Digest(), 16);
+                break;
+            case ALG_RSA_SHA_224_PKCS1_PSS:
+                engine = new PSSSigner(new RSAEngine(), new SHA224Digest(), 28);
+                break;
+            case ALG_RSA_SHA_256_PKCS1_PSS:
+                engine = new PSSSigner(new RSAEngine(), new SHA256Digest(), 32);
+                break;
+            case ALG_RSA_SHA_384_PKCS1_PSS:
+                engine = new PSSSigner(new RSAEngine(), new SHA384Digest(), 48);
+                break;
+            case ALG_RSA_SHA_512_PKCS1_PSS:
+                engine = new PSSSigner(new RSAEngine(), new SHA512Digest(), 64);
                 break;
             case ALG_RSA_MD5_PKCS1:
                 engine = new RSADigestSigner(new MD5Digest());
@@ -138,6 +154,11 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_RSA_SHA_256_PKCS1:
             case ALG_RSA_SHA_384_PKCS1:
             case ALG_RSA_SHA_512_PKCS1:
+            case ALG_RSA_SHA_PKCS1_PSS:
+            case ALG_RSA_SHA_224_PKCS1_PSS:
+            case ALG_RSA_SHA_256_PKCS1_PSS:
+            case ALG_RSA_SHA_384_PKCS1_PSS:
+            case ALG_RSA_SHA_512_PKCS1_PSS:
             case ALG_RSA_MD5_PKCS1:
             case ALG_RSA_RIPEMD160_ISO9796:
             case ALG_RSA_RIPEMD160_PKCS1:

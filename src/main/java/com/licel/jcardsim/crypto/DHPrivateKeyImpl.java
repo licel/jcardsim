@@ -71,12 +71,4 @@ public final class DHPrivateKeyImpl extends DHKeyImpl implements DHPrivateKey {
         }
         return new DHPrivateKeyParameters(x.getBigInteger(), (DHParameters) super.getParameters());
     }
-    
-    public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
-//        if (x.isInitialized()) {
-//            return new DHKeyGenerationParameters(exponent.getBigInteger(),
-//                    rnd, size, 80);
-//        }
-        return getDefaultKeyGenerationParameters(size, rnd);
-    }
 }

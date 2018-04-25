@@ -49,6 +49,11 @@ public class SignatureProxy {
             case Signature.ALG_RSA_SHA_256_PKCS1:
             case Signature.ALG_RSA_SHA_384_PKCS1:
             case Signature.ALG_RSA_SHA_512_PKCS1:
+            case Signature.ALG_RSA_SHA_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_224_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_256_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_384_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_512_PKCS1_PSS:
             case Signature.ALG_RSA_MD5_PKCS1:
             case Signature.ALG_RSA_RIPEMD160_ISO9796:
             case Signature.ALG_RSA_RIPEMD160_PKCS1:
@@ -58,7 +63,15 @@ public class SignatureProxy {
             case Signature.ALG_ECDSA_SHA_384:
             case Signature.ALG_ECDSA_SHA_512:
             case Signature.ALG_RSA_SHA_ISO9796_MR:
-                instance = new AsymmetricSignatureImpl(algorithm);
+                System.out.println("getInstance of assymetric algo: " + algorithm);
+                try {
+                    instance = new AsymmetricSignatureImpl(algorithm);
+                    System.out.println("getInstance of assymetric algo: " + algorithm + " is OK!");
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    e.getCause().printStackTrace();
+                    CryptoException.throwIt(CryptoException.INVALID_INIT);
+                }
                 break;
             case Signature.ALG_DES_MAC4_NOPAD:
             case Signature.ALG_DES_MAC8_NOPAD:

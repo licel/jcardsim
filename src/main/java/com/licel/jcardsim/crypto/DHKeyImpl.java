@@ -97,6 +97,15 @@ public abstract class DHKeyImpl extends KeyImpl implements DHKey {
         return (p.isInitialized() && q.isInitialized() && g.isInitialized());
     }
     
+    public KeyGenerationParameters getKeyGenerationParameters(SecureRandom rnd) {
+        if (p.isInitialized() && g.isInitialized()) {
+            if(q.isInitialized())
+                return new DHKeyGenerationParameters(rnd, new DHParameters(p.getBigInteger(), g.getBigInteger(), q.getBigInteger()));
+            else
+                return new DHKeyGenerationParameters(rnd, new DHParameters(p.getBigInteger(), g.getBigInteger()));
+        }
+        return getDefaultKeyGenerationParameters(size, rnd);
+    }
         
     static KeyGenerationParameters getDefaultKeyGenerationParameters(short keySize, SecureRandom rnd) {
         switch(keySize) {
@@ -110,7 +119,7 @@ public abstract class DHKeyImpl extends KeyImpl implements DHKey {
 
         return null;
     }
-    
+        
     private static DHParameters fromPG(String hexP, String hexG) {
         BigInteger p = new BigInteger(1, Hex.decode(hexP));
         BigInteger g = new BigInteger(1, Hex.decode(hexG));
