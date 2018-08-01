@@ -95,7 +95,7 @@ public class Simulator implements JavaCardInterface {
 
         atr = Hex.decode(properties.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
         // init pre-installed applets
-        for (int i = 0; i < 10 && !properties.isEmpty(); i++) {
+        for (int i = 0; i < 100 && !properties.isEmpty(); i++) {
             String selectedPrefix = PROPERTY_PREFIX;
             String aidPropertyName = PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
             String aidPropertyOldName = OLD_PROPERTY_PREFIX + AID_SP_TEMPLATE.format(new Object[]{i});
