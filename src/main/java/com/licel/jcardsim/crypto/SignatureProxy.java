@@ -39,9 +39,10 @@ public class SignatureProxy {
     public static final Signature getInstance(byte algorithm, boolean externalAccess)
             throws CryptoException {
         Signature instance = null;
-        if (externalAccess) {
-            CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
-        }
+        //TODO: implement externalAccess logic
+//        if (externalAccess) {
+//            CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+//        }
         switch (algorithm) {
             case Signature.ALG_RSA_SHA_ISO9796:
             case Signature.ALG_RSA_SHA_PKCS1:
