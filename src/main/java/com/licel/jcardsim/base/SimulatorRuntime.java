@@ -633,7 +633,7 @@ public class SimulatorRuntime {
         try {
             initMethod.invoke(null, bArray, bOffset, bLength);
         }
-        catch (SystemException e) {
+        catch (ISOException e) {
             throw e;
         }
         catch (Exception e) {
