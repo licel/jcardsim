@@ -23,6 +23,7 @@ import javacardx.apdu.ExtendedLength;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -633,8 +634,13 @@ public class SimulatorRuntime {
         try {
             initMethod.invoke(null, bArray, bOffset, bLength);
         }
-        catch (ISOException e) {
-            throw e;
+        catch (InvocationTargetException e) {
+            try {
+                ISOException isoException = (ISOException) e.getCause();
+                throw isoException;
+            } catch (ClassCastException cce){
+                throw new SystemException(SystemException.ILLEGAL_AID);
+            }
         }
         catch (Exception e) {
             throw new SystemException(SystemException.ILLEGAL_AID);
