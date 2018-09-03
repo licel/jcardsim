@@ -41,7 +41,7 @@ public final class DHPrivateKeyImpl extends DHKeyImpl implements DHPrivateKey {
     
     @Override
     public void setParameters(CipherParameters params) {
-        super.setParameters(params);
+        super.setParameters(((DHPrivateKeyParameters) params).getParameters());
         x.setBigInteger(((DHPrivateKeyParameters) params).getX());
     }
     

@@ -17,6 +17,8 @@ package com.licel.jcardsim.crypto;
 
 import java.util.Arrays;
 import javacard.framework.Util;
+import javacard.security.DHPrivateKey;
+import javacard.security.DHPublicKey;
 import javacard.security.DSAPrivateKey;
 import javacard.security.DSAPublicKey;
 import javacard.security.ECPrivateKey;
@@ -48,7 +50,10 @@ public class KeyPairImplTest extends TestCase {
     static final short[] DSA_SIZES = new short[]{KeyBuilder.LENGTH_DSA_512,
         KeyBuilder.LENGTH_DSA_768, KeyBuilder.LENGTH_DSA_1024
     };
-
+    static final short[] DH_SIZES = new short[]{KeyBuilder.LENGTH_DH_1024, DHKeyImpl.LENGTH_DH_1536,
+        KeyBuilder.LENGTH_DH_2048
+    };
+    
     public KeyPairImplTest(String testName) {
         super(testName);
     }
@@ -231,6 +236,23 @@ public class KeyPairImplTest extends TestCase {
             assertEquals(true, publicKey instanceof DSAPublicKey);
             PrivateKey privateKey = instance.getPrivate();
             assertEquals(true, privateKey instanceof DSAPrivateKey);
+        }
+    }
+    
+    /**
+     * Test of genKeyPair method, of class KeyPairImpl.
+     * algorithm DH
+     */
+    public void testGenKeyPairDH() {
+        System.out.println("genKeyPair DH");
+        KeyPairImpl instance = null;
+        for (int i = 0; i < DH_SIZES.length; i++) {
+            instance = new KeyPairImpl(KeyPair.ALG_DH, DH_SIZES[i]);
+            instance.genKeyPair();
+            PublicKey publicKey = instance.getPublic();
+            assertEquals(true, publicKey instanceof DHPublicKey);
+            PrivateKey privateKey = instance.getPrivate();
+            assertEquals(true, privateKey instanceof DHPrivateKey);
         }
     }
 }

@@ -41,7 +41,7 @@ public final class DHPublicKeyImpl extends DHKeyImpl implements DHPublicKey {
     
     @Override
     public void setParameters(CipherParameters params) {
-        super.setParameters(params);
+        super.setParameters(((DHPublicKeyParameters) params).getParameters());
         y.setBigInteger(((DHPublicKeyParameters) params).getY());
     }
     
