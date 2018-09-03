@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.crypto;
 
+import javacard.security.DHPublicKey;
 import javacard.security.ECPublicKey;
 import javacard.security.KeyAgreement;
 import javacard.security.KeyBuilder;
@@ -59,7 +60,50 @@ public class KeyAgreementImplTest extends TestCase {
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DHC);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DHC_PLAIN);
     }
+    
+     /**
+     * SelfTest of generateSecret method with DH algorithm, 
+     * of class KeyAgreementImpl.
+     */
+    public void testGenerateSecretDH() {
+        System.out.println("test dh");
+        generateSecretDH(KeyPair.ALG_DH, KeyBuilder.LENGTH_DH_1024, KeyAgreement.ALG_DH_PLAIN);
+        generateSecretDH(KeyPair.ALG_DH, KeyBuilder.LENGTH_DH_2048, KeyAgreement.ALG_DH_PLAIN);
+    }
 
+        /**
+     * DH method generateSecret
+     * @param keyAlg - key generation algorithm
+     * @param keySize - key size
+     * @param keyAgreementAlg - key agreement algorithm
+     */
+    public void generateSecretDH(byte keyAlg, short keySize, byte keyAgreementAlg) {
+        // generate keys
+        KeyPair kp = new KeyPair(keyAlg, keySize);
+        kp.genKeyPair();
+        PrivateKey privateKey1 = kp.getPrivate();
+        DHPublicKey publicKey1 = (DHPublicKey) kp.getPublic();
+        kp.genKeyPair();
+        PrivateKey privateKey2 = kp.getPrivate();
+        DHPublicKey publicKey2 = (DHPublicKey) kp.getPublic();
+        // generate first secret
+        KeyAgreement ka = KeyAgreement.getInstance(keyAgreementAlg, false);
+        byte[] secret1 = new byte[256];
+        byte[] public2 = new byte[256];
+        short publicKeyLength = publicKey2.getY(public2, (short) 0);
+        ka.init(privateKey1);
+        short secret1Size = ka.generateSecret(public2, (short) 0, publicKeyLength, secret1, (short) 0);
+        // generate second secret
+        byte[] secret2 = new byte[256];
+        byte[] public1 = new byte[256];
+        publicKeyLength = publicKey1.getY(public1, (short) 0);
+        ka.init(privateKey2);
+        short secret2Size = ka.generateSecret(public1, (short) 0, publicKeyLength, secret2, (short) 0);
+        
+        // check match of values
+        assertEquals(true, Arrays.areEqual(secret1, secret2));
+    }
+    
     /**
      * Base method generateSecret
      * @param keyAlg - key generation algorithm
