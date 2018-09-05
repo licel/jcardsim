@@ -17,6 +17,7 @@ package com.licel.jcardsim.crypto;
 
 import javacard.security.KeyBuilder;
 import javacard.security.KeyPair;
+import javacard.security.MessageDigest;
 import javacard.security.PrivateKey;
 import javacard.security.PublicKey;
 import javacard.security.RSAPublicKey;
@@ -129,7 +130,20 @@ public class AsymmetricSignatureImplTest extends TestCase {
         testSelfSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_512_PKCS1);
     }
 
+    public void testSelfPrecompSignVerifyRSASHA1() {
+        System.out.println("self test precomputed sign/verify rsa SHA1");
+        testSelfPrecompSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_PKCS1, MessageDigest.ALG_SHA);
+    }
+    
+    public void testSelfPrecompSignVerifyRSASHA256() {
+        System.out.println("self test precomputed sign/verify rsa SHA-256");
+        testSelfPrecompSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_256_PKCS1, MessageDigest.ALG_SHA_256);
+    }
    
+    public void testSelfPrecompSignVerifyRSASHA256_PSS() {
+        System.out.println("self test precomputed sign/verify rsa SHA-256 PSS");
+        testSelfPrecompSignVerify(KeyPair.ALG_RSA_CRT, RSA_ETALON_KEY_SIZE, Signature.ALG_RSA_SHA_256_PKCS1_PSS, MessageDigest.ALG_SHA_256);
+    }
     /**
      * SelfTest of ECDSA sign/verify method, of class AsymmetricSignatureImpl.
      */
@@ -201,6 +215,47 @@ public class AsymmetricSignatureImplTest extends TestCase {
         testEngineVerify(verifyEngine, publicKey, msg, signature, (short) 10, signLen);
     }
 
+    /**
+     * Base SelfTest precomputed sign/verify method
+     *
+     * @param keyAlg - key generation algorithm
+     * @param keySize - key size
+     * @param signAlg - signature algorithm
+     * @param digestAlgo - message digest algorithm for signAlg
+     */
+    public void testSelfPrecompSignVerify(byte keyAlg, short keySize, byte signAlg, byte digestAlgo) {
+        // generate keys
+        KeyPair kp = new KeyPair(keyAlg, keySize);
+        kp.genKeyPair();
+        PrivateKey privateKey = kp.getPrivate();
+        PublicKey publicKey = kp.getPublic();
+        // init engine
+        Signature signEngine = Signature.getInstance(signAlg, false);
+        signEngine.init(privateKey, Signature.MODE_SIGN);
+        Signature signPrecompEngine = Signature.getInstance(signAlg, false);
+        signPrecompEngine.init(privateKey, Signature.MODE_SIGN);
+        // sign length + extra space
+        byte[] signature = new byte[128 + 10];
+        byte[] msg = new byte[65];        
+        RandomData rnd = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
+        rnd.generateData(msg, (short) 0, (short) msg.length);
+        //precompute digest for msg
+        MessageDigestImpl digestEngine = new MessageDigestImpl(digestAlgo);
+        byte[] msgDigest = new byte[digestEngine.getLength()];
+        digestEngine.doFinal(msg, (short) 0, (short) msg.length, msgDigest, (short) 0);
+        //sign orig message and verify using verifyPreComputedHash
+        short signLen = signEngine.sign(msg, (short) 0, (short) msg.length, signature, (short) 10);
+        // issue https://code.google.com/p/jcardsim/issues/detail?id=14
+        assertEquals(signLen<=signEngine.getLength(), true);
+        Signature verifyPrecompEngine = Signature.getInstance(signAlg, false);
+        testEnginePrecompVerify(verifyPrecompEngine, publicKey, msgDigest, signature, (short) 10, signLen);
+        //signPreComputedHash and verify using verify method
+        short signPrecompLen = signPrecompEngine.signPreComputedHash(msgDigest, (short) 0, (short) msgDigest.length, signature, (short) 10);
+        assertEquals(signPrecompLen<=signPrecompEngine.getLength(), true);
+        Signature verifyEngine = Signature.getInstance(signAlg, false);
+        testEngineVerify(verifyEngine, publicKey, msg, signature, (short) 10, signPrecompLen);
+    }
+    
      /**
      * Test the method
      * <code>verify</code> of
@@ -231,5 +286,22 @@ public class AsymmetricSignatureImplTest extends TestCase {
         boolean result = engine.verify(etalonMsg, (short) 0, (short) etalonMsg.length,
                 etalonSign, etalonSignOffset, (short)(etalonSignLength!=0?etalonSignLength:etalonSign.length));
         assertEquals(true, result);
-    }    
+    }
+    /**
+     * Test the method
+     * <code>verifyPreComputedHash</code> of
+     * <code>Signature</code> engine
+     *
+     * @param engine tested engine
+     * @param publicKey public key
+     * @param msgDigest precomputed hash value
+     * @param etalonSign etalon signature bytes
+     */
+    public void testEnginePrecompVerify(Signature engine, PublicKey publicKey,
+            byte[] msgDigest, byte[] etalonSign, short etalonSignOffset, short etalonSignLength) {
+        engine.init(publicKey, Signature.MODE_VERIFY);
+        boolean result = engine.verifyPreComputedHash(msgDigest, (short) 0, (short) msgDigest.length,
+                etalonSign, etalonSignOffset, (short)(etalonSignLength!=0?etalonSignLength:etalonSign.length));
+        assertEquals(true, result);
+    }
 }

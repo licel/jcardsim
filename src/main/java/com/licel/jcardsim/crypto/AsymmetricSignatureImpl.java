@@ -65,43 +65,43 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 isRecovery = true;
                 break;
             case ALG_RSA_SHA_PKCS1:
-                engine = new RSADigestSigner(new SHA1Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA1Digest()));
                 break;
             case ALG_RSA_SHA_224_PKCS1:
-                engine = new RSADigestSigner(new SHA224Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA224Digest()));
                 break;
             case ALG_RSA_SHA_256_PKCS1:
-                engine = new RSADigestSigner(new SHA256Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA256Digest()));
                 break;
             case ALG_RSA_SHA_384_PKCS1:
-                engine = new RSADigestSigner(new SHA384Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA384Digest()));
                 break;
             case ALG_RSA_SHA_512_PKCS1:
-                engine = new RSADigestSigner(new SHA512Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA512Digest()));
                 break;
             case ALG_RSA_SHA_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new SHA1Digest(), 16);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA1Digest()), 16);
                 break;
             case ALG_RSA_SHA_224_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new SHA224Digest(), 28);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA224Digest()), 28);
                 break;
             case ALG_RSA_SHA_256_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new SHA256Digest(), 32);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA256Digest()), 32);
                 break;
             case ALG_RSA_SHA_384_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new SHA384Digest(), 48);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA384Digest()), 48);
                 break;
             case ALG_RSA_SHA_512_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new SHA512Digest(), 64);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA512Digest()), 64);
                 break;
             case ALG_RSA_MD5_PKCS1:
-                engine = new RSADigestSigner(new MD5Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new MD5Digest()));
                 break;
             case ALG_RSA_RIPEMD160_ISO9796:
                 engine = new ISO9796d2Signer(new RSAEngine(), new RIPEMD160Digest());
                 break;
             case ALG_RSA_RIPEMD160_PKCS1:
-                engine = new RSADigestSigner(new RIPEMD160Digest());
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new RIPEMD160Digest()));
                 break;
             case ALG_ECDSA_SHA:
                 engine = new DSADigestSigner(new ECDSASigner(), new SHA1Digest());
@@ -299,12 +299,45 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
-    public short signPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public short signPreComputedHash(byte[] hashBuff,
+                            short hashOffset,
+                            short hashLength,
+                            byte[] sigBuff,
+                            short sigOffset) throws CryptoException {
+        try {
+            if((engine instanceof RSADigestSigner) ||  (engine instanceof PSSSigner) ) {
+                // set precomputed hava value - BouncyCastle specific
+                 Field h = engine.getClass().getDeclaredField(engine instanceof RSADigestSigner ? "digest" : "contentDigest");
+                 h.setAccessible(true);
+                 Object digestObject = h.get(engine);
+                 digestObject.getClass().getMethod("setPrecomputedValue", new Class[]{byte[].class, int.class, int.class})
+                         .invoke(digestObject, new Object[]{hashBuff,hashOffset,hashLength});
+                 return sign(null, (short) 0, (short) 0, sigBuff, sigOffset);
+            }
+        } catch(ReflectiveOperationException e) {}
+        
+        CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        return 0;
     }
-    public boolean verifyPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    
+    public boolean verifyPreComputedHash(byte[] hashBuff, short hashOffset, short hashLength, byte[] sigBuff, short sigOffset, short sigLength) throws CryptoException {
+        try {
+            if((engine instanceof RSADigestSigner) || (engine instanceof PSSSigner)) {
+                // set precomputed hava value - BouncyCastle specific
+                 Field h = engine.getClass().getDeclaredField(engine instanceof RSADigestSigner ? "digest" : "contentDigest");
+                 h.setAccessible(true);
+                 Object digestObject = h.get(engine);
+                 digestObject.getClass().getMethod("setPrecomputedValue", new Class[]{byte[].class, int.class, int.class})
+                         .invoke(digestObject, new Object[]{hashBuff,hashOffset,hashLength});
+                 return verify(null, (short) 0, (short) 0, sigBuff, sigOffset, sigLength);
+            }
+        } catch(ReflectiveOperationException e) {
+        }
+        
+        CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        return false;
     }
+    
     public byte getPaddingAlgorithm() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
