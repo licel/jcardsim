@@ -46,10 +46,10 @@ public class VSmartCard {
     static final String RELOADER_PORT_DEFAULT = "8099";
     static final String RELOADER_DELAY_PROPERTY = "com.licel.jcardsim.vsmartcard.reloader.delay";
     static final String RELOADER_DELAY_DEFAULT = "1000"; //milisec
-    
+
     Simulator sim;
     ReloadThread reloader;
-    
+
     public VSmartCard(String host, int port) throws IOException {
         VSmartCardTCPProtocol driverProtocol = new VSmartCardTCPProtocol();
         driverProtocol.connect(host, port);
@@ -75,17 +75,17 @@ public class VSmartCard {
                 fis.close();
             }
         }
-        
+
         System.setProperty(ATR_SYSTEM_PROPERTY, cfg.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
         System.setProperty(RELOADER_PORT_PROPERTY, cfg.getProperty(RELOADER_PORT_PROPERTY, RELOADER_PORT_DEFAULT));
         System.setProperty(RELOADER_DELAY_PROPERTY, cfg.getProperty(RELOADER_DELAY_PROPERTY, RELOADER_DELAY_DEFAULT));
-        
+
         final Enumeration<?> keys = cfg.propertyNames();
         while (keys.hasMoreElements()) {
             String propertyName = (String) keys.nextElement();
             System.setProperty(propertyName, cfg.getProperty(propertyName));
         }
-        
+
         String propKey = "com.licel.jcardsim.vsmartcard.host";
         String host = System.getProperty(propKey);
         if (host == null) {
@@ -113,7 +113,7 @@ public class VSmartCard {
             simRuntime = new SimulatorRuntime();
         }
         sim = new Simulator(simRuntime);
-        
+
         final IOThread ioThread = new IOThread(sim, driverProtocol);
         ShutDownHook hook = new ShutDownHook(ioThread);
         Runtime.getRuntime().addShutdownHook(hook);
@@ -138,11 +138,11 @@ public class VSmartCard {
 
     static class ReloadThread extends Thread {
         ShutDownHook hook;
-        
+
         public ReloadThread(ShutDownHook hook) {
             this.hook = hook;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -174,7 +174,7 @@ public class VSmartCard {
                             Thread.sleep(Integer.parseInt(delay));
                         }
                     } while(isPowerOffCmd);
-                    
+
                     VSmartCard.main(new String[]{ newConfig });
                 } catch(InterruptedException ignore) {
                     ignore.printStackTrace(System.err);
@@ -187,7 +187,7 @@ public class VSmartCard {
             }
         }
     }
-    
+
     static class IOThread extends Thread {
         VSmartCardTCPProtocol driverProtocol;
         Simulator sim;
@@ -197,7 +197,25 @@ public class VSmartCard {
             this.sim = sim;
             this.driverProtocol = driverProtocol;
             isRunning = true;
+    }
+
+    private void hexDump(byte[] apdu) {
+        for (int i = 0; i < apdu.length; i += 8) {
+            System.out.printf("%04X:  ", i);
+            for (int j = i; j < i + 4; ++j) {
+                if (j >= apdu.length)
+                    break;
+                System.out.printf("%02X ", apdu[j]);
+            }
+            System.out.printf(" ");
+            for (int j = i + 4; j < i + 8; ++j) {
+                if (j >= apdu.length)
+                    break;
+                System.out.printf("%02X ", apdu[j]);
+            }
+            System.out.printf("\n");
         }
+    }
 
         @Override
         public void run() {
@@ -214,7 +232,11 @@ public class VSmartCard {
                             break;
                         case VSmartCardTCPProtocol.APDU:
                             final byte[] apdu = driverProtocol.readData();
+                            System.out.println("== APDU");
+                            hexDump(apdu);
                             final byte[] reply = CardManager.dispatchApdu(sim, apdu);
+                            System.out.println("== Reply APDU");
+                            hexDump(reply);
                             driverProtocol.writeData(reply);
                             break;
                     }
