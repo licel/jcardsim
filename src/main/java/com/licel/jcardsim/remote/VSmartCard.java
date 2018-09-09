@@ -1,6 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright 2018 Joyent, Inc
  * Copyright 2020 The University of Queensland
+=======
+>>>>>>> 5389ece... Add support for vsmartcard/vpcd integration, fix up stuff for PivApplet
  * Copyright 2013 Licel LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,7 +114,25 @@ public class VSmartCard {
             this.sim = sim;
             this.driverProtocol = driverProtocol;
             isRunning = true;
+    }
+
+    private void hexDump(byte[] apdu) {
+        for (int i = 0; i < apdu.length; i += 8) {
+            System.out.printf("%04X:  ", i);
+            for (int j = i; j < i + 4; ++j) {
+                if (j >= apdu.length)
+                    break;
+                System.out.printf("%02X ", apdu[j]);
+            }
+            System.out.printf(" ");
+            for (int j = i + 4; j < i + 8; ++j) {
+                if (j >= apdu.length)
+                    break;
+                System.out.printf("%02X ", apdu[j]);
+            }
+            System.out.printf("\n");
         }
+    }
 
         @Override
         public void run() {
@@ -128,11 +149,17 @@ public class VSmartCard {
                             break;
                         case VSmartCardTCPProtocol.APDU:
                             final byte[] apdu = driverProtocol.readData();
+                            System.out.println("== APDU");
+                            hexDump(apdu);
                             final byte[] reply = CardManager.dispatchApdu(sim, apdu);
+                            System.out.println("== Reply APDU");
+                            hexDump(reply);
                             driverProtocol.writeData(reply);
                             break;
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    System.out.println(e.toString());
+                }
             }
         }
     }
