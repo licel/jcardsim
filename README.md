@@ -43,6 +43,8 @@ assertEquals(0x9000, response.getSW());
 
 *JavaDoc*: https://github.com/licel/jcardsim/tree/master/javadoc
 
+  (Javadoc rendered: https://jcardsim.org/jcardsim/)
+
 *Latest stable release 2.2.1*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar
 
 *Latest stable release 2.2.2*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar
