@@ -41,7 +41,7 @@ assertEquals(0x9000, response.getSW());
 * APDU scripting (scripts are compatible with `apdutool` from Java Card Development Kit)
 * Simplifies verification tests creation (Common Criteria)
 
-*JavaDoc*: https://jcardsim.googlecode.com/svn/trunk/javadoc/index.html
+*JavaDoc*: https://github.com/licel/jcardsim/tree/master/javadoc
 
 *Latest stable release 2.2.1*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar
 
