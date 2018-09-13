@@ -67,19 +67,19 @@ assertEquals(0x9000, response.getSW());
 
 * **Implementation of javacard.security.***
 
-One of the main differences is the implementation of `javacard.security.*`: the current version is analogous to an NXP JCOP 31/36k card. For example, in jCardSim we have support for on-card `KeyPair.ALG_EC_F2M/ALG_RSA_CRT` key generation. Oracle's simulator only supports `KeyPair.ALG_RSA` and `KeyPair.ALG_EC_FP`, which are not supported by real cards.
+  One of the main differences is the implementation of `javacard.security.*`: the current version is analogous to an NXP JCOP 31/36k card. For example, in jCardSim we have support for on-card `KeyPair.ALG_EC_F2M/ALG_RSA_CRT` key generation. Oracle's simulator only supports `KeyPair.ALG_RSA` and `KeyPair.ALG_EC_FP`, which are not supported by real cards.
 
 * **Execution of Java Card applications without converting into CAP**
 
-jCardSim can work with class files without any conversions. This allows us to simplify and accelerate the development and writing of unit tests.
+  jCardSim can work with class files without any conversions. This allows us to simplify and accelerate the development and writing of unit tests.
 
 * **Simulator API**
 
-jCardSim has a simple and usable API, which also allows you to work with the simulator using `javax.smartcardio.*`.
+  jCardSim has a simple and usable API, which also allows you to work with the simulator using `javax.smartcardio.*`.
 
 * **Cross-platform**
 
-jCardSim is completely written in Java and can therefore be used on all platforms which support Java (Windows, Linux, MacOS, etc).
+  jCardSim is completely written in Java and can therefore be used on all platforms which support Java (Windows, Linux, MacOS, etc).
 
 ### How to help jCardSim?
 
