@@ -38,9 +38,7 @@ public class Simulator implements JavaCardInterface {
     // default ATR - NXP JCOP 31/36K
     static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
     // ATR system property name
-    static final String ATR_SYSTEM_PROPERTY = "com.licel.jcardsim.card.ATR";
-    // card ATR
-    private byte[] atr = null;
+    public static final String ATR_SYSTEM_PROPERTY = "com.licel.jcardsim.card.ATR";
     static final String PROPERTY_PREFIX = "com.licel.jcardsim.card.applet.";
     static final String OLD_PROPERTY_PREFIX = "com.licel.jcardsim.smartcardio.applet.";
     // Applet AID system property template
@@ -93,7 +91,6 @@ public class Simulator implements JavaCardInterface {
 
         changeProtocol(protocol);
 
-        atr = Hex.decode(properties.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
         // init pre-installed applets
         for (int i = 0; i < 100 && !properties.isEmpty(); i++) {
             String selectedPrefix = PROPERTY_PREFIX;
@@ -277,7 +274,7 @@ public class Simulator implements JavaCardInterface {
     }
 
     public byte[] getATR() {
-        return atr;
+        return Hex.decode(System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
     }
 
     protected byte getProtocolByte(String protocol) {
