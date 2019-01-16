@@ -138,12 +138,6 @@
             <version>1.46</version>
         </dependency>
         <dependency>
-            <groupId>oracle.javacard</groupId>
-            <artifactId>api_classic</artifactId>
-            <version>${jcApiVersion}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
             <version>7.2</version>
@@ -203,7 +197,7 @@
                 <version>2.10</version>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
