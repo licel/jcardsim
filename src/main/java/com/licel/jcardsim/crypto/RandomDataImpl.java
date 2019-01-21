@@ -34,6 +34,11 @@ public class RandomDataImpl extends RandomData {
     public RandomDataImpl(byte algorithm) {
         this.algorithm = algorithm;
         this.engine = new DigestRandomGenerator(new SHA1Digest());
+
+        // ALG_SECURE_RANDOM should not be consistent with each run
+        if (ALG_SECURE_RANDOM == algorithm) {
+            this.engine.addSeedMaterial(System.currentTimeMillis());
+        }
     }
 
     public void generateData(byte[] buffer, short offset, short length) throws CryptoException {
