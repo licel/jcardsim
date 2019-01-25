@@ -22,6 +22,8 @@ import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 import org.bouncycastle.crypto.prng.RandomGenerator;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Implementation <code>RandomData</code> based
  * on BouncyCastle CryptoAPI.
@@ -31,13 +33,18 @@ public class RandomDataImpl extends RandomData {
     byte algorithm;
     RandomGenerator engine;
 
+    private static final long RANDOM_SEQUENCE_INITIAL = -31415926;      /* First 8 digits of Pi */
+    private static final long RANDOM_SEQUENCE_INCREMENT = 10301;        /* First 5 digit palindromic prime */
+    private static final AtomicLong sequence = new AtomicLong(RANDOM_SEQUENCE_INITIAL);
+
     public RandomDataImpl(byte algorithm) {
         this.algorithm = algorithm;
         this.engine = new DigestRandomGenerator(new SHA1Digest());
 
         // ALG_SECURE_RANDOM should not be consistent with each run
         if (ALG_SECURE_RANDOM == algorithm) {
-            this.engine.addSeedMaterial(System.currentTimeMillis());
+            this.engine.addSeedMaterial(System.nanoTime());
+            this.engine.addSeedMaterial(sequence.getAndAdd(RANDOM_SEQUENCE_INCREMENT));
         }
     }
 
