@@ -38,6 +38,16 @@ import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.ISO9796d2Signer;
 import org.bouncycastle.crypto.signers.PSSSigner;
 import org.bouncycastle.crypto.signers.RSADigestSigner;
+import org.bouncycastle.crypto.DSA;
+
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1Object;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERInteger;
+import org.bouncycastle.asn1.DERSequence;
+
+import java.io.IOException;
+import java.math.BigInteger;
 
 /*
  * Implementation <code>Signature</code> with asymmetric keys based
@@ -52,6 +62,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     boolean isInitialized;
     boolean isRecovery;
     byte[] preSig;
+    DSA dsaImpl;
 
     public AsymmetricSignatureImpl(byte algorithm) {
         this.algorithm = algorithm;
@@ -60,7 +71,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_RSA_SHA_ISO9796:
                 engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
                 break;
-            case ALG_RSA_SHA_ISO9796_MR:    
+            case ALG_RSA_SHA_ISO9796_MR:
                 engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
                 isRecovery = true;
                 break;
@@ -296,7 +307,15 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     }
 
     public void setInitialDigest(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    private byte[] ecSigDerEncode(BigInteger r, BigInteger s) throws IOException
+    {
+        ASN1EncodableVector v = new ASN1EncodableVector();
+        v.add(new DERInteger(r));
+        v.add(new DERInteger(s));
+        return (new DERSequence(v).getDEREncoded());
     }
 
     public short signPreComputedHash(byte[] hashBuff,
@@ -315,11 +334,21 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                  return sign(null, (short) 0, (short) 0, sigBuff, sigOffset);
             }
         } catch(ReflectiveOperationException e) {}
-        
+        try {
+            if((engine instanceof DSADigestSigner) && dsaImpl != null) {
+                final byte[] hash = new byte[hashLength];
+                Util.arrayCopyNonAtomic(hashBuff, hashOffset, hash, (short)0, hashLength);
+                final BigInteger[] sigBi = dsaImpl.generateSignature(hash);
+                final byte[] sig = ecSigDerEncode(sigBi[0], sigBi[1]);
+                Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
+                return (short) sig.length;
+            }
+        } catch(IOException e) {}
+
         CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         return 0;
     }
-    
+
     public boolean verifyPreComputedHash(byte[] hashBuff, short hashOffset, short hashLength, byte[] sigBuff, short sigOffset, short sigLength) throws CryptoException {
         try {
             if((engine instanceof RSADigestSigner) || (engine instanceof DSADigestSigner) || (engine instanceof PSSSigner)) {
@@ -333,11 +362,11 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             }
         } catch(ReflectiveOperationException e) {
         }
-        
+
         CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         return false;
     }
-    
+
     public byte getPaddingAlgorithm() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -346,5 +375,5 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     }
     public byte getMessageDigestAlgorithm() {
        throw new UnsupportedOperationException("Not supported yet.");
-    }   
+    }
 }
