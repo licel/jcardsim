@@ -218,18 +218,32 @@
                 <version>1.4.0</version>
                 <executions>
                     <execution>
+                        <id>cardApi</id>
                         <phase>process-classes</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <mainClass>com.licel.jcardsim.utils.JavaCardApiProcessor</mainClass>
+                            <arguments>
+                                <argument>${project.build.directory}/classes</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pom</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.licel.jcardsim.utils.PomProcessor</mainClass>
+                            <arguments>
+                                <argument>${project.build.directory}</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>com.licel.jcardsim.utils.JavaCardApiProcessor</mainClass>  
-                    <arguments>
-                        <argument>${project.build.directory}/classes</argument>
-                    </arguments>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -248,6 +262,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.7</version>
                 <configuration>
+                    <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
                     <minimizeJar>true</minimizeJar>
                     <relocations>
                         <relocation>
@@ -259,6 +274,12 @@
                         <includes>
                             <include>org.bouncycastle:*</include>
                         </includes>
+                        <excludes>
+                            <exclude>oracle.javacard:*</exclude>
+                            <exclude>oracle.javacard:*:*:*</exclude>
+                            <exclude>*:api_classic</exclude>
+                            <exclude>oracle.javacard:api_classic</exclude>
+                        </excludes>
                     </artifactSet>
                     <filters>
                         <filter>
@@ -279,11 +300,18 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
                             <minimizeJar>true</minimizeJar>
                             <artifactSet>
                                 <includes>
                                     <include>org.bouncycastle:*</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>oracle.javacard:*</exclude>
+                                    <exclude>oracle.javacard:*:*:*</exclude>
+                                    <exclude>*:api_classic</exclude>
+                                    <exclude>oracle.javacard:api_classic</exclude>
+                                </excludes>
                             </artifactSet>
                             <filters>
                                 <filter>
@@ -304,10 +332,17 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
                             <artifactSet>
                                 <includes>
                                     <include>org.bouncycastle:*</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>oracle.javacard:*</exclude>
+                                    <exclude>oracle.javacard:*:*:*</exclude>
+                                    <exclude>*:api_classic</exclude>
+                                    <exclude>oracle.javacard:api_classic</exclude>
+                                </excludes>
                             </artifactSet>
                             <minimizeJar>true</minimizeJar>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
