@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import javacard.security.CryptoException;
 import javacard.security.KeyBuilder;
@@ -28,6 +29,7 @@ import org.bouncycastle.crypto.generators.DHKeyPairGenerator;
 import org.bouncycastle.crypto.generators.DSAKeyPairGenerator;
 import org.bouncycastle.crypto.generators.ECKeyPairGenerator;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
 
 /**
  * Implementation
@@ -89,6 +91,14 @@ public final class KeyPairImpl {
         initEngine();        
         createKeys();
         AsymmetricCipherKeyPair kp = engine.generateKeyPair();
+
+        if (engine instanceof RSAKeyPairGenerator && !validateKeyParametersLength(kp)) {
+            ((RSAKeyImpl) privateKey).exponent.clearData();
+            ((RSAKeyImpl) privateKey).modulus.clearData();
+            ((RSAKeyImpl) publicKey).exponent.clearData();
+            ((RSAKeyImpl) publicKey).modulus.clearData();
+        }
+
         ((KeyWithParameters)publicKey).setParameters(kp.getPublic());
         ((KeyWithParameters)privateKey).setParameters(kp.getPrivate());
     }
@@ -311,6 +321,34 @@ public final class KeyPairImpl {
         }    
         if(privateKey == null){
             privateKey = (PrivateKey) KeyBuilder.buildKey(privateKeyType, keyLength, false);
+        }
+    }
+
+    private boolean validateKeyParametersLength(AsymmetricCipherKeyPair kp) {
+        RSAKeyParameters publicParams = (RSAKeyParameters) kp.getPublic();
+        BigInteger modulus = publicParams.getModulus();
+
+        RSAKeyParameters privateParams = (RSAKeyParameters) kp.getPrivate();
+        BigInteger exponent = privateParams.getExponent();
+
+        int length = this.keyLength >> 3;
+        byte[] expBytes = exponent.toByteArray();
+
+        if (expBytes[0] == 0) {
+            if (expBytes.length < length + 1) {
+                return false;
+            }
+        } else {
+            if (expBytes.length < length) {
+                return false;
+            }
+        }
+
+        byte[] modBytes = modulus.toByteArray();
+        if (modBytes[0] == 0) {
+            return modBytes.length >= length + 1;
+        } else {
+            return modBytes.length >= length;
         }
     }
 }
