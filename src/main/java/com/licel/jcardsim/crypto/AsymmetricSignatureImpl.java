@@ -104,19 +104,19 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new RIPEMD160Digest()));
                 break;
             case ALG_ECDSA_SHA:
-                engine = new DSADigestSigner(new ECDSASigner(), new SHA1Digest());
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA1Digest()));
                 break;
             case ALG_ECDSA_SHA_224:
-                engine = new DSADigestSigner(new ECDSASigner(), new SHA224Digest());
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA224Digest()));
                 break;
             case ALG_ECDSA_SHA_256:
-                engine = new DSADigestSigner(new ECDSASigner(), new SHA256Digest());
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA256Digest()));
                 break;
             case ALG_ECDSA_SHA_384:
-                engine = new DSADigestSigner(new ECDSASigner(), new SHA384Digest());
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA384Digest()));
                 break;
             case ALG_ECDSA_SHA_512:
-                engine = new DSADigestSigner(new ECDSASigner(), new SHA512Digest());
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA512Digest()));
                 break;
         }
     }
@@ -305,9 +305,9 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                             byte[] sigBuff,
                             short sigOffset) throws CryptoException {
         try {
-            if((engine instanceof RSADigestSigner) ||  (engine instanceof PSSSigner) ) {
+            if((engine instanceof RSADigestSigner) || (engine instanceof DSADigestSigner) || (engine instanceof PSSSigner)) {
                 // set precomputed hava value - BouncyCastle specific
-                 Field h = engine.getClass().getDeclaredField(engine instanceof RSADigestSigner ? "digest" : "contentDigest");
+                 Field h = engine.getClass().getDeclaredField(engine instanceof PSSSigner ? "contentDigest" : "digest");
                  h.setAccessible(true);
                  Object digestObject = h.get(engine);
                  digestObject.getClass().getMethod("setPrecomputedValue", new Class[]{byte[].class, int.class, int.class})
@@ -322,9 +322,9 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     
     public boolean verifyPreComputedHash(byte[] hashBuff, short hashOffset, short hashLength, byte[] sigBuff, short sigOffset, short sigLength) throws CryptoException {
         try {
-            if((engine instanceof RSADigestSigner) || (engine instanceof PSSSigner)) {
+            if((engine instanceof RSADigestSigner) || (engine instanceof DSADigestSigner) || (engine instanceof PSSSigner)) {
                 // set precomputed hava value - BouncyCastle specific
-                 Field h = engine.getClass().getDeclaredField(engine instanceof RSADigestSigner ? "digest" : "contentDigest");
+                 Field h = engine.getClass().getDeclaredField(engine instanceof PSSSigner ? "contentDigest" : "digest");
                  h.setAccessible(true);
                  Object digestObject = h.get(engine);
                  digestObject.getClass().getMethod("setPrecomputedValue", new Class[]{byte[].class, int.class, int.class})
