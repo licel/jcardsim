@@ -28,8 +28,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import static org.objectweb.asm.Opcodes.ASM4;
-import org.objectweb.asm.commons.RemappingClassAdapter;
+
+import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -93,10 +93,11 @@ public class JavaCardApiProcessor {
         for (int i = 0; i < 10; i++) {
             map.put(cnProxy.name + "$1", cnTarget.name + "$1");
         }
-        RemappingClassAdapter ra = new RemappingClassAdapter(cnProxyRemapped, new SimpleRemapper(map));
+
+        ClassRemapper ra = new ClassRemapper(cnProxyRemapped, new SimpleRemapper(map));
         cnProxy.accept(ra);
 
-        ClassWriter cw = new ClassWriter(crTarget, 0);
+        ClassWriter cw = new ClassWriter(crTarget, ClassWriter.COMPUTE_FRAMES);
         MergeAdapter ma = new MergeAdapter(cw, cnProxyRemapped, skipConstructor);
         cnTarget.accept(ma);
         fProxyClass.close();
@@ -115,9 +116,9 @@ public class JavaCardApiProcessor {
         ClassNode cnProxy = new ClassNode();
         crProxy.accept(cnProxy, 0);
 
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         map.put(cnProxy.name, targetClassName.replace(".", "/"));
-        RemappingClassAdapter ra = new RemappingClassAdapter(cw, new SimpleRemapper(map));
+        ClassRemapper ra = new ClassRemapper(cw, new SimpleRemapper(map));
         cnProxy.accept(ra);
 
         fProxyClass.close();
@@ -134,7 +135,7 @@ public class JavaCardApiProcessor {
         ClassReader crTarget = new ClassReader(fTargetClass);
         ClassNode cnTarget = new ClassNode();
         crTarget.accept(cnTarget, 0);
-        ClassWriter cw = new ClassWriter(0);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         ExceptionClassProxy ecc = new ExceptionClassProxy(cw, cnTarget.version, cnTarget.name, cnTarget.superName);
         cnTarget.accept(ecc);
 
@@ -266,6 +267,7 @@ public class JavaCardApiProcessor {
 
         @Override
         public void visitEnd() {
+            super.visitEnd();
             for (Iterator it = cn.fields.iterator();
                     it.hasNext();) {
                 FieldNode fn = (FieldNode) it.next();
@@ -287,7 +289,6 @@ public class JavaCardApiProcessor {
                 mn.instructions.resetLabels();
                 mn.accept(mv);
             }
-            super.visitEnd();
         }
     }
 }
