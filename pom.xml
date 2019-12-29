@@ -38,7 +38,7 @@
         <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
         <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
         <junit.version>3.8.1</junit.version>
-        <java.version>1.5</java.version>
+        <java.version>1.7</java.version>
         <jcApiVersion>3.0.5</jcApiVersion>
     </properties>
     
@@ -140,8 +140,23 @@
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-all</artifactId>
-            <version>5.2</version>
+            <artifactId>asm-commons</artifactId>
+            <version>7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-tree</artifactId>
+            <version>7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>7.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
+            <version>7.2</version>
         </dependency>
     </dependencies>
 
@@ -197,6 +212,7 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                     <includes>**/*.class</includes>
+                                    <excludes>**/java/**/*.class</excludes>
                                 </artifactItem>
                             </artifactItems>                                    
                         </configuration>
@@ -237,10 +253,11 @@
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
                     <links>
-                        <link>http://docs.oracle.com/javase/7/docs/api/</link>
-                        <link>http://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
+                        <link>https://docs.oracle.com/javase/7/docs/api/</link>
+                        <link>https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
                     </links>
                     <author>false</author>
+                    <source>7</source>
                 </configuration>
             </plugin>
             <plugin>
