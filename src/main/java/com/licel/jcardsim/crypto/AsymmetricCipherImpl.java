@@ -69,7 +69,7 @@ public class AsymmetricCipherImpl extends Cipher {
         }
         KeyWithParameters key = (KeyWithParameters) theKey;
         engine.init(theMode == MODE_ENCRYPT, key.getParameters());
-        buffer = JCSystem.makeTransientByteArray((short) engine.getInputBlockSize(), JCSystem.CLEAR_ON_DESELECT);
+        buffer = JCSystem.makeTransientByteArray((short)(engine.getInputBlockSize() + 1), JCSystem.CLEAR_ON_DESELECT);
         bufferPos = 0;
         isInitialized = true;
     }
