@@ -86,8 +86,8 @@ assertEquals(0x9000, response.getSW());
 ### How to help jCardSim?
 
 * Join the team of jCardSim developers.
-* Try out [DexProtector](http://dexprotector.com). The product is designed for strong and robust protection of Android applications against reverse engineering and modification.
-* Licel has one more product you may be interested in - [Stringer Java Obfuscator](https://jfxstore.com/stringer). This tool provides all the features you need to comprehensively protect your Java applications.
+* Try out [DexProtector](https://licelus.com/products/dexprotector). The product is designed for strong and robust protection of Android applications against reverse engineering and modification.
+* Licel has one more product you may be interested in - [Stringer Java Obfuscator](https://licelus.com/products/stringer). This tool provides all the features you need to comprehensively protect your Java applications.
 
 **License**: [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
