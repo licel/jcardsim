@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.net.SocketException;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 /**
  * VSmartCard Card Implementation.
@@ -37,7 +40,7 @@ public class VSmartCard {
     public VSmartCard(String host, int port) throws IOException {
         VSmartCardTCPProtocol driverProtocol = new VSmartCardTCPProtocol();
         driverProtocol.connect(host, port);
-        startThread(driverProtocol);
+        startThread(driverProtocol, host, port);
     }
 
     static public void main(String args[]) throws Exception {
@@ -80,9 +83,9 @@ public class VSmartCard {
         new VSmartCard(host, Integer.parseInt(port));
     }
 
-    private void startThread(VSmartCardTCPProtocol driverProtocol) throws IOException {
+    private void startThread(VSmartCardTCPProtocol driverProtocol, String host, int port) throws IOException {
         sim = new Simulator();
-        final IOThread ioThread = new IOThread(sim, driverProtocol);
+        final IOThread ioThread = new IOThread(sim, driverProtocol, host, port);
         ShutDownHook hook = new ShutDownHook(ioThread);
         Runtime.getRuntime().addShutdownHook(hook);
         ioThread.start();
@@ -102,21 +105,33 @@ public class VSmartCard {
         }
     }
 
-    static class IOThread extends Thread {
+    static class IOThread extends Thread implements SignalHandler {
         VSmartCardTCPProtocol driverProtocol;
         Simulator sim;
         boolean isRunning;
+        String host;
+        int port;
+        boolean inserted;
 
-        public IOThread(Simulator sim, VSmartCardTCPProtocol driverProtocol) {
+        public IOThread(Simulator sim, VSmartCardTCPProtocol driverProtocol, String host, int port) {
             this.sim = sim;
             this.driverProtocol = driverProtocol;
             isRunning = true;
+            this.host = host;
+            this.port = port;
+            inserted = true;
+            Signal.handle(new Signal("USR2"), this);
         }
 
         @Override
         public void run() {
             while (isRunning) {
                 try {
+                    if (!inserted) {
+                        synchronized(this) {
+                            wait();
+                        }
+                    }
                     int cmd = driverProtocol.readCommand();
                     switch (cmd) {
                         case VSmartCardTCPProtocol.POWER_ON:
@@ -132,6 +147,26 @@ public class VSmartCard {
                             driverProtocol.writeData(reply);
                             break;
                     }
+                } catch (SocketException e) {
+                    if (!inserted)
+                        sim.reset();
+                } catch (Exception e) {}
+            }
+        }
+
+        public void handle(Signal sig) {
+            if (inserted) {
+                inserted = false;
+                driverProtocol.disconnect();
+                System.out.println("Smartcard removed");
+            } else {
+                try {
+                    driverProtocol.connect(host, port);
+                    inserted = true;
+                    synchronized(this) {
+                        notify();
+                    }
+                    System.out.println("Smartcard inserted");
                 } catch (Exception e) {}
             }
         }
