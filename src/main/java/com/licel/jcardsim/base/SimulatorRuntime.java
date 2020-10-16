@@ -667,7 +667,11 @@ public class SimulatorRuntime {
         public Applet getApplet(){
             return applet;
         }
-
+        
+        public AID getAID() {
+            return aid;
+        }
+        
         @Override
         public String toString() {
             return String.format("ApplicationInstance (%s)", AIDUtil.toString(aid));
