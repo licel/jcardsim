@@ -36,9 +36,9 @@ import javacard.framework.SystemException;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 public class PersistentSimulatorRuntime extends SimulatorRuntime {
-    private static final String PERSISTENT_BASE_DIR = "persistentSimulatorRuntime.dir";
-    private final Kryo kryo;
-    private String appletsDir;
+    public static final String PERSISTENT_BASE_DIR = "persistentSimulatorRuntime.dir";
+    protected final Kryo kryo;
+    protected String appletsDir;
         
     public PersistentSimulatorRuntime() {        
         kryo = new Kryo();
@@ -86,15 +86,16 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
         if(appletsDir != null) {
             try {
                 AID varianceAid = appletAID;
-                if(bLength > 0) {
-                    varianceAid = new AID(bArray, bOffset, bLength);
-                }
+//                if(bLength > 0) {
+//                    varianceAid = new AID(bArray, bOffset, bLength);
+//                }
                 File appletInstanceFile = new File(appletsDir, AIDUtil.toString(varianceAid));
                 Applet applet = lookupApplet(varianceAid).getApplet();
                 try(Output output = new Output(new FileOutputStream(appletInstanceFile))) {
                     kryo.writeClassAndObject(output, applet);
                 }
             } catch(Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
