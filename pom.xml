@@ -122,6 +122,11 @@
   
     <dependencies>
         <dependency>
+           <groupId>com.esotericsoftware</groupId>
+           <artifactId>kryo</artifactId>
+           <version>5.0.0-RC9</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
@@ -286,10 +291,20 @@
                             <pattern>org.bouncycastle</pattern>
                             <shadedPattern>com.licel.jcardsim.bouncycastle</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.esotericsoftware</pattern>
+                            <shadedPattern>com.licel.jcardsim.esotericsoftware</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.objenesis</pattern>
+                            <shadedPattern>com.licel.jcardsim.objenesis</shadedPattern>
+                        </relocation>
                     </relocations>
                     <artifactSet>
                         <includes>
                             <include>org.bouncycastle:*</include>
+                            <include>com.esotericsoftware:*</include>
+                            <include>org.objenesis:*</include>
                         </includes>
                         <excludes>
                             <exclude>oracle.javacard:*</exclude>
@@ -322,6 +337,8 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.bouncycastle:*</include>
+                                    <include>com.esotericsoftware:*</include>
+                                    <include>org.objenesis:*</include>
                                 </includes>
                                 <excludes>
                                     <exclude>oracle.javacard:*</exclude>
@@ -353,6 +370,8 @@
                             <artifactSet>
                                 <includes>
                                     <include>org.bouncycastle:*</include>
+                                    <include>com.esotericsoftware:*</include>
+                                    <include>org.objenesis:*</include>
                                 </includes>
                                 <excludes>
                                     <exclude>oracle.javacard:*</exclude>
