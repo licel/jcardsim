@@ -33,6 +33,7 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.RSAEngine;
+import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.signers.DSADigestSigner;
 import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.ISO9796d2Signer;
@@ -131,7 +132,16 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         if (!(theKey instanceof KeyWithParameters)) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        engine.init(theMode == MODE_SIGN, ((KeyWithParameters) theKey).getParameters());
+        
+        
+        if((engine instanceof ISO9796d2Signer) || (theMode != MODE_SIGN)) {
+            KeyWithParameters key = (KeyWithParameters) theKey;
+            engine.init(theMode == MODE_SIGN, key.getParameters());
+        } else {
+            ParametersWithRandom params;
+            params = new ParametersWithRandom(((KeyWithParameters) theKey).getParameters(), new SecureRandomNullProvider());
+            engine.init(theMode == MODE_SIGN, params);
+        }
         this.key = theKey;
         isInitialized = true;
     }

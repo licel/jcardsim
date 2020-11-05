@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.security.SecureRandom;
 import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
@@ -22,9 +23,13 @@ import javacard.security.Key;
 import javacardx.crypto.Cipher;
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.paddings.BlockCipherPadding;
+import org.bouncycastle.crypto.params.ParametersWithRandom;
+import org.bouncycastle.crypto.prng.DigestRandomGenerator;
+import org.bouncycastle.crypto.prng.RandomGenerator;
 
 /*
  * Implementation <code>Cipher</code> with asymmetric keys based
@@ -67,8 +72,8 @@ public class AsymmetricCipherImpl extends Cipher {
         if (!(theKey instanceof KeyWithParameters)) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        KeyWithParameters key = (KeyWithParameters) theKey;
-        engine.init(theMode == MODE_ENCRYPT, key.getParameters());
+        ParametersWithRandom params = new ParametersWithRandom(((KeyWithParameters) theKey).getParameters(), new SecureRandomNullProvider());
+        engine.init(theMode == MODE_ENCRYPT, params);
         buffer = JCSystem.makeTransientByteArray((short) engine.getInputBlockSize(), JCSystem.CLEAR_ON_DESELECT);
         bufferPos = 0;
         isInitialized = true;
