@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,17 +44,22 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
         
     public PersistentSimulatorRuntime() {        
         kryo = new Kryo();
-        kryo.setReferences(true);
+        kryo.setReferences(true);      
         kryo.setRegistrationRequired(false);
         //kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
         
         String baseDir = System.getProperties().getProperty(PERSISTENT_BASE_DIR, null);
         if(baseDir != null) {
-            File appletsDirFile = Paths.get(baseDir, System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR)).toFile();
+            Path p = Paths.get(baseDir, System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
+            File appletsDirFile = p.toFile();
             if(!appletsDirFile.exists()) {
-                if(!appletsDirFile.mkdirs())
-                    throw new RuntimeException("Fail to create a directory: " + appletsDirFile.getAbsolutePath());
+                try {
+                    Files.createDirectories(p);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
             }
             appletsDir = appletsDirFile.getAbsolutePath();
         }
