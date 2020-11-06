@@ -19,11 +19,22 @@ package com.licel.jcardsim.remote;
 
 import com.licel.jcardsim.base.CardManager;
 import com.licel.jcardsim.base.Simulator;
+import static com.licel.jcardsim.base.Simulator.ATR_SYSTEM_PROPERTY;
+import static com.licel.jcardsim.base.Simulator.DEFAULT_ATR;
+import com.licel.jcardsim.base.SimulatorRuntime;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.security.InvalidParameterException;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * VSmartCard Card Implementation.
@@ -31,9 +42,14 @@ import java.util.Properties;
  * @author alex@cooperi.net
  */
 public class VSmartCard {
-
+    static final String RELOADER_PORT_PROPERTY = "com.licel.jcardsim.vsmartcard.reloader.port";
+    static final String RELOADER_PORT_DEFAULT = "8099";
+    static final String RELOADER_DELAY_PROPERTY = "com.licel.jcardsim.vsmartcard.reloader.delay";
+    static final String RELOADER_DELAY_DEFAULT = "1000"; //milisec
+    
     Simulator sim;
-
+    ReloadThread reloader;
+    
     public VSmartCard(String host, int port) throws IOException {
         VSmartCardTCPProtocol driverProtocol = new VSmartCardTCPProtocol();
         driverProtocol.connect(host, port);
@@ -59,12 +75,17 @@ public class VSmartCard {
                 fis.close();
             }
         }
+        
+        System.setProperty(ATR_SYSTEM_PROPERTY, cfg.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
+        System.setProperty(RELOADER_PORT_PROPERTY, cfg.getProperty(RELOADER_PORT_PROPERTY, RELOADER_PORT_DEFAULT));
+        System.setProperty(RELOADER_DELAY_PROPERTY, cfg.getProperty(RELOADER_DELAY_PROPERTY, RELOADER_DELAY_DEFAULT));
+        
         final Enumeration<?> keys = cfg.propertyNames();
         while (keys.hasMoreElements()) {
             String propertyName = (String) keys.nextElement();
             System.setProperty(propertyName, cfg.getProperty(propertyName));
         }
-
+        
         String propKey = "com.licel.jcardsim.vsmartcard.host";
         String host = System.getProperty(propKey);
         if (host == null) {
@@ -81,11 +102,24 @@ public class VSmartCard {
     }
 
     private void startThread(VSmartCardTCPProtocol driverProtocol) throws IOException {
-        sim = new Simulator();
+        System.out.println("Trying to load an instance of com.licel.globalplatform.GpSimulatorRuntime");
+        SimulatorRuntime simRuntime;
+        try {
+            simRuntime = (SimulatorRuntime)Class.forName("com.licel.globalplatform.GpSimulatorRuntime").newInstance();
+            System.out.println("Succesfully loaded the instance!");
+        } catch (Throwable ex) {
+            ex.printStackTrace(System.err);
+            System.out.println("Failed to load the instance! Will use the default SimulatorRuntime");
+            simRuntime = new SimulatorRuntime();
+        }
+        sim = new Simulator(simRuntime);
+        
         final IOThread ioThread = new IOThread(sim, driverProtocol);
         ShutDownHook hook = new ShutDownHook(ioThread);
         Runtime.getRuntime().addShutdownHook(hook);
         ioThread.start();
+        reloader = new ReloadThread(hook);
+        reloader.start();
     }
 
     static class ShutDownHook extends Thread {
@@ -102,6 +136,43 @@ public class VSmartCard {
         }
     }
 
+    static class ReloadThread extends Thread {
+        ShutDownHook hook;
+        
+        public ReloadThread(ShutDownHook hook) {
+            this.hook = hook;
+        }
+        
+        @Override
+        public void run() {
+            String port = System.getProperty(RELOADER_PORT_PROPERTY);
+            String delay = System.getProperty(RELOADER_DELAY_PROPERTY);
+            try {
+                String newConfig;
+                try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port))) {
+                    System.out.println("Start reloader server on port " + port);
+                    try(Socket socket = serverSocket.accept()) {
+                        InputStream input = socket.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                        newConfig = reader.readLine();
+                        System.out.println("Got a new config: " + newConfig);
+                    }                        
+                }
+                Runtime.getRuntime().removeShutdownHook(hook);
+                hook.start();
+                while(!hook.ioThread.driverProtocol.isClosed()) {
+                    Thread.sleep(100);
+                }
+                System.out.println("Card remove delay: " + delay + "...");
+                Thread.sleep(Integer.parseInt(delay));
+                VSmartCard.main(new String[]{ newConfig });
+            } catch(InterruptedException ignore) {
+            } catch(Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+    
     static class IOThread extends Thread {
         VSmartCardTCPProtocol driverProtocol;
         Simulator sim;
