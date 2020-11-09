@@ -59,7 +59,11 @@ public class VSmartCardTCPProtocol {
     public void disconnect() {
         closeSocket(socket);
     }
-
+    
+    public boolean isClosed() {
+        return socket.isClosed();
+    }
+    
     public int readCommand() throws IOException {
         final byte[] cmdBuf = new byte[3];
         read(cmdBuf, 0, 2, dataInput);
