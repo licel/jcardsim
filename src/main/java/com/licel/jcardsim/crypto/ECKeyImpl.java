@@ -191,7 +191,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
         a.setBigInteger(parameters.getCurve().getA().toBigInteger());
         b.setBigInteger(parameters.getCurve().getB().toBigInteger());
         // generator
-        g.setBytes(parameters.getG().getEncoded());
+        g.setBytes(parameters.getG().getEncoded(false));
         // order
         r.setBigInteger(parameters.getN());
         // cofactor

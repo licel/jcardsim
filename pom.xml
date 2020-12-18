@@ -134,14 +134,20 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk14</artifactId>
-            <version>1.46</version>
+            <artifactId>bcprov-debug-jdk15on</artifactId>
+            <version>1.64</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bcprov-jdk15on</artifactId>-->
+<!--            <version>1.64</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>oracle.javacard</groupId>
             <artifactId>api_classic</artifactId>
             <version>${jcApiVersion}</version>
-            <scope>compile</scope>
+            <systemPath>${env.JC_CLASSIC_HOME}/lib/api_classic-${jcApiVersion}.jar</systemPath>
+            <scope>system</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -191,7 +197,7 @@
                             <artifactId>api_classic</artifactId>
                             <version>${jcApiVersion}</version>
                             <packaging>jar</packaging>
-                            <file>${env.JC_CLASSIC_HOME}/lib/api_classic.jar</file>
+                            <file>${env.JC_CLASSIC_HOME}/lib/api_classic-${jcApiVersion}.jar</file>
                         </configuration>
                     </execution>
                 </executions>
@@ -203,7 +209,7 @@
                 <version>2.10</version>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>

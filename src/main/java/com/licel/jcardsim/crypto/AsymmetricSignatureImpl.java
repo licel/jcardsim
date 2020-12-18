@@ -62,7 +62,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
                 break;
             case ALG_RSA_SHA_ISO9796_MR:    
-                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest(), true);
                 isRecovery = true;
                 break;
             case ALG_RSA_SHA_PKCS1:
@@ -264,18 +264,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         try {
             sig = engine.generateSignature();
             Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
-            // there is no direct way to obtain encoded message length
-            int keyBits = key.getSize();
-            Field messageLengthField = engine.getClass().getDeclaredField("messageLength");
-            messageLengthField.setAccessible(true);
-            int messageLength = messageLengthField.getInt(engine);
-            int digSize = 20;
-            int x = (digSize + messageLength) * 8 + 16 + 4 - keyBits;
-            int mR = messageLength;
-            if (x > 0) {
-                mR = messageLength - ((x + 7) / 8);
-            }
-            recMsgLen[recMsgLenOffset] = (short) mR;
+            recMsgLen[recMsgLenOffset] = (short) ((SignerWithRecovery)engine).getRecoveredMessage().length;
             return (short) sig.length;
         } catch (org.bouncycastle.crypto.CryptoException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);

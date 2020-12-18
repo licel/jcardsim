@@ -151,7 +151,9 @@ public class CardSimulator extends JavaxSmartCardInterface {
 
         @Override
         public void close() throws CardException {
+            if (channelNr == 0) {
             throw new CardException("Can not close basic channel");
+            }
         }
     }
 
@@ -191,7 +193,7 @@ public class CardSimulator extends JavaxSmartCardInterface {
 
         @Override
         public CardChannel openLogicalChannel() throws CardException {
-            throw new CardException("Logical channel not supported");
+            return new CardChannelImpl(this, 1);
         }
 
         @Override

@@ -59,10 +59,10 @@ public class JCSCard extends Card {
     }
 
     /**
-     * Always returns basic channel with id = 0
+     * Always returns logical channel with id = 1
      */
     public CardChannel openLogicalChannel() throws CardException {
-        return basicChannel;
+        return new JCSCardChannel(this, 1);
     }
 
     /**

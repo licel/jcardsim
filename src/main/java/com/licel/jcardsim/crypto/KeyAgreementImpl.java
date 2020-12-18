@@ -168,10 +168,15 @@ public class KeyAgreementImpl extends KeyAgreement {
             this.key = (ECPrivateKeyParameters)privateKey;
         }
 
+        @Override
+        public int getFieldSize() {
+            return (key.getParameters().getCurve().getFieldSize() + 7) / 8;
+        }
+
         public BigInteger calculateAgreement(CipherParameters publicKey) {
             ECPublicKeyParameters pub = (ECPublicKeyParameters)publicKey;
             ECPoint result = pub.getQ().multiply(this.key.getD());
-            return new BigInteger(1, result.getEncoded());
+            return new BigInteger(1, result.getEncoded(false));
         }
     }
 }
