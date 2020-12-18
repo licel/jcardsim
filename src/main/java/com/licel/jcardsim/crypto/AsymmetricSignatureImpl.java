@@ -62,7 +62,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
                 break;
             case ALG_RSA_SHA_ISO9796_MR:    
-                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest(), true);
                 isRecovery = true;
                 break;
             case ALG_RSA_SHA_PKCS1:
@@ -270,7 +270,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             messageLengthField.setAccessible(true);
             int messageLength = messageLengthField.getInt(engine);
             int digSize = 20;
-            int x = (digSize + messageLength) * 8 + 16 + 4 - keyBits;
+            int x = (digSize + messageLength) * 8 + 16 - keyBits;
             int mR = messageLength;
             if (x > 0) {
                 mR = messageLength - ((x + 7) / 8);
