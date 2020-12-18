@@ -21,6 +21,9 @@ import javacard.security.RandomData;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 import org.bouncycastle.crypto.prng.RandomGenerator;
+import org.bouncycastle.util.encoders.Hex;
+
+import java.security.SecureRandom;
 
 /**
  * Implementation <code>RandomData</code> based
@@ -34,6 +37,18 @@ public class RandomDataImpl extends RandomData {
     public RandomDataImpl(byte algorithm) {
         this.algorithm = algorithm;
         this.engine = new DigestRandomGenerator(new SHA1Digest());
+
+        final String randomSeed = System.getProperty("com.licel.jcardsim.randomdata.seed");
+        final String doSecureRandom = System.getProperty("com.licel.jcardsim.randomdata.secure", "0");
+        if (randomSeed != null){
+            this.engine.addSeedMaterial(Hex.decode(randomSeed));
+        }
+        else if ("1".equals(doSecureRandom)){
+            byte[] seed = new byte[32];
+            SecureRandom randomGenerator = new SecureRandom();
+            randomGenerator.nextBytes(seed);
+            this.engine.addSeedMaterial(seed);
+        }
     }
 
     public void generateData(byte[] buffer, short offset, short length) throws CryptoException {
