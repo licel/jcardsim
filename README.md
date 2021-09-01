@@ -7,7 +7,7 @@ jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
 
 **Please note** that we moved our code repository from Google Code to GitHub.
 
-jCardSim is an open source simulator for Java Card, v.2.2/3.0.5:
+jCardSim is an open source simulator for Java Card, v3.0.5:
 
 * `javacard.framework.*`
 * `javacard.framework.security.*`
@@ -45,25 +45,8 @@ assertEquals(0x9000, response.getSW());
 
   (Javadoc rendered: https://jcardsim.org/jcardsim/)
 
-*Latest stable release 2.2.1*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.1-all.jar
+*Latest release 3.0.5*: https://github.com/licel/jcardsim/raw/master/jcardsim-3.0.5-SNAPSHOT.jar
 
-*Latest stable release 2.2.2*: https://github.com/licel/jcardsim/raw/master/jcardsim-2.2.2-all.jar
-
-*Maven Central Repository*
-```xml
-<dependency>
-  <groupId>com.licel</groupId>
-  <artifactId>jcardsim</artifactId>
-  <version>2.2.1</version>
-</dependency>
-```
-```xml
-<dependency>
-  <groupId>com.licel</groupId>
-  <artifactId>jcardsim</artifactId>
-  <version>2.2.2</version>
-</dependency>
-```
 
 ### What is the difference from Oracle Java Card Development Kit simulator?
 
