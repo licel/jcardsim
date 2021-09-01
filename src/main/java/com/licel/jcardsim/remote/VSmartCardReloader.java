@@ -22,8 +22,8 @@ import java.net.Socket;
 
 public class VSmartCardReloader {
     static public void main(String args[]) throws Exception {
-        if (args.length !=3) {
-            System.out.println("Usage: java com.licel.jcardsim.remote.VSmartCardReloader <host> <port> <jcardsim.cfg>");
+        if (args.length !=3 && args.length != 4) {
+            System.out.println("Usage: java com.licel.jcardsim.remote.VSmartCardReloader <host> <port> <jcardsim.cfg> <optional power-off-flag>");
             System.exit(-1);
         }
         String hostname = args[0];
@@ -37,6 +37,9 @@ public class VSmartCardReloader {
             OutputStream output = socket.getOutputStream();
             PrintWriter writer = new PrintWriter(output, true);
             writer.println(cfg.getAbsolutePath());
+            if(args.length > 3) {
+                writer.println(args[3]);
+            }
         }
         System.out.println("Ok!");
     }
