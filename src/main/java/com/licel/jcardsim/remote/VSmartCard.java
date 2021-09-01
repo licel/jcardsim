@@ -145,30 +145,59 @@ public class VSmartCard {
         
         @Override
         public void run() {
-            String port = System.getProperty(RELOADER_PORT_PROPERTY);
-            String delay = System.getProperty(RELOADER_DELAY_PROPERTY);
             try {
-                String newConfig;
-                try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port))) {
-                    System.out.println("Start reloader server on port " + port);
-                    try(Socket socket = serverSocket.accept()) {
-                        InputStream input = socket.getInputStream();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                        newConfig = reader.readLine();
-                        System.out.println("Got a new config: " + newConfig);
-                    }                        
+                String port = System.getProperty(RELOADER_PORT_PROPERTY);
+                String delay = System.getProperty(RELOADER_DELAY_PROPERTY);
+                try {
+                    String newConfig;
+                    boolean isPowerOffCmd = false;
+                    do {
+                        try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port))) {
+                            System.out.println("Start reloader server on port " + port);
+                            try(Socket socket = serverSocket.accept()) {
+                                InputStream input = socket.getInputStream();
+                                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                                newConfig = reader.readLine();
+                                System.out.println("Got a new config: " + newConfig);
+                                
+                                String powerOffParam = reader.readLine();
+                                if(powerOffParam != null) {
+                                    try {
+                                        int val = Integer.parseInt(powerOffParam);
+                                        if(val == 0) {
+                                            isPowerOffCmd = true;
+                                            System.out.println("Received power off flag");
+                                        } else {
+                                            throw new Exception();
+                                        }
+                                    } catch(Exception e) {
+                                        throw new RuntimeException("The fourth parameter(power off flag) of VSmartCardReloader.java must be '0'. Received value: '" + powerOffParam + "'");
+                                    }
+                                } else {
+                                    isPowerOffCmd = false;
+                                }
+                            }                        
+                        }
+                        if(!hook.ioThread.driverProtocol.isClosed()) {
+                            Runtime.getRuntime().removeShutdownHook(hook);
+                            hook.start();
+                            while(!hook.ioThread.driverProtocol.isClosed()) {
+                                Thread.sleep(100);
+                            }
+                            System.out.println("Card remove delay: " + delay + "...");
+                            Thread.sleep(Integer.parseInt(delay));
+                        }
+                    } while(isPowerOffCmd);
+                    
+                    VSmartCard.main(new String[]{ newConfig });
+                } catch(InterruptedException ignore) {
+                    ignore.printStackTrace(System.err);
+                } catch(Exception ex) {
+                    throw new RuntimeException(ex);
                 }
-                Runtime.getRuntime().removeShutdownHook(hook);
-                hook.start();
-                while(!hook.ioThread.driverProtocol.isClosed()) {
-                    Thread.sleep(100);
-                }
-                System.out.println("Card remove delay: " + delay + "...");
-                Thread.sleep(Integer.parseInt(delay));
-                VSmartCard.main(new String[]{ newConfig });
-            } catch(InterruptedException ignore) {
-            } catch(Exception ex) {
-                throw new RuntimeException(ex);
+            } catch(Throwable e) {
+                e.printStackTrace(System.err);
+                throw e;
             }
         }
     }
@@ -203,7 +232,12 @@ public class VSmartCard {
                             driverProtocol.writeData(reply);
                             break;
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    e.printStackTrace(System.err);
+                } catch (Throwable e) {
+                    e.printStackTrace(System.err);
+                    throw e;
+                }
             }
         }
     }
