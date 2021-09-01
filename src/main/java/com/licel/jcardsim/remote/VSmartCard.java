@@ -155,28 +155,14 @@ public class VSmartCard {
                         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port))) {
                             System.out.println("Start reloader server on port " + port);
                             try(Socket socket = serverSocket.accept()) {
-                                InputStream input = socket.getInputStream();
-                                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                                newConfig = reader.readLine();
-                                System.out.println("Got a new config: " + newConfig);
-                                
-                                String powerOffParam = reader.readLine();
-                                if(powerOffParam != null) {
-                                    try {
-                                        int val = Integer.parseInt(powerOffParam);
-                                        if(val == 0) {
-                                            isPowerOffCmd = true;
-                                            System.out.println("Received power off flag");
-                                        } else {
-                                            throw new Exception();
-                                        }
-                                    } catch(Exception e) {
-                                        throw new RuntimeException("The fourth parameter(power off flag) of VSmartCardReloader.java must be '0'. Received value: '" + powerOffParam + "'");
-                                    }
-                                } else {
-                                    isPowerOffCmd = false;
+                                try(BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                                    newConfig = reader.readLine();
+                                    System.out.println("Got a new config: " + newConfig);
+
+                                    isPowerOffCmd = "0".equalsIgnoreCase(reader.readLine());
+                                    System.out.println("isPowerOffCmd: " + isPowerOffCmd);
                                 }
-                            }                        
+                            }
                         }
                         if(!hook.ioThread.driverProtocol.isClosed()) {
                             Runtime.getRuntime().removeShutdownHook(hook);
