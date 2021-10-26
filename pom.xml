@@ -86,7 +86,7 @@
                         <version>${maven-javadoc-plugin.version}</version>
                         <configuration>
                             <author>false</author>
-                            <bottom>&nbsp;</bottom>
+			    <bottom><![CDATA[&nbsp;]]></bottom>
                         </configuration>    
                     </plugin>            
                     <plugin>
