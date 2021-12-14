@@ -5,7 +5,27 @@ jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
 
 ![alt text](https://licelus.com/wp-content/uploads/DCA2013_Badge_Winner.jpg "jCardSim is a winner of Duke's Choice 2013")
 
-**Please note** that we moved our code repository from Google Code to GitHub.
+This repo is including several [pull request from the original GitHub repository](https://github.com/licel/jcardsim/pulls) 
+and an up-to-date release files with all changes.
+
+The following pull request have been included:
+
+* #176: Wrap 'nbsp' to CDATA in pom.xml
+* #174: test: Do not reuse KeyPair context to generate second key pair
+* #171: Bump bcprov-jdk14 from 1.46 to 1.67
+* #158: Do not throw CryptoException if EC KeyBuilder.buildKey() does not match a known curve
+* #157: Max case 4 command APDU size is 261
+* #155: Add option to randomize RandomData
+* #151: Building on Linux w/ vpcd support
+* #141: Make SecureRandom securely random
+* #138: Logical Channel Support / pom.xml fix
+* #113 Added resize of ByteContainer for longer buffer
+
+Not included are:
+
+* #75: Fix AssymetricSignatureImpl behaviour wrt ISO9796_MR signatures: covered by more recent patches
+* #62: Intercept Shareable creation with proxy: correctness of patch not verified
+* #159: Simulate card removal and insertion by raising SIGUSR2 (when using vpcd): Not yet included
 
 jCardSim is an open source simulator for Java Card, v3.0.5:
 
