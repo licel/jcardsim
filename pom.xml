@@ -1,5 +1,5 @@
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.licel</groupId>
@@ -10,7 +10,7 @@
     <artifactId>jcardsim</artifactId>
     <name>Java Card Runime Environment Simulator</name>
     <description>jCardSim is open-source library contains implementation of Java Card API</description>
-    
+
     <organization>
         <name>Licel Corporation</name>
         <url>https://licelus.com</url>
@@ -23,7 +23,7 @@
             <organization>Licel Corporation</organization>
         </developer>
     </developers>
-    
+
     <licenses>
         <license>
             <name>Apache 2</name>
@@ -37,25 +37,25 @@
         <netbeans.hint.license>apache20</netbeans.hint.license>
         <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
         <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
-        <junit.version>4.13.1</junit.version>
+        <junit.version>4.13.2</junit.version>
         <java.version>1.7</java.version>
         <jcApiVersion>3.0.5</jcApiVersion>
     </properties>
-    
+
     <distributionManagement>
         <repository>
             <id>bintray-jcardsim-maven-jCardSim</id>
             <name>jcardsim-maven-jCardSim</name>
             <url>https://api.bintray.com/maven/jcardsim/maven/jCardSim</url>
         </repository>
-    </distributionManagement>    
+    </distributionManagement>
 
     <scm>
         <connection>scm:git:git@github.com:licel/jcardsim.git</connection>
         <developerConnection>scm:git:git@github.com:licel/jcardsim.git</developerConnection>
         <url>git@github.com:licel/jcardsim.git</url>
     </scm>
-    
+
     <profiles>
         <profile>
             <id>sign</id>
@@ -69,7 +69,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.2.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -79,16 +79,16 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>                    
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${maven-javadoc-plugin.version}</version>
                         <configuration>
                             <author>false</author>
-			    <bottom><![CDATA[&nbsp;]]></bottom>
-                        </configuration>    
-                    </plugin>            
+                            <bottom><![CDATA[&nbsp;]]></bottom>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jarsigner-plugin</artifactId>
@@ -114,17 +114,17 @@
                             <keypass>${keyPass}</keypass>
                             <storetype>${storeType}</storetype>
                         </configuration>
-                    </plugin>                
+                    </plugin>
                 </plugins>
             </build>
-        </profile> 
+        </profile>
     </profiles>
-  
+
     <dependencies>
         <dependency>
-           <groupId>com.esotericsoftware</groupId>
-           <artifactId>kryo</artifactId>
-           <version>5.2.0</version>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>5.2.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -135,7 +135,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-debug-jdk15on</artifactId>
-            <version>1.67</version>
+            <version>1.69</version>
         </dependency>
         <dependency>
             <groupId>oracle.javacard</groupId>
@@ -171,7 +171,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -196,12 +196,12 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>  
+            </plugin>
             <!-- extract java card api classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
+                <version>3.1.2</version>
                 <executions>
                     <execution>
                         <phase>initialize</phase>
@@ -220,19 +220,19 @@
                                     <includes>**/*.class</includes>
                                     <excludes>**/java/**/*.class</excludes>
                                 </artifactItem>
-                            </artifactItems>                                    
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-	    <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-        	<artifactId>maven-surefire-plugin</artifactId>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.21.0</version>
-		<configuration>
-		    <argLine>-noverify</argLine>
-		</configuration>
-	    </plugin>                                      
+                <configuration>
+                    <argLine>-noverify</argLine>
+                </configuration>
+            </plugin>
             <!-- patch -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -321,6 +321,7 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
+                                <exclude>META-INF/services/*</exclude>
                             </excludes>
                         </filter>
                     </filters>
@@ -332,33 +333,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
-                            <minimizeJar>true</minimizeJar>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.bouncycastle:*</include>
-                                    <include>com.esotericsoftware:*</include>
-                                    <include>org.objenesis:*</include>
-                                </includes>
-                                <excludes>
-                                    <exclude>oracle.javacard:*</exclude>
-                                    <exclude>oracle.javacard:*:*:*</exclude>
-                                    <exclude>*:api_classic</exclude>
-                                    <exclude>oracle.javacard:api_classic</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>shade-for-android</id>
@@ -367,21 +341,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.bouncycastle:*</include>
-                                    <include>com.esotericsoftware:*</include>
-                                    <include>org.objenesis:*</include>
-                                </includes>
-                                <excludes>
-                                    <exclude>oracle.javacard:*</exclude>
-                                    <exclude>oracle.javacard:*:*:*</exclude>
-                                    <exclude>*:api_classic</exclude>
-                                    <exclude>oracle.javacard:api_classic</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <minimizeJar>true</minimizeJar>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>android</shadedClassifierName>
                             <filters>
@@ -391,6 +350,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/services/*</exclude>
                                         <exclude>java/**</exclude>
                                         <exclude>com/licel/jcardsim/smartcardio/*</exclude>
                                         <exclude>com/licel/jcardsim/remote/*</exclude>
@@ -430,30 +390,30 @@
                         <configuration>
                             <target>
                                 <path id="compileClasspath">
-                                    <file name="${project.build.directory}/jcardsim-${project.version}.jar" />
-                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
+                                    <file name="${project.build.directory}/jcardsim-${project.version}.jar"/>
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar"/>
                                 </path>
 
-                                <delete dir="${ant.build.dir}" />
+                                <delete dir="${ant.build.dir}"/>
                                 <mkdir dir="${ant.build.dir}/src"/>
                                 <mkdir dir="${ant.build.dir}/bin"/>
                                 <mkdir dir="${ant.build.dir}/reports"/>
                                 <mkdir dir="${ant.build.dir}/bin/unpacked"/>
                                 <!-- remove sign -->
                                 <unzip src="${project.build.directory}/jcardsim-${project.version}-android.jar"
-                                        dest="${ant.build.dir}/bin/unpacked">
+                                       dest="${ant.build.dir}/bin/unpacked">
                                     <patternset>
                                         <exclude name="**/*.SF"/>
                                         <exclude name="**/*.RSA"/>
                                     </patternset>
-                                </unzip>                   
+                                </unzip>
                                 <path id="testClasspath">
                                     <file name="${ant.build.dir}/bin/unpacked"/>
-                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar"/>
                                 </path>
-                                
+
                                 <copy todir="${ant.build.dir}/src">
-                                    <fileset dir="${project.basedir}/src/test/java" />
+                                    <fileset dir="${project.basedir}/src/test/java"/>
                                 </copy>
 
                                 <replace dir="${ant.build.dir}/src" value="com.licel.jcardsim.bouncycastle.">
@@ -461,27 +421,29 @@
                                     <replacetoken>org.bouncycastle.</replacetoken>
                                 </replace>
 
-                                <javac srcdir="${ant.build.dir}/src" destdir="${ant.build.dir}/bin" classpathref="compileClasspath" includeantruntime="false" source="${java.version}" />
+                                <javac srcdir="${ant.build.dir}/src" destdir="${ant.build.dir}/bin"
+                                       classpathref="compileClasspath" includeantruntime="false"
+                                       source="${java.version}"/>
 
                                 <copy todir="${ant.build.dir}/bin">
-                                    <fileset dir="${project.basedir}/src/test/resources" />
+                                    <fileset dir="${project.basedir}/src/test/resources"/>
                                 </copy>
 
                                 <echo>Testing shaded JAR: jcardsim-${project.version}-android.jar</echo>
                                 <junit fork="yes" forkmode="once" haltonfailure="yes" printsummary="true">
-				    <jvmarg value="-noverify"/>
+                                    <jvmarg value="-noverify"/>
                                     <classpath>
-                                        <path refid="testClasspath" />
-                                        <pathelement location="${ant.build.dir}/bin" />
+                                        <path refid="testClasspath"/>
+                                        <pathelement location="${ant.build.dir}/bin"/>
                                     </classpath>
-                                    <formatter type="brief" />
+                                    <formatter type="brief"/>
                                     <batchtest todir="${ant.build.dir}/reports">
                                         <fileset dir="${ant.build.dir}/src">
-                                            <include name="**/*Test.java" />
-                                            <exclude name="com/licel/jcardsim/smartcardio/*" />
-                                            <exclude name="com/licel/jcardsim/remote/*" />
-                                            <exclude name="com/licel/jcardsim/DocumentationCodeSamplesTest.*" />
-                                            <exclude name="com/licel/jcardsim/utils/APDUScriptToolTest.*" />
+                                            <include name="**/*Test.java"/>
+                                            <exclude name="com/licel/jcardsim/smartcardio/*"/>
+                                            <exclude name="com/licel/jcardsim/remote/*"/>
+                                            <exclude name="com/licel/jcardsim/DocumentationCodeSamplesTest.*"/>
+                                            <exclude name="com/licel/jcardsim/utils/APDUScriptToolTest.*"/>
                                         </fileset>
                                     </batchtest>
                                 </junit>
