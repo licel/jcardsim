@@ -5,11 +5,10 @@ The official jCardSim source repository is located at [https://github.com/licel/
 
 
 ### Building
-**NOTE:** jCardSim must be built on Windows, because the JCDK is no longer packaged for other platforms. However, the JAR files produced by the build are still cross-platform.
 
 1. Install the [Java Development Kit (JDK) 8](http://www.oracle.com/technetwork/java/javase/downloads/) from Oracle.
 
-2. Install the [Java Card Classic Development Kit](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/) from Oracle, which provides the Java Card API classes. The installer should automatically set the `JC_CLASSIC_HOME` environment variable system-wide.
+2. Install the [Java Card Classic Development Kit](http://www.oracle.com/technetwork/java/embedded/javacard/downloads/) from Oracle, which provides the Java Card API classes. Set the `JC_CLASSIC_HOME` environment variable system-wide.
 
 3. Install [Apache Maven](https://maven.apache.org/download.html), which is used to build jCardSim. Follow the [installation tips](https://maven.apache.org/install.html) to set the `PATH` and `JAVA_HOME` environment variables.
 
