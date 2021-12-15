@@ -2,13 +2,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.licel</groupId>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netbeans.hint.license>apache20</netbeans.hint.license>
+        <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+        <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
+        <junit.version>4.13.2</junit.version>
+        <java.version>1.7</java.version>
+        <jcApiVersion>3.0.5</jcApiVersion>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <asm.version>9.2</asm.version>
+        <github.dev.host>github.com</github.dev.host>
+        <group.id>com.licel</group.id>
+    </properties>
+
+    <groupId>${group.id}</groupId>
     <version>3.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/${github.username}/jcardsim</url>
 
     <artifactId>jcardsim</artifactId>
-    <name>Java Card Runime Environment Simulator</name>
+    <name>Java Card Runtime Environment Simulator</name>
     <description>jCardSim is open-source library contains implementation of Java Card API</description>
 
     <organization>
@@ -22,49 +37,40 @@
             <name>jCardSim Team</name>
             <organization>Licel Corporation</organization>
         </developer>
+        <developer>
+            <email>${github.mail}</email>
+            <name>${github.name}</name>
+        </developer>
     </developers>
 
     <licenses>
         <license>
             <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.hint.license>apache20</netbeans.hint.license>
-        <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
-        <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
-        <junit.version>4.13.2</junit.version>
-        <java.version>1.7</java.version>
-        <jcApiVersion>3.0.5</jcApiVersion>
-        <asm.version>9.2</asm.version>
-    </properties>
-
     <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
-            <id>bintray-jcardsim-maven-jCardSim</id>
-            <name>jcardsim-maven-jCardSim</name>
-            <url>https://api.bintray.com/maven/jcardsim/maven/jCardSim</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:licel/jcardsim.git</connection>
-        <developerConnection>scm:git:git@github.com:licel/jcardsim.git</developerConnection>
-        <url>git@github.com:licel/jcardsim.git</url>
+        <connection>scm:git:git@github.com:${github.username}/jcardsim.git</connection>
+        <developerConnection>scm:git:git@${github.dev.host}:${github.username}/jcardsim.git</developerConnection>
+        <url>git@github.com:${github.username}/jcardsim.git</url>
     </scm>
 
     <profiles>
         <profile>
-            <id>sign</id>
-            <activation>
-                <property>
-                    <name>keystoreLocation</name>
-                </property>
-            </activation>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
@@ -84,36 +90,52 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
+                        <version>3.2.0</version>
                         <configuration>
+                            <links>
+                                <link>https://docs.oracle.com/javase/7/docs/api/</link>
+                                <link>https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
+                            </links>
                             <author>false</author>
+                            <source>7</source>
                             <bottom><![CDATA[&nbsp;]]></bottom>
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                        <version>1.2</version>
                         <executions>
                             <execution>
-                                <id>sign</id>
+                                <id>attach-javadocs</id>
                                 <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>verify</id>
-                                <goals>
-                                    <goal>verify</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
                         <configuration>
-                            <keystore>${keystoreLocation}</keystore>
-                            <alias>${keyAlias}</alias>
-                            <storepass>${keystorePass}</storepass>
-                            <keypass>${keyPass}</keypass>
-                            <storetype>${storeType}</storetype>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -157,11 +179,13 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy nexus-staging:release</goals>
                 </configuration>
             </plugin>
             <plugin>
@@ -248,19 +272,6 @@
                         <version>${asm.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
-                <configuration>
-                    <links>
-                        <link>https://docs.oracle.com/javase/7/docs/api/</link>
-                        <link>https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
-                    </links>
-                    <author>false</author>
-                    <source>7</source>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,31 +1,5 @@
-jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
-========
-
-### Congratulations! jCardSim has won [Duke's Choice 2013 Award](https://www.java.net/dukeschoice/2013)!
-
-![alt text](https://licelus.com/wp-content/uploads/DCA2013_Badge_Winner.jpg "jCardSim is a winner of Duke's Choice 2013")
-
-This repo is including several [pull request from the original GitHub repository](https://github.com/licel/jcardsim/pulls) 
-and an up-to-date release files with all changes.
-
-The following pull request have been included:
-
-* #176: Wrap 'nbsp' to CDATA in pom.xml
-* #174: test: Do not reuse KeyPair context to generate second key pair
-* #171: Bump bcprov-jdk14 from 1.46 to 1.67
-* #158: Do not throw CryptoException if EC KeyBuilder.buildKey() does not match a known curve
-* #157: Max case 4 command APDU size is 261
-* #155: Add option to randomize RandomData
-* #151: Building on Linux w/ vpcd support
-* #141: Make SecureRandom securely random
-* #138: Logical Channel Support / pom.xml fix
-* #113 Added resize of ByteContainer for longer buffer
-
-Not included are:
-
-* #75: Fix AssymetricSignatureImpl behaviour wrt ISO9796_MR signatures: covered by more recent patches
-* #62: Intercept Shareable creation with proxy: correctness of patch not verified
-* #159: Simulate card removal and insertion by raising SIGUSR2 (when using vpcd): This is using an internal Java API
+jCardSim (Forked repo of the [jCardSim](http://jcardsim.org) project)
+======
 
 jCardSim is an open source simulator for Java Card, v3.0.5:
 
@@ -61,12 +35,33 @@ assertEquals(0x9000, response.getSW());
 * APDU scripting (scripts are compatible with `apdutool` from Java Card Development Kit)
 * Simplifies verification tests creation (Common Criteria)
 
-*JavaDoc*: https://github.com/licel/jcardsim/tree/master/javadoc
+[*JavaDoc*](./javadoc)
 
-  (Javadoc rendered: https://jcardsim.org/jcardsim/)
+### Upstream Project Changes 
 
-*Latest release 3.0.5*: https://github.com/licel/jcardsim/raw/master/jcardsim-3.0.5-SNAPSHOT.jar
+This repo is including several [pull request from the original GitHub repository](https://github.com/licel/jcardsim/pulls)
+and an up-to-date release files with all changes.
 
+For issues reporting please use the upstream project. Pull requests can be created.
+
+The following pull request have been included:
+
+* 176: Wrap 'nbsp' to CDATA in pom.xml
+* 174: test: Do not reuse KeyPair context to generate second key pair
+* 171: Bump bcprov-jdk14 from 1.46 to 1.67
+* 158: Do not throw CryptoException if EC KeyBuilder.buildKey() does not match a known curve
+* 157: Max case 4 command APDU size is 261
+* 155: Add option to randomize RandomData
+* 151: Building on Linux w/ vpcd support
+* 141: Make SecureRandom securely random
+* 138: Logical Channel Support / pom.xml fix
+* 113 Added resize of ByteContainer for longer buffer
+
+Not included are:
+
+* 75: Fix AssymetricSignatureImpl behaviour wrt ISO9796_MR signatures: covered by more recent patches
+* 62: Intercept Shareable creation with proxy: correctness of patch not verified
+* 159: Simulate card removal and insertion by raising SIGUSR2 (when using vpcd): This is using an internal Java API
 
 ### What is the difference from Oracle Java Card Development Kit simulator?
 
@@ -85,6 +80,12 @@ assertEquals(0x9000, response.getSW());
 * **Cross-platform**
 
   jCardSim is completely written in Java and can therefore be used on all platforms which support Java (Windows, Linux, MacOS, etc).
+
+### Maintainer Information
+
+* [Building & Development](./sitedocs/getting_source_and_compiling.md)
+* [Quick Start Guide: API](./sitedocs/quick_start_guide_simulator_api.md)
+* [Quick Start Guide: CLI](./sitedocs/quick_start_guide_using_in_cli_mode.md)
 
 ### How to help jCardSim?
 
