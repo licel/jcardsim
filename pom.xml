@@ -40,6 +40,7 @@
         <junit.version>4.13.2</junit.version>
         <java.version>1.7</java.version>
         <jcApiVersion>3.0.5</jcApiVersion>
+        <asm.version>9.2</asm.version>
     </properties>
 
     <distributionManagement>
@@ -147,22 +148,8 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-tree</artifactId>
-            <version>7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
-            <version>7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-analysis</artifactId>
-            <version>7.2</version>
+            <version>${asm.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -250,22 +237,17 @@
                             <arguments>
                                 <argument>${project.build.directory}/classes</argument>
                             </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>pom</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>com.licel.jcardsim.utils.PomProcessor</mainClass>
-                            <arguments>
-                                <argument>${project.build.directory}</argument>
-                            </arguments>
+                            <includePluginDependencies>true</includePluginDependencies>
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-commons</artifactId>
+                        <version>${asm.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
