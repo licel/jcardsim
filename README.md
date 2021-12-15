@@ -25,7 +25,7 @@ Not included are:
 
 * #75: Fix AssymetricSignatureImpl behaviour wrt ISO9796_MR signatures: covered by more recent patches
 * #62: Intercept Shareable creation with proxy: correctness of patch not verified
-* #159: Simulate card removal and insertion by raising SIGUSR2 (when using vpcd): Not yet included
+* #159: Simulate card removal and insertion by raising SIGUSR2 (when using vpcd): This is using an internal Java API
 
 jCardSim is an open source simulator for Java Card, v3.0.5:
 
