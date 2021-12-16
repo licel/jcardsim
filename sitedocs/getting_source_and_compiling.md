@@ -16,7 +16,7 @@ mvn clean install
 
 ### Creating Release
 
-Open Maven's `settings.xml`:
+Open Maven's `settings.xml` and edit to fit your settings:
 
 ~~~xml
 <profiles>
@@ -24,7 +24,7 @@ Open Maven's `settings.xml`:
         <id>jcardsim</id>
         <properties>
             <!-- the group id to use for the artifact - each deployment must use a unique-->
-            <group.id>de.ohmesoftware</group.id>
+            <group.id>your registered Sonatype coordinates</group.id>
             <!-- Run gpg --list-signatures --keyid-format 0xshort and select the key id -->
             <gpg.keyname>0x.....</gpg.keyname>
             <github.username>github username</github.username>
@@ -43,6 +43,11 @@ Release the jar on Sonatype:
 mvn release:clean release:prepare -Pjcardsim
 mvn release:perform -Pjcardsim
 ~~~
+
+__NOTE:__ It might take a while (multiple hours) until the Sonatype Nexus server has successfully checked the 
+upload in the staging environment and closed it. Because the Nexus Maven plugin times out after 300 seconds 
+it might report that the connection was reset or the build failed because of a rule check. 
+This might be not the case. Wait until the upload is marked as closed and release it manually in the  Nexus UI.
 
 ### Development
 jCardSim is an open source project, and it would be a pleasure for us to see you as committers and contributors!

@@ -35,7 +35,10 @@ assertEquals(0x9000, response.getSW());
 * APDU scripting (scripts are compatible with `apdutool` from Java Card Development Kit)
 * Simplifies verification tests creation (Common Criteria)
 
-[*JavaDoc*](./javadoc)
+### Usage Information
+
+* [Quick Start Guide: API](./sitedocs/quick_start_guide_simulator_api.md)
+* [Quick Start Guide: CLI](./sitedocs/quick_start_guide_using_in_cli_mode.md)
 
 ### Upstream Project Changes 
 
@@ -84,8 +87,6 @@ Not included are:
 ### Maintainer Information
 
 * [Building & Development](./sitedocs/getting_source_and_compiling.md)
-* [Quick Start Guide: API](./sitedocs/quick_start_guide_simulator_api.md)
-* [Quick Start Guide: CLI](./sitedocs/quick_start_guide_using_in_cli_mode.md)
 
 ### How to help jCardSim?
 
