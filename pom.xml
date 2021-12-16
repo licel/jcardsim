@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
@@ -18,7 +17,7 @@
     </properties>
 
     <groupId>${group.id}</groupId>
-    <version>3.0.5-SNAPSHOT</version>
+    <version>3.0.5-1</version>
     <packaging>jar</packaging>
     <url>https://github.com/${github.username}/jcardsim</url>
 
@@ -66,7 +65,8 @@
         <connection>scm:git:git@github.com:${github.username}/jcardsim.git</connection>
         <developerConnection>scm:git:git@${github.dev.host}:${github.username}/jcardsim.git</developerConnection>
         <url>git@github.com:${github.username}/jcardsim.git</url>
-    </scm>
+      <tag>jcardsim-3.0.5-1</tag>
+  </scm>
 
     <profiles>
         <profile>
@@ -383,60 +383,57 @@
                         <configuration>
                             <target>
                                 <path id="compileClasspath">
-                                    <file name="${project.build.directory}/jcardsim-${project.version}.jar"/>
-                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar"/>
+                                    <file name="${project.build.directory}/jcardsim-${project.version}.jar" />
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
                                 </path>
 
-                                <delete dir="${ant.build.dir}"/>
-                                <mkdir dir="${ant.build.dir}/src"/>
-                                <mkdir dir="${ant.build.dir}/bin"/>
-                                <mkdir dir="${ant.build.dir}/reports"/>
-                                <mkdir dir="${ant.build.dir}/bin/unpacked"/>
+                                <delete dir="${ant.build.dir}" />
+                                <mkdir dir="${ant.build.dir}/src" />
+                                <mkdir dir="${ant.build.dir}/bin" />
+                                <mkdir dir="${ant.build.dir}/reports" />
+                                <mkdir dir="${ant.build.dir}/bin/unpacked" />
                                 <!-- remove sign -->
-                                <unzip src="${project.build.directory}/jcardsim-${project.version}-android.jar"
-                                       dest="${ant.build.dir}/bin/unpacked">
+                                <unzip src="${project.build.directory}/jcardsim-${project.version}-android.jar" dest="${ant.build.dir}/bin/unpacked">
                                     <patternset>
-                                        <exclude name="**/*.SF"/>
-                                        <exclude name="**/*.RSA"/>
+                                        <exclude name="**/*.SF" />
+                                        <exclude name="**/*.RSA" />
                                     </patternset>
                                 </unzip>
                                 <path id="testClasspath">
-                                    <file name="${ant.build.dir}/bin/unpacked"/>
-                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar"/>
+                                    <file name="${ant.build.dir}/bin/unpacked" />
+                                    <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
                                 </path>
 
                                 <copy todir="${ant.build.dir}/src">
-                                    <fileset dir="${project.basedir}/src/test/java"/>
+                                    <fileset dir="${project.basedir}/src/test/java" />
                                 </copy>
 
                                 <replace dir="${ant.build.dir}/src" value="com.licel.jcardsim.bouncycastle.">
-                                    <include name="**/*.java"/>
+                                    <include name="**/*.java" />
                                     <replacetoken>org.bouncycastle.</replacetoken>
                                 </replace>
 
-                                <javac srcdir="${ant.build.dir}/src" destdir="${ant.build.dir}/bin"
-                                       classpathref="compileClasspath" includeantruntime="false"
-                                       source="${java.version}"/>
+                                <javac srcdir="${ant.build.dir}/src" destdir="${ant.build.dir}/bin" classpathref="compileClasspath" includeantruntime="false" source="${java.version}" />
 
                                 <copy todir="${ant.build.dir}/bin">
-                                    <fileset dir="${project.basedir}/src/test/resources"/>
+                                    <fileset dir="${project.basedir}/src/test/resources" />
                                 </copy>
 
                                 <echo>Testing shaded JAR: jcardsim-${project.version}-android.jar</echo>
                                 <junit fork="yes" forkmode="once" haltonfailure="yes" printsummary="true">
-                                    <jvmarg value="-noverify"/>
+                                    <jvmarg value="-noverify" />
                                     <classpath>
-                                        <path refid="testClasspath"/>
-                                        <pathelement location="${ant.build.dir}/bin"/>
+                                        <path refid="testClasspath" />
+                                        <pathelement location="${ant.build.dir}/bin" />
                                     </classpath>
-                                    <formatter type="brief"/>
+                                    <formatter type="brief" />
                                     <batchtest todir="${ant.build.dir}/reports">
                                         <fileset dir="${ant.build.dir}/src">
-                                            <include name="**/*Test.java"/>
-                                            <exclude name="com/licel/jcardsim/smartcardio/*"/>
-                                            <exclude name="com/licel/jcardsim/remote/*"/>
-                                            <exclude name="com/licel/jcardsim/DocumentationCodeSamplesTest.*"/>
-                                            <exclude name="com/licel/jcardsim/utils/APDUScriptToolTest.*"/>
+                                            <include name="**/*Test.java" />
+                                            <exclude name="com/licel/jcardsim/smartcardio/*" />
+                                            <exclude name="com/licel/jcardsim/remote/*" />
+                                            <exclude name="com/licel/jcardsim/DocumentationCodeSamplesTest.*" />
+                                            <exclude name="com/licel/jcardsim/utils/APDUScriptToolTest.*" />
                                         </fileset>
                                     </batchtest>
                                 </junit>
