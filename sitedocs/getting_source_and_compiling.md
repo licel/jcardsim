@@ -44,6 +44,9 @@ mvn release:clean release:prepare -Pjcardsim
 mvn release:perform -Pjcardsim
 ~~~
 
+When being asked for a version number use the pattern 'Java Card version-buildnumber', e.g.'3.0.5-1'. 
+The version of the jar seems to be aligned with the Java Card version, so only the build number can be used for updates.
+
 __NOTE:__ It might take a while (multiple hours) until the Sonatype Nexus server has successfully checked the 
 upload in the staging environment and closed it. Because the Nexus Maven plugin times out after 300 seconds 
 it might report that the connection was reset or the build failed because of a rule check. 
