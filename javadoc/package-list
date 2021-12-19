@@ -1,9 +1,0 @@
-com.licel.jcardsim.base
-com.licel.jcardsim.crypto
-com.licel.jcardsim.framework
-com.licel.jcardsim.framework.service
-com.licel.jcardsim.io
-com.licel.jcardsim.remote
-com.licel.jcardsim.samples
-com.licel.jcardsim.smartcardio
-com.licel.jcardsim.utils
