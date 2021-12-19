@@ -147,7 +147,7 @@
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
-            <version>5.2.0</version>
+            <version>5.2.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -166,6 +166,7 @@
             <version>${jcApiVersion}</version>
             <systemPath>${env.JC_CLASSIC_HOME}/lib/api_classic-${jcApiVersion}.jar</systemPath>
             <scope>system</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -177,6 +178,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>${group.id}.${artifactId}</Automatic-Module-Name>
+                            <Build-By>${github.name}</Build-By>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -315,6 +329,7 @@
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
                                 <exclude>META-INF/services/*</exclude>
+                                <exclude>META-INF/versions/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
@@ -344,6 +359,7 @@
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
                                         <exclude>META-INF/services/*</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
                                         <exclude>java/**</exclude>
                                         <exclude>com/licel/jcardsim/smartcardio/*</exclude>
                                         <exclude>com/licel/jcardsim/remote/*</exclude>
