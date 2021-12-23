@@ -60,7 +60,11 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
     public ECKeyImpl(byte keyType, short keySize) {
         this.size = keySize;
         this.type = keyType;
-        setDomainParameters(getDefaultsDomainParameters(type, size));
+        try {
+            setDomainParameters(getDefaultsDomainParameters(type, size));
+        } catch (CryptoException e) {
+            clearKeyInternal();
+        }
     }
 
     /**
@@ -79,16 +83,21 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
         setDomainParameters(parameters.getParameters());
     }
 
-    public void clearKey() {
+    private void clearKeyInternal() {
         a.clear();
         b.clear();
         g.clear();
         r.clear();
         fp.clear();
         k = 0;
+        isKInitialized = false;
         e1 = 0;
         e2 = 0;
         e3 = 0;
+    }
+
+    public void clearKey() {
+        clearKeyInternal();
     }
 
     protected boolean isDomainParametersInitialized() {
@@ -191,7 +200,7 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
         a.setBigInteger(parameters.getCurve().getA().toBigInteger());
         b.setBigInteger(parameters.getCurve().getB().toBigInteger());
         // generator
-        g.setBytes(parameters.getG().getEncoded());
+        g.setBytes(parameters.getG().getEncoded(false));
         // order
         r.setBigInteger(parameters.getN());
         // cofactor

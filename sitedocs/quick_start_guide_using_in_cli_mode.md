@@ -9,7 +9,7 @@ jCardSim includes two classes which run an instance of the simulator directly fr
 
 **Start parameters:**
 
-	java -cp jcardsim-2.2.2-all.jar com.licel.jcardsim.utils.APDUScriptTool <jcardsim.cfg> <apdu script> [out file]
+	java -cp jcardsim-<version>.jar com.licel.jcardsim.utils.APDUScriptTool <jcardsim.cfg> <apdu script> [out file]
 
 
 *jcardsim.cfg*, is a file with settings for the simulator. In it you can set information about your applets. It has the following format:
@@ -68,7 +68,7 @@ Let's write a C-APDU script for our HelloWorld applet:
 
 Now we save the C-APDU script into the file `helloworld.apdu` and start the simulator. If we do not provide a third parameter the results will be printed on the console.
 
-	java -cp jcardsim-2.2.1-all.jar com.licel.jcardsim.utils.APDUScriptTool jcardsim.cfg helloworld.apdu
+	java -cp jcardsim-<version>.jar com.licel.jcardsim.utils.APDUScriptTool jcardsim.cfg helloworld.apdu
 
 **Result:**
 

@@ -1,16 +1,30 @@
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.licel</groupId>
-    <version>3.0.5-SNAPSHOT</version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <netbeans.hint.license>apache20</netbeans.hint.license>
+        <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+        <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
+        <junit.version>4.13.2</junit.version>
+        <java.version>1.7</java.version>
+        <jcApiVersion>3.0.5</jcApiVersion>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <asm.version>9.2</asm.version>
+        <github.dev.host>github.com</github.dev.host>
+        <group.id>com.licel</group.id>
+    </properties>
+
+    <groupId>${group.id}</groupId>
+    <version>3.0.5-3-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/${github.username}/jcardsim</url>
 
     <artifactId>jcardsim</artifactId>
-    <name>Java Card Runime Environment Simulator</name>
+    <name>Java Card Runtime Environment Simulator</name>
     <description>jCardSim is open-source library contains implementation of Java Card API</description>
-    
+
     <organization>
         <name>Licel Corporation</name>
         <url>https://licelus.com</url>
@@ -22,54 +36,47 @@
             <name>jCardSim Team</name>
             <organization>Licel Corporation</organization>
         </developer>
+        <developer>
+            <email>${github.mail}</email>
+            <name>${github.name}</name>
+        </developer>
     </developers>
-    
+
     <licenses>
         <license>
             <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.hint.license>apache20</netbeans.hint.license>
-        <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
-        <ant.build.dir>${project.build.directory}/antrun/build</ant.build.dir>
-        <junit.version>4.13.1</junit.version>
-        <java.version>1.7</java.version>
-        <jcApiVersion>3.0.5</jcApiVersion>
-    </properties>
-    
     <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
-            <id>bintray-jcardsim-maven-jCardSim</id>
-            <name>jcardsim-maven-jCardSim</name>
-            <url>https://api.bintray.com/maven/jcardsim/maven/jCardSim</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-    </distributionManagement>    
+    </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:licel/jcardsim.git</connection>
-        <developerConnection>scm:git:git@github.com:licel/jcardsim.git</developerConnection>
-        <url>git@github.com:licel/jcardsim.git</url>
-    </scm>
-    
+        <connection>scm:git:git@github.com:${github.username}/jcardsim.git</connection>
+        <developerConnection>scm:git:git@${github.dev.host}:${github.username}/jcardsim.git</developerConnection>
+        <url>git@github.com:${github.username}/jcardsim.git</url>
+      <tag>HEAD</tag>
+  </scm>
+
     <profiles>
         <profile>
-            <id>sign</id>
-            <activation>
-                <property>
-                    <name>keystoreLocation</name>
-                </property>
-            </activation>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.2.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -79,52 +86,68 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>                    
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
+                        <version>3.2.0</version>
                         <configuration>
+                            <links>
+                                <link>https://docs.oracle.com/javase/7/docs/api/</link>
+                                <link>https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
+                            </links>
                             <author>false</author>
-                            <bottom>&nbsp;</bottom>
-                        </configuration>    
-                    </plugin>            
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                        <version>1.2</version>
+                            <source>7</source>
+                            <bottom><![CDATA[&nbsp;]]></bottom>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>sign</id>
+                                <id>attach-javadocs</id>
                                 <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>verify</id>
-                                <goals>
-                                    <goal>verify</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
                         <configuration>
-                            <keystore>${keystoreLocation}</keystore>
-                            <alias>${keyAlias}</alias>
-                            <storepass>${keystorePass}</storepass>
-                            <keypass>${keyPass}</keypass>
-                            <storetype>${storeType}</storetype>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
                         </configuration>
-                    </plugin>                
+                    </plugin>
                 </plugins>
             </build>
-        </profile> 
+        </profile>
     </profiles>
-  
+
     <dependencies>
         <dependency>
-           <groupId>com.esotericsoftware</groupId>
-           <artifactId>kryo</artifactId>
-           <version>5.2.0</version>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>kryo</artifactId>
+            <version>5.2.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -134,34 +157,22 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk14</artifactId>
-            <version>1.46</version>
+            <artifactId>bcprov-debug-jdk15on</artifactId>
+            <version>1.69</version>
         </dependency>
         <dependency>
             <groupId>oracle.javacard</groupId>
             <artifactId>api_classic</artifactId>
             <version>${jcApiVersion}</version>
-            <scope>compile</scope>
+            <systemPath>${env.JC_CLASSIC_HOME}/lib/api_classic-${jcApiVersion}.jar</systemPath>
+            <scope>system</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-tree</artifactId>
-            <version>7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
-            <version>7.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-analysis</artifactId>
-            <version>7.2</version>
+            <version>${asm.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -169,11 +180,26 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>${group.id}.${artifactId}</Automatic-Module-Name>
+                            <Build-By>${github.name}</Build-By>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy nexus-staging:release</goals>
                 </configuration>
             </plugin>
             <plugin>
@@ -191,19 +217,19 @@
                             <artifactId>api_classic</artifactId>
                             <version>${jcApiVersion}</version>
                             <packaging>jar</packaging>
-                            <file>${env.JC_CLASSIC_HOME}/lib/api_classic.jar</file>
+                            <file>${env.JC_CLASSIC_HOME}/lib/api_classic-${jcApiVersion}.jar</file>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>  
+            </plugin>
             <!-- extract java card api classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
+                <version>3.1.2</version>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -219,19 +245,19 @@
                                     <includes>**/*.class</includes>
                                     <excludes>**/java/**/*.class</excludes>
                                 </artifactItem>
-                            </artifactItems>                                    
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-	    <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-        	<artifactId>maven-surefire-plugin</artifactId>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.21.0</version>
-		<configuration>
-		    <argLine>-noverify</argLine>
-		</configuration>
-	    </plugin>                                      
+                <configuration>
+                    <argLine>-noverify</argLine>
+                </configuration>
+            </plugin>
             <!-- patch -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -249,35 +275,17 @@
                             <arguments>
                                 <argument>${project.build.directory}/classes</argument>
                             </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>pom</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>com.licel.jcardsim.utils.PomProcessor</mainClass>
-                            <arguments>
-                                <argument>${project.build.directory}</argument>
-                            </arguments>
+                            <includePluginDependencies>true</includePluginDependencies>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
-                <configuration>
-                    <links>
-                        <link>https://docs.oracle.com/javase/7/docs/api/</link>
-                        <link>https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/</link>
-                    </links>
-                    <author>false</author>
-                    <source>7</source>
-                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-commons</artifactId>
+                        <version>${asm.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -320,6 +328,8 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
+                                <exclude>META-INF/services/*</exclude>
+                                <exclude>META-INF/versions/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
@@ -331,33 +341,6 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
-                            <minimizeJar>true</minimizeJar>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.bouncycastle:*</include>
-                                    <include>com.esotericsoftware:*</include>
-                                    <include>org.objenesis:*</include>
-                                </includes>
-                                <excludes>
-                                    <exclude>oracle.javacard:*</exclude>
-                                    <exclude>oracle.javacard:*:*:*</exclude>
-                                    <exclude>*:api_classic</exclude>
-                                    <exclude>oracle.javacard:api_classic</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>shade-for-android</id>
@@ -366,21 +349,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.bouncycastle:*</include>
-                                    <include>com.esotericsoftware:*</include>
-                                    <include>org.objenesis:*</include>
-                                </includes>
-                                <excludes>
-                                    <exclude>oracle.javacard:*</exclude>
-                                    <exclude>oracle.javacard:*:*:*</exclude>
-                                    <exclude>*:api_classic</exclude>
-                                    <exclude>oracle.javacard:api_classic</exclude>
-                                </excludes>
-                            </artifactSet>
-                            <minimizeJar>true</minimizeJar>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>android</shadedClassifierName>
                             <filters>
@@ -390,6 +358,8 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/services/*</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
                                         <exclude>java/**</exclude>
                                         <exclude>com/licel/jcardsim/smartcardio/*</exclude>
                                         <exclude>com/licel/jcardsim/remote/*</exclude>
@@ -434,29 +404,28 @@
                                 </path>
 
                                 <delete dir="${ant.build.dir}" />
-                                <mkdir dir="${ant.build.dir}/src"/>
-                                <mkdir dir="${ant.build.dir}/bin"/>
-                                <mkdir dir="${ant.build.dir}/reports"/>
-                                <mkdir dir="${ant.build.dir}/bin/unpacked"/>
+                                <mkdir dir="${ant.build.dir}/src" />
+                                <mkdir dir="${ant.build.dir}/bin" />
+                                <mkdir dir="${ant.build.dir}/reports" />
+                                <mkdir dir="${ant.build.dir}/bin/unpacked" />
                                 <!-- remove sign -->
-                                <unzip src="${project.build.directory}/jcardsim-${project.version}-android.jar"
-                                        dest="${ant.build.dir}/bin/unpacked">
+                                <unzip src="${project.build.directory}/jcardsim-${project.version}-android.jar" dest="${ant.build.dir}/bin/unpacked">
                                     <patternset>
-                                        <exclude name="**/*.SF"/>
-                                        <exclude name="**/*.RSA"/>
+                                        <exclude name="**/*.SF" />
+                                        <exclude name="**/*.RSA" />
                                     </patternset>
-                                </unzip>                   
+                                </unzip>
                                 <path id="testClasspath">
-                                    <file name="${ant.build.dir}/bin/unpacked"/>
+                                    <file name="${ant.build.dir}/bin/unpacked" />
                                     <file name="${user.home}/.m2/repository/junit/junit/${junit.version}/junit-${junit.version}.jar" />
                                 </path>
-                                
+
                                 <copy todir="${ant.build.dir}/src">
                                     <fileset dir="${project.basedir}/src/test/java" />
                                 </copy>
 
                                 <replace dir="${ant.build.dir}/src" value="com.licel.jcardsim.bouncycastle.">
-                                    <include name="**/*.java"/>
+                                    <include name="**/*.java" />
                                     <replacetoken>org.bouncycastle.</replacetoken>
                                 </replace>
 
@@ -468,7 +437,7 @@
 
                                 <echo>Testing shaded JAR: jcardsim-${project.version}-android.jar</echo>
                                 <junit fork="yes" forkmode="once" haltonfailure="yes" printsummary="true">
-				    <jvmarg value="-noverify"/>
+                                    <jvmarg value="-noverify" />
                                     <classpath>
                                         <path refid="testClasspath" />
                                         <pathelement location="${ant.build.dir}/bin" />

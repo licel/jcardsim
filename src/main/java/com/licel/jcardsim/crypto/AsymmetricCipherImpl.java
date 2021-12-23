@@ -74,7 +74,7 @@ public class AsymmetricCipherImpl extends Cipher {
         }
         ParametersWithRandom params = new ParametersWithRandom(((KeyWithParameters) theKey).getParameters(), new SecureRandomNullProvider());
         engine.init(theMode == MODE_ENCRYPT, params);
-        buffer = JCSystem.makeTransientByteArray((short) engine.getInputBlockSize(), JCSystem.CLEAR_ON_DESELECT);
+        buffer = JCSystem.makeTransientByteArray((short) (engine.getInputBlockSize() + 1), JCSystem.CLEAR_ON_DESELECT);
         bufferPos = 0;
         isInitialized = true;
     }

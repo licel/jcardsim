@@ -8,6 +8,7 @@ jCardSim provides an API for rapid prototyping of Java Card applications and uni
 
 ### Using the `CardSimulator` class
 
+~~~java
 	// 1. Create simulator
 	CardSimulator simulator = new CardSimulator();
 
@@ -24,13 +25,15 @@ jCardSim provides an API for rapid prototyping of Java Card applications and uni
 
 	// 5. Check response status word
 	assertEquals(0x9000, response.getSW());
+~~~
 
-The example below uses [`HelloWorldApplet`](https://github.com/licel/jcardsim/blob/master/src/main/java/com/licel/jcardsim/samples/HelloWorldApplet.java), which responds to command APDUs as follows:
+The example below uses [`HelloWorldApplet`](../src/main/java/com/licel/jcardsim/samples/HelloWorldApplet.java), which responds to command APDUs as follows:
 
  - `CLA=0x00 INS=0x02 P1=0x00 P2=0x00 LC=0x00`: do nothing
  - `CLA=0x00 INS=0x01 P1=0x00 P2=0x00 LC=0x00`: return the bytes in "Hello world !"
  - `CLA=0x00 INS=0x01 P1=0x01 P2=0x00 LC=<length> DATA=<data>`: return the command data (echo)
 
+ ~~~java
 	CardSimulator simulator = new CardSimulator();
 
 	byte[] appletAIDBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -53,15 +56,19 @@ The example below uses [`HelloWorldApplet`](https://github.com/licel/jcardsim/bl
 	response = simulator.transmitCommand(echo);
 	assertEquals(0x9000, response.getSW());
 	assertEquals("Hello javacard world !", new String(response.getData()));
+~~~
 
 It is also possible to work with plain `byte` arrays, for example:
 
+~~~java
 	// test NOP
 	byte[] response = simulator.transmitCommand(new byte[]{0,2,0,0});
 	ByteUtil.requireSW(response, 0x9000);
+~~~
 
 To simplify the handling of AIDs and byte arrays we provide `AIDUtil` and `ByteUtil`:
 
+~~~java
 	// AID from byte array
 	AID applet1AID = AIDUtil.create(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9});
 
@@ -78,11 +85,13 @@ To simplify the handling of AIDs and byte arrays we provide `AIDUtil` and `ByteU
 
 	assertEquals("00020000", hexString);
 	assertEquals("00020000", ByteUtil.hexString(bytes));
+~~~
 
 ### Using the `CardTerminalSimulator` class
 
 To simplify unit testing of applications that use `javax.smartcardio`, we provide a `CardTerminalSimulator` class that simulates `javax.smartcardio.TerminalFactory`.
 
+~~~java
 	// 1. Create simulator and install applet
 	CardSimulator simulator = new CardSimulator();
 	AID appletAID = AIDUtil.create("F000000001");
@@ -105,16 +114,17 @@ To simplify unit testing of applications that use `javax.smartcardio`, we provid
 
 	// 6. Check response status word
 	assertEquals(0x9000, response.getSW());
+~~~
 
 **Note:** Pre-installed applets can be configured using system properties: `System.setProperty(...)`.
-Properties follow the same format used in the [CLI configuration file](https://github.com/licel/jcardsim/blob/master/jcardsim.cfg).
+Properties follow the same format used in the [CLI configuration file](../jcardsim.cfg).
 
 It is also possible to simulate multiple terminals using `javax.smartcardio.CardTerminals`.
 In this case each `javax.smartcardio.CardTerminal` starts in an empty state (`isCardPresent()` returns `false`).
 Cards can be inserted via `CardSimulator#assignToTerminal(terminal)` and removed via
 `CardSimulator#assignToTerminal(null)`.
 
-
+~~~java
 	// Obtain CardTerminal
 	CardTerminals cardTerminals = CardTerminalSimulator.terminals("My terminal 1", "My terminal 2");
 	CardTerminal terminal1 = cardTerminals.getTerminal("My terminal 1");
@@ -132,9 +142,11 @@ Cards can be inserted via `CardSimulator#assignToTerminal(terminal)` and removed
 	simulator.assignToTerminal(terminal1);
 	assertEquals(true,  terminal1.isCardPresent());
 	assertEquals(false, terminal2.isCardPresent());
+~~~
 
 Creating a terminal via `javax.smartcardio.TerminalFactory`:
 
+~~~java
 	// Register security provider
 	if (Security.getProvider("CardTerminalSimulator") == null) {
 		Security.addProvider(new CardTerminalSimulator.SecurityProvider());
@@ -151,15 +163,18 @@ Creating a terminal via `javax.smartcardio.TerminalFactory`:
 
 	// Insert Card
 	simulator.assignToTerminal(terminal);
+~~~
 
 Creating multiple terminals via `javax.smartcardio.TerminalFactory`:
 
+~~~java
 	String[] names = new String[] {"My terminal 1", "My terminal 2"};
 	TerminalFactory factory = TerminalFactory.getInstance("CardTerminalSimulator", names);
 
 	CardTerminals cardTerminals = factory.terminals();
 	assertNotNull(cardTerminals.getTerminal("My terminal 1"));
 	assertNotNull(cardTerminals.getTerminal("My terminal 2"));
+~~~
 
 #### Current version's limitations
 
@@ -175,4 +190,4 @@ Previous versions of jCardSim provided a limited `TerminalFactory` implementatio
 It is possible to interact with a remote instance of jCardSim. For example you may
 run one or multiple instances of virtual Java Card and connect to it via TCP/IP.
 
-An example is provided in [JavaCardRemoteServerTest.java](https://github.com/licel/jcardsim/blob/master/src/test/java/com/licel/jcardsim/remote/JavaCardRemoteServerTest.java).
+An example is provided in [JavaCardRemoteServerTest.java](../src/test/java/com/licel/jcardsim/remote/JavaCardRemoteServerTest.java).
