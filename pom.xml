@@ -13,7 +13,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <asm.version>9.2</asm.version>
         <github.dev.host>github.com</github.dev.host>
-        <group.id>com.licel</group.id>
+        <group.id>de.ohmesoftware</group.id>
     </properties>
 
     <groupId>${group.id}</groupId>
