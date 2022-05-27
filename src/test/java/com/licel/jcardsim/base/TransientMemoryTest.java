@@ -1,3 +1,18 @@
+/*
+ * Copyright 2022 Licel Corporation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.samples.Sha1Applet;
@@ -157,5 +172,77 @@ public class TransientMemoryTest extends TestCase {
         responseApdu = new ResponseAPDU(result);
         assertEquals(0x9000, responseApdu.getSW());
         assertEquals(Arrays.toString(new byte[20]), Arrays.toString(responseApdu.getData()));
+    }
+
+    public void testGlobalArrayBooleanType(){
+        final short size = 1;
+
+        TransientMemory transientMemory = new TransientMemory();
+        boolean[] globalBooleans = (boolean[])transientMemory.makeGlobalArray(JCSystem.ARRAY_TYPE_BOOLEAN, size);
+        globalBooleans[0] = true;
+
+        transientMemory.clearOnDeselect();
+        assertTrue(globalBooleans[0]);
+
+        transientMemory.clearOnReset();
+        assertTrue(!globalBooleans[0]);
+    }
+
+    public void testGlobalArrayByteType(){
+        final short size = 1;
+
+        TransientMemory transientMemory = new TransientMemory();
+        byte[] globalBytes = (byte[])transientMemory.makeGlobalArray(JCSystem.ARRAY_TYPE_BYTE, size);
+        globalBytes[0] = (byte)0x5A;
+
+        transientMemory.clearOnDeselect();
+        assertTrue(globalBytes[0] == 0x5A);
+
+        transientMemory.clearOnReset();
+        assertTrue(globalBytes[0] == 0);
+    }
+
+    public void testGlobalArrayShortType(){
+        final short size = 1;
+
+        TransientMemory transientMemory = new TransientMemory();
+        short[] globalShorts = (short[])transientMemory.makeGlobalArray(JCSystem.ARRAY_TYPE_SHORT, size);
+        globalShorts[0] = (short)0x5A7F;
+
+        transientMemory.clearOnDeselect();
+        assertTrue(globalShorts[0] == 0x5A7F);
+
+        transientMemory.clearOnReset();
+        assertTrue(globalShorts[0] == 0);
+    }
+
+    public void testGlobalArrayObjectType(){
+        final Object dummy = new Object();
+
+        final short size = 1;
+
+        TransientMemory transientMemory = new TransientMemory();
+        Object[] globalObjects = (Object[])transientMemory.makeGlobalArray(JCSystem.ARRAY_TYPE_OBJECT, size);
+        globalObjects[0] = dummy;
+
+        transientMemory.clearOnDeselect();
+        assertTrue(globalObjects[0] == dummy);
+
+        transientMemory.clearOnReset();
+        assertTrue(globalObjects[0] == null);
+    }
+
+    public void testGlobalArrayInvalidType() {
+        final byte invalid = JCSystem.ARRAY_TYPE_INT;
+        final short size = 1;
+        TransientMemory transientMemory = new TransientMemory();
+
+        try {
+            transientMemory.makeGlobalArray(invalid, size);
+            fail("No exception");
+        }
+        catch (SystemException e) {
+            assertEquals(SystemException.ILLEGAL_VALUE, e.getReason());
+        }
     }
 }
