@@ -80,6 +80,36 @@ public class TransientMemory {
     }
 
     /**
+     * @see javacard.framework.JCSystem#makeGlobalArray(byte,short)
+     * @param type the array type - must be one of : ARRAY_TYPE_BOOLEAN, ARRAY_TYPE_BYTE, ARRAY_TYPE_SHORT, ARRAY_TYPE_INT, or ARRAY_TYPE_OBJECT
+     * @param length the length of the global transient array
+     * @return the new transient Object array
+     */
+    public Object makeGlobalArray(byte type, short length){
+        Object array = null;
+        switch (type){
+            case JCSystem.ARRAY_TYPE_BOOLEAN:
+                array = makeBooleanArray(length, JCSystem.CLEAR_ON_RESET);
+                break;
+            case JCSystem.ARRAY_TYPE_BYTE:
+                array = makeByteArray(length, JCSystem.CLEAR_ON_RESET);
+                break;
+            case JCSystem.ARRAY_TYPE_SHORT:
+                array = makeShortArray(length, JCSystem.CLEAR_ON_RESET);
+                break;
+            case JCSystem.ARRAY_TYPE_OBJECT:
+                array = makeObjectArray(length, JCSystem.CLEAR_ON_RESET);
+                break;
+            case JCSystem.ARRAY_TYPE_INT:
+            default:
+                SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+                break;
+        }
+
+        return array;
+    }
+
+    /**
      * @see javacard.framework.JCSystem#isTransient(Object)
      * @param theObj the object being queried
      * @return <code>NOT_A_TRANSIENT_OBJECT</code>, <code>CLEAR_ON_RESET</code>, or <code>CLEAR_ON_DESELECT</code>
