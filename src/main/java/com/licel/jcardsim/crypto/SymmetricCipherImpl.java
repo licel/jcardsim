@@ -15,10 +15,10 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.framework.JCSystem;
-import javacard.framework.Util;
+import javacard.framework.*;
 import javacard.security.CryptoException;
 import javacard.security.Key;
+import javacard.security.KeyBuilder;
 import javacardx.crypto.Cipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
@@ -38,6 +38,7 @@ public class SymmetricCipherImpl extends Cipher {
     byte algorithm;
     BufferedBlockCipher engine;
     boolean isInitialized;
+
 
     public SymmetricCipherImpl(byte algorithm) {
         this.algorithm = algorithm;
@@ -108,6 +109,10 @@ public class SymmetricCipherImpl extends Cipher {
         if (!(theKey instanceof SymmetricKeyImpl)) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
+        if( !checkAlgorithmCompatibility(theKey)){
+            ISOException.throwIt(ISO7816.SW_UNKNOWN);
+        }
+
         SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
         switch (algorithm) {
             case ALG_DES_CBC_NOPAD:
@@ -144,6 +149,43 @@ public class SymmetricCipherImpl extends Cipher {
                 break;
         }
     }
+
+    private boolean checkAlgorithmCompatibility(Key theKey){
+        switch(theKey.getType()){
+            case KeyBuilder.TYPE_DES:
+                case KeyBuilder.TYPE_DES_TRANSIENT_RESET:
+                    case KeyBuilder.TYPE_DES_TRANSIENT_DESELECT:
+                if( (algorithm == Cipher.ALG_DES_CBC_NOPAD) ||
+                        (algorithm == Cipher.ALG_DES_CBC_ISO9797_M1) ||
+                        (algorithm == Cipher.ALG_DES_CBC_ISO9797_M2) ||
+                        (algorithm == Cipher.ALG_DES_CBC_PKCS5) ||
+                        (algorithm == Cipher.ALG_DES_ECB_NOPAD) ||
+                        (algorithm == Cipher.ALG_DES_ECB_ISO9797_M1) ||
+                        (algorithm == Cipher.ALG_DES_ECB_ISO9797_M2) ||
+                        (algorithm == Cipher.ALG_DES_ECB_PKCS5))
+                    return true;
+                break;
+
+            case KeyBuilder.TYPE_AES:
+                case KeyBuilder.TYPE_AES_TRANSIENT_RESET:
+                    case KeyBuilder.TYPE_AES_TRANSIENT_DESELECT:
+                if( (algorithm == Cipher.ALG_AES_CTR) ||
+                        (algorithm == Cipher.ALG_AES_BLOCK_128_CBC_NOPAD) ||
+                        (algorithm == Cipher.ALG_AES_BLOCK_128_ECB_NOPAD) ||
+                        (algorithm == Cipher.ALG_AES_CBC_ISO9797_M1) ||
+                        (algorithm == Cipher.ALG_AES_CBC_ISO9797_M2) ||
+                        (algorithm == Cipher.ALG_AES_CBC_PKCS5) ||
+                        (algorithm == Cipher.ALG_AES_ECB_ISO9797_M1) ||
+                        (algorithm == Cipher.ALG_AES_ECB_ISO9797_M2) ||
+                        (algorithm == Cipher.ALG_AES_ECB_PKCS5))
+                    return true;
+                break;
+        }
+
+        return false;
+
+    }
+
     public byte getPaddingAlgorithm() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

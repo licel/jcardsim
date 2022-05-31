@@ -15,10 +15,11 @@
  */
 package com.licel.jcardsim.crypto;
 
+import javacard.framework.ISO7816;
+import javacard.framework.ISOException;
+import javacard.framework.SystemException;
 import javacard.framework.Util;
-import javacard.security.AESKey;
-import javacard.security.Key;
-import javacard.security.KeyBuilder;
+import javacard.security.*;
 import javacardx.crypto.Cipher;
 import junit.framework.TestCase;
 import org.bouncycastle.util.Arrays;
@@ -256,5 +257,44 @@ public class SymmetricCipherImplTest extends TestCase {
         processedBytes = engine.doFinal(encryptedEtalonMsg, (short) 0, (short) encryptedEtalonMsg.length, decrypted, (short) 0);
         assertEquals(processedBytes, msg.length);
         assertEquals(true, Arrays.areEqual(decrypted, msg));
+    }
+
+    /**
+     * Test mismatched Cipher AES algorithm and key DES type
+     */
+    public void testMismatchedCipherAESAlgorithmAndKeyDESType(){
+        Cipher engineAES = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD,false);
+        DESKey desKey = (DESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_DES_TRANSIENT_RESET,KeyBuilder.LENGTH_DES, false);
+        desKey.setKey(Hex.decode(DES_KEY),(short)0);
+
+        try {
+            engineAES.init(desKey, Cipher.MODE_ENCRYPT);
+            fail("No exception");
+        }
+        catch (ISOException e) {
+            assertEquals(ISO7816.SW_UNKNOWN, e.getReason());
+        }
+    }
+
+    /**
+     * Test mismatched Cipher DES algorithm and key AES type
+     */
+    public void testMismatchedCipherDESAlgorithmAndKeyAESType(){
+        Cipher engineDES = Cipher.getInstance(Cipher.ALG_DES_ECB_NOPAD,false);
+        AESKey aeskey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_192, false);
+
+        byte[] etalonKey = Hex.decode(AES_ECB_192_TEST[0]);
+        short keyLenInBytes = (short) (KeyBuilder.LENGTH_AES_192 / 8);
+        byte[] key = new byte[keyLenInBytes];
+        Util.arrayCopy(etalonKey, (short) 0, key, (short) 0, (short) etalonKey.length);
+        aeskey.setKey(key, (short) 0);
+
+        try {
+            engineDES.init(aeskey, Cipher.MODE_ENCRYPT);
+            fail("No exception");
+        }
+        catch (ISOException e) {
+            assertEquals(ISO7816.SW_UNKNOWN, e.getReason());
+        }
     }
 }
