@@ -109,8 +109,8 @@ public class SymmetricCipherImpl extends Cipher {
         if (!(theKey instanceof SymmetricKeyImpl)) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        if( !checkAlgorithmCompatibility(theKey)){
-            ISOException.throwIt(ISO7816.SW_UNKNOWN);
+        if( !checkKeyCompatibility(theKey)){
+            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
 
         SymmetricKeyImpl key = (SymmetricKeyImpl) theKey;
@@ -150,7 +150,7 @@ public class SymmetricCipherImpl extends Cipher {
         }
     }
 
-    private boolean checkAlgorithmCompatibility(Key theKey){
+    private boolean checkKeyCompatibility(Key theKey){
         switch(theKey.getType()){
             case KeyBuilder.TYPE_DES:
                 case KeyBuilder.TYPE_DES_TRANSIENT_RESET:
