@@ -313,7 +313,7 @@ public class SymmetricCipherImplTest extends TestCase {
         // Create C-APDU to send 128-bit AES key in CData
         byte[] key = Hex.decode(AES_CBC_128_TEST[0]);
         short keyLen = KeyBuilder.LENGTH_AES_128/8;
-        byte[] commandAPDUHeaderWithLc = new byte[]{0x10, 0x10, 0, 0, (byte) keyLen};
+        byte[] commandAPDUHeaderWithLc = new byte[]{0x10, 0x10, (byte) KeyBuilder.LENGTH_AES_128, 0, (byte) keyLen};
         byte[] sendAPDU = new byte[5+keyLen];
         System.arraycopy(commandAPDUHeaderWithLc, 0, sendAPDU, 0, 5);
         System.arraycopy(key, 0, sendAPDU, 5, keyLen);
@@ -405,7 +405,7 @@ public class SymmetricCipherImplTest extends TestCase {
         // Create C-APDU to send DES3_3KEY in CData
         byte[] key = Hex.decode(DES3_KEY);
         short keyLen = (short) key.length;
-        byte[] commandAPDUHeaderWithLc = new byte[]{0x20, 0x10, 1, 0, (byte) keyLen};
+        byte[] commandAPDUHeaderWithLc = new byte[]{0x20, 0x10, (byte) KeyBuilder.LENGTH_DES3_3KEY, 0, (byte) keyLen};
         byte[] sendAPDU = new byte[5+keyLen];
         System.arraycopy(commandAPDUHeaderWithLc, 0, sendAPDU, 0, 5);
         System.arraycopy(key, 0, sendAPDU, 5, keyLen);

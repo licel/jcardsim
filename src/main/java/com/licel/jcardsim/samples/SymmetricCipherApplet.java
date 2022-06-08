@@ -30,10 +30,10 @@ import javacardx.crypto.Cipher;
  * <p>Supported APDUs:</p>
  *
  * <ul>
- *     <li><code>CLA=0x10 INS=0x10</code> Set AES Key from <code>CData</code> with <code>P1</code> as key size 128 or 192 bits</li>
+ *     <li><code>CLA=0x10 INS=0x10</code> Set AES Key from <code>CData</code> with <code>P1</code> as key size 128/192/256 bits</li>
  *     <li><code>CLA=0x10 INS=0x11</code> Encrypt AES data in <code>CData</code> with cipher algorithm in <code>P1</code></li>
  *     <li><code>CLA=0x10 INS=0x12</code> Decrypt AES data in <code>CData</code>with cipher algorithm in <code>P1</code></li>
- *     <li><code>CLA=0x20 INS=0x10</code> Set DES Key from <code>CData</code> with <code>P1</code> as DES3_2KEY or DES3_3KEY</li>
+ *     <li><code>CLA=0x20 INS=0x10</code> Set DES Key from <code>CData</code> with <code>P1</code> as key size  DES3_2KEY or DES3_3KEY</li>
  *     <li><code>CLA=0x20 INS=0x11</code> Encrypt DES data in <code>CData</code> with cipher algorithm in <code>P1</code></li>
  *     <li><code>CLA=0x20 INS=0x12</code> Decrypt DES data in <code>CData</code>with cipher algorithm in <code>P1</code></li>
  * </ul>
@@ -70,13 +70,18 @@ public class SymmetricCipherApplet extends  BaseApplet {
         if(selectingApplet()) return;
 
         byte[] buffer = apdu.getBuffer();
+        switch(buffer[ISO7816.OFFSET_CLA]){
+            case CLA_AES:
+                doAESMode(apdu);
+                break;
 
-        if( buffer[ISO7816.OFFSET_CLA] == CLA_AES ){
-            doAESMode(apdu);
-        } else if (buffer[ISO7816.OFFSET_CLA] == CLA_DES ) {
-            doDESMode(apdu);
-        } else {
-            ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
+            case CLA_DES :
+                doDESMode(apdu);
+                break;
+
+            default:
+                ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
+                break;
         }
     }
 
@@ -99,16 +104,12 @@ public class SymmetricCipherApplet extends  BaseApplet {
 
     private void aesSetKey(APDU apdu) {
         byte[] buffer = apdu.getBuffer();
-        short keyBitLength = 0;
 
-        if(buffer[ISO7816.OFFSET_P1] == 0){
-            keyBitLength = KeyBuilder.LENGTH_AES_128;
-        }
-        else if(buffer[ISO7816.OFFSET_P1] == 1) {
-            keyBitLength = KeyBuilder.LENGTH_AES_192;
-        }
-        if( keyBitLength == 0){
-            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+        short keyBitLength = (short) (buffer[ISO7816.OFFSET_P1] & 0x00FF);
+        if((keyBitLength != KeyBuilder.LENGTH_AES_128) &&
+                (keyBitLength != KeyBuilder.LENGTH_AES_192) &&
+                (keyBitLength != KeyBuilder.LENGTH_AES_256)    ) {
+            ISOException.throwIt(ISO7816.SW_WRONG_P1P2);
         }
 
         byte apdu_Lc      = buffer[ISO7816.OFFSET_LC];
@@ -201,16 +202,12 @@ public class SymmetricCipherApplet extends  BaseApplet {
 
     private void desSetKey(APDU apdu) {
         byte[] buffer = apdu.getBuffer();
-        short keyBitLength = 0;
 
-        if(buffer[ISO7816.OFFSET_P1] == 0){
-            keyBitLength = KeyBuilder.LENGTH_DES3_2KEY;
-        }
-        else if(buffer[ISO7816.OFFSET_P1] == 1) {
-            keyBitLength = KeyBuilder.LENGTH_DES3_3KEY;
-        }
-        if( keyBitLength == 0){
-            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+        short keyBitLength = (short) (buffer[ISO7816.OFFSET_P1] & 0x00FF);
+        if((keyBitLength != KeyBuilder.LENGTH_DES) &&
+                (keyBitLength != KeyBuilder.LENGTH_DES3_2KEY) &&
+                (keyBitLength != KeyBuilder.LENGTH_DES3_3KEY)    ) {
+            ISOException.throwIt(ISO7816.SW_WRONG_P1P2);
         }
 
         byte apdu_Lc      = buffer[ISO7816.OFFSET_LC];
