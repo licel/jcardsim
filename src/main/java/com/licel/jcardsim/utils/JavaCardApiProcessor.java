@@ -72,6 +72,12 @@ public class JavaCardApiProcessor {
         proxyClass(buildDir, "com.licel.jcardsim.crypto.SignatureProxy", "javacard.security.Signature", true);
         proxyExceptionClass(buildDir, "javacard.framework.service.ServiceException");
         proxyExceptionClass(buildDir, "javacard.security.CryptoException");
+        proxyExceptionClass(buildDir, "javacardx.external.ExternalException");
+        proxyExceptionClass(buildDir, "javacardx.framework.tlv.TLVException");
+        proxyExceptionClass(buildDir, "javacardx.biometry1toN.Bio1toNException");
+        proxyExceptionClass(buildDir, "javacardx.framework.util.UtilException");
+        proxyExceptionClass(buildDir, "javacardx.biometry.BioException");
+        proxyExceptionClass(buildDir, "javacardx.framework.string.StringException");
 
     }
 
