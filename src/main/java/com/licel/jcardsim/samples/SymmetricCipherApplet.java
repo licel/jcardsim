@@ -30,7 +30,7 @@ import javacardx.crypto.Cipher;
  * <p>Supported APDUs:</p>
  *
  * <ul>
- *     <li><code>CLA=0x10 INS=0x10</code> Set AES Key from <code>CData</code> with <code>P1</code> as key size 128/192/256 bits</li>
+ *     <li><code>CLA=0x10 INS=0x10</code> Set AES Key from <code>CData</code> with <code>P1</code> as key size 128 or 192 bits</li>
  *     <li><code>CLA=0x10 INS=0x11</code> Encrypt AES data in <code>CData</code> with cipher algorithm in <code>P1</code></li>
  *     <li><code>CLA=0x10 INS=0x12</code> Decrypt AES data in <code>CData</code>with cipher algorithm in <code>P1</code></li>
  *     <li><code>CLA=0x20 INS=0x10</code> Set DES Key from <code>CData</code> with <code>P1</code> as key size  DES3_2KEY or DES3_3KEY</li>
@@ -107,8 +107,7 @@ public class SymmetricCipherApplet extends  BaseApplet {
 
         short keyBitLength = (short) (buffer[ISO7816.OFFSET_P1] & 0x00FF);
         if((keyBitLength != KeyBuilder.LENGTH_AES_128) &&
-                (keyBitLength != KeyBuilder.LENGTH_AES_192) &&
-                (keyBitLength != KeyBuilder.LENGTH_AES_256)    ) {
+                (keyBitLength != KeyBuilder.LENGTH_AES_192)  ) {
             ISOException.throwIt(ISO7816.SW_WRONG_P1P2);
         }
 
