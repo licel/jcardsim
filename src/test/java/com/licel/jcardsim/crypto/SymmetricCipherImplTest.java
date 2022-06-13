@@ -386,8 +386,8 @@ public class SymmetricCipherImplTest extends TestCase {
 
         // Send C-APDU to encrypt data
         response = instance.transmitCommand(sendAPDU);
-        // Check exception for CryptoException.ILLEGAL_VALUE
-        assertEquals(CryptoException.ILLEGAL_VALUE, Util.getShort(response, (short) 0));
+        // Check exception for ISO7816.SW_UNKNOWN
+        assertEquals(ISO7816.SW_UNKNOWN, Util.getShort(response, (short) 0));
 
     }
     /**
@@ -442,7 +442,6 @@ public class SymmetricCipherImplTest extends TestCase {
         // Check that encrypted data is correct
         assertTrue( Arrays.areEqual(encryptedData, Hex.decode(DES3_ENCRYPTED_15[0])));
 
-
         // 3. Send C-APDU to decrypt data with ALG_DES_CBC_ISO9797_M1 and read back to check
         // Create C-APDU to decrypt data
         apdu_Lc = (byte) encryptedData.length;
@@ -481,8 +480,8 @@ public class SymmetricCipherImplTest extends TestCase {
 
         // Send C-APDU to encrypt data
         response = instance.transmitCommand(sendAPDU);
-        // Check exception for CryptoException.ILLEGAL_VALUE
-        assertEquals(CryptoException.ILLEGAL_VALUE, Util.getShort(response, (short) 0));
+        // Check exception for ISO7816.SW_UNKNOWN
+        assertEquals(ISO7816.SW_UNKNOWN, Util.getShort(response, (short) 0));
 
     }
 }
