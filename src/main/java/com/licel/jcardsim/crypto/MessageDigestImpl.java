@@ -23,6 +23,7 @@ import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.digests.SHA224Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
@@ -66,6 +67,10 @@ public class MessageDigestImpl extends InitializedMessageDigest {
                 engine = new RIPEMD160Digest();
                 digestClass = engine.getClass();
                 componentStartIdx = 0;
+                break;
+            case ALG_SHA_224:
+                engine = new SHA224Digest();
+                digestClass = engine.getClass();
                 break;
             case ALG_SHA_256:
                 engine = new SHA256Digest();
