@@ -14,6 +14,12 @@
 mvn clean install
 ~~~
 
+__NOTE:__ Also check the Javadoc to prevent errors during the deployment if this fails: 
+
+~~~
+mvn javadoc:javadoc
+~~~
+
 ### Creating Release
 
 Open Maven's `settings.xml` and edit to fit your settings:
@@ -40,6 +46,9 @@ Open Maven's `settings.xml` and edit to fit your settings:
 Release the jar on Sonatype:
 
 ~~~shell
+# Java 1.8 is required:
+JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto
+export JAVA_HOME
 mvn release:clean release:prepare -Pjcardsim
 mvn release:perform -Pjcardsim
 ~~~
@@ -50,7 +59,7 @@ The version of the jar seems to be aligned with the Java Card version, so only t
 __NOTE:__ It might take a while (multiple hours) until the Sonatype Nexus server has successfully checked the 
 upload in the staging environment and closed it. Because the Nexus Maven plugin times out after 300 seconds 
 it might report that the connection was reset or the build failed because of a rule check. 
-This might be not the case. Wait until the upload is marked as closed and release it manually in the  Nexus UI.
+This might be not the case. Wait until the upload is marked as closed and release it manually in the Nexus UI.
 
 ### Development
 jCardSim is an open source project, and it would be a pleasure for us to see you as committers and contributors!

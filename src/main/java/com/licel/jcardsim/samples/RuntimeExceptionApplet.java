@@ -68,6 +68,7 @@ import javacardx.framework.util.UtilException;
  *
  *     <li><code>CLA=12 INS=0</code> Throw <code>UtilException</code> with reason code from <code>P1</code> as high order byte and <code>P2</code> as low order byte</li>
  *     <li><code>CLA=12 INS=1</code> <code>UtilException</code> with reason code from <code>P1</code> as high order byte and <code>P2</code> as low order byte is thrown but it has catch exception then throw <code>ISO7816.SW_FUNC_NOT_SUPPORTED</code> instead</li>
+ * </ul>
  */
 public class RuntimeExceptionApplet extends  BaseApplet{
     private final static byte CLA_CRYPTO_EXCEPTION = 1;
