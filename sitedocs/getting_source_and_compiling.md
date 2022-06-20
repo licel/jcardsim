@@ -61,6 +61,9 @@ upload in the staging environment and closed it. Because the Nexus Maven plugin 
 it might report that the connection was reset or the build failed because of a rule check. 
 This might be not the case. Wait until the upload is marked as closed and release it manually in the Nexus UI.
 
+__NOTE:__ An error of the release plugin is coming from the `autoReleaseAfterClose`flag passed to the Nexus plugin. 
+In this case jCardSim was already released and this error can be ignored.
+
 ### Development
 jCardSim is an open source project, and it would be a pleasure for us to see you as committers and contributors!
 
