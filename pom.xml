@@ -256,6 +256,12 @@
                 <version>2.21.0</version>
                 <configuration>
                     <argLine>-noverify</argLine>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>${project.build.directory}/classes</additionalClasspathElement>
+                    </additionalClasspathElements>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>oracle.javacard:api_classic</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
             <!-- patch -->

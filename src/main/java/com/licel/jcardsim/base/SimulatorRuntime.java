@@ -627,6 +627,7 @@ public class SimulatorRuntime {
                 else {
                     applets.put(appletAID, new ApplicationInstance(appletAID, applet));
                 }
+                SimulatorRuntime.this.currentAID = installAID  != null ? installAID : appletAID;
             }
         });
 
