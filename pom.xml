@@ -17,7 +17,7 @@
     </properties>
 
     <groupId>${group.id}</groupId>
-    <version>3.0.5-6-SNAPSHOT</version>
+    <version>3.0.5-6</version>
     <packaging>jar</packaging>
     <url>https://github.com/${github.username}/jcardsim</url>
 
@@ -65,7 +65,7 @@
         <connection>scm:git:git@github.com:${github.username}/jcardsim.git</connection>
         <developerConnection>scm:git:git@${github.dev.host}:${github.username}/jcardsim.git</developerConnection>
         <url>git@github.com:${github.username}/jcardsim.git</url>
-      <tag>HEAD</tag>
+      <tag>jcardsim-3.0.5-6</tag>
   </scm>
 
     <profiles>
