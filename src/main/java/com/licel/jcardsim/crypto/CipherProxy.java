@@ -16,6 +16,7 @@
 package com.licel.jcardsim.crypto;
 
 import javacard.security.CryptoException;
+import javacardx.crypto.AEADCipher;
 import javacardx.crypto.Cipher;
 /**
  * ProxyClass for <code>Cipher</code>
@@ -44,6 +45,9 @@ public class CipherProxy {
             CryptoException.throwIt((short) 3);
         }
         switch (algorithm) {
+            case AEADCipher.ALG_AES_CCM:
+                instance = new AEADCipherImpl(algorithm);
+                break;
             case Cipher.ALG_DES_CBC_NOPAD:
             case Cipher.ALG_DES_CBC_ISO9797_M1:
             case Cipher.ALG_DES_CBC_ISO9797_M2:
