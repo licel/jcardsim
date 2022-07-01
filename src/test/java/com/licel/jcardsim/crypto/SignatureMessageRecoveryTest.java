@@ -164,7 +164,7 @@ public class SignatureMessageRecoveryTest extends TestCase {
 
     }
 
-    public void testSelfCCryptoVerifyPartMsgRecovery() {
+    public void testSelfCryptoSignAndVerifyPartMsgRecovery() {
         byte[] data = new byte[(short)256];
         for (short i = 0; i < data.length; i++) {
             data[i] = (byte)i;

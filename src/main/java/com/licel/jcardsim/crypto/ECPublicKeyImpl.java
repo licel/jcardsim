@@ -55,7 +55,7 @@ public class ECPublicKeyImpl extends ECKeyImpl implements ECPublicKey {
     }
  
      public void setParameters(CipherParameters params){
-        w.setBytes(((ECPublicKeyParameters)params).getQ().getEncoded());
+        w.setBytes(((ECPublicKeyParameters)params).getQ().getEncoded(false));
     }
     
 
