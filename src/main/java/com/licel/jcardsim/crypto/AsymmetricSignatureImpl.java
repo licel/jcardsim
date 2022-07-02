@@ -23,6 +23,7 @@ import javacard.security.Key;
 import javacard.security.Signature;
 import javacard.security.SignatureMessageRecovery;
 import org.bouncycastle.crypto.DataLengthException;
+import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.SignerWithRecovery;
 import org.bouncycastle.crypto.digests.MD5Digest;
@@ -54,70 +55,96 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     boolean isRecovery;
     byte[] preSig;
 
+    Digest digest;
+    boolean isImplicitTrailer;
+
     public AsymmetricSignatureImpl(byte algorithm) {
         this.algorithm = algorithm;
+        isImplicitTrailer = false;
         isRecovery = false;
         switch (algorithm) {
             case ALG_RSA_SHA_ISO9796:
-                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+                digest = new SHA1Digest();
+                engine = new ISO9796d2Signer(new RSAEngine(), digest);
                 break;
-            case ALG_RSA_SHA_ISO9796_MR:    
-                engine = new ISO9796d2Signer(new RSAEngine(), new SHA1Digest());
+            case ALG_RSA_SHA_ISO9796_MR:
+                // Generate a signer with implicit trailers for ISO9796-2.
+                digest = new SHA1Digest();
+                engine = new ISO9796d2Signer(new RSAEngine(), digest, true);
+                isImplicitTrailer = true;
                 isRecovery = true;
                 break;
             case ALG_RSA_SHA_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA1Digest()));
+                digest = new SHA1Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_RSA_SHA_224_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA224Digest()));
+                digest = new SHA224Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_RSA_SHA_256_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA256Digest()));
+                digest = new SHA256Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_RSA_SHA_384_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA384Digest()));
+                digest = new SHA384Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_RSA_SHA_512_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new SHA512Digest()));
+                digest = new SHA512Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_RSA_SHA_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA1Digest()), 16);
+                digest = new SHA1Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 16);
                 break;
             case ALG_RSA_SHA_224_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA224Digest()), 28);
+                digest = new SHA224Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 28);
                 break;
             case ALG_RSA_SHA_256_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA256Digest()), 32);
+                digest = new SHA256Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 32);
                 break;
             case ALG_RSA_SHA_384_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA384Digest()), 48);
+                digest = new SHA384Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 48);
                 break;
             case ALG_RSA_SHA_512_PKCS1_PSS:
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(new SHA512Digest()), 64);
+                digest = new SHA512Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 64);
                 break;
             case ALG_RSA_MD5_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new MD5Digest()));
+                digest = new MD5Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_RSA_RIPEMD160_ISO9796:
-                engine = new ISO9796d2Signer(new RSAEngine(), new RIPEMD160Digest());
+                digest = new RIPEMD160Digest();
+                engine = new ISO9796d2Signer(new RSAEngine(), digest);
                 break;
             case ALG_RSA_RIPEMD160_PKCS1:
-                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(new RIPEMD160Digest()));
+                digest = new RIPEMD160Digest();
+                engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_ECDSA_SHA:
-                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA1Digest()));
+                digest = new SHA1Digest();
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_ECDSA_SHA_224:
-                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA224Digest()));
+                digest = new SHA224Digest();
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_ECDSA_SHA_256:
-                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA256Digest()));
+                digest = new SHA256Digest();
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_ECDSA_SHA_384:
-                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA384Digest()));
+                digest = new SHA384Digest();
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
             case ALG_ECDSA_SHA_512:
-                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new SHA512Digest()));
+                digest = new SHA512Digest();
+                engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
         }
     }
@@ -262,19 +289,36 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         engine.update(inBuff, inOffset, inLength);
         byte[] sig;
         try {
-            sig = engine.generateSignature();
-            Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
             // there is no direct way to obtain encoded message length
-            int keyBits = key.getSize();
             Field messageLengthField = engine.getClass().getDeclaredField("messageLength");
             messageLengthField.setAccessible(true);
+
+            // Need to read messageLength before it is cleared in generateSignature()
             int messageLength = messageLengthField.getInt(engine);
-            int digSize = 20;
-            int x = (digSize + messageLength) * 8 + 16 + 4 - keyBits;
+            sig = engine.generateSignature();
+            Util.arrayCopyNonAtomic(sig, (short) 0, sigBuff, sigOffset, (short) sig.length);
+
+            int keyBits = key.getSize();
+            int digSize = digest.getDigestSize();
+            int t = 0;
+
+            // Check if trailer is implicit
+            if( isImplicitTrailer) {
+                // trailer size is 8 bits
+                t = 8;
+            }
+            else {
+                // trailer size is 16 bits
+                t = 16;
+            }
+
+            int x = (digSize + messageLength) * 8 + t + 4 - keyBits;
             int mR = messageLength;
+            // Check if partial recoverable message
             if (x > 0) {
                 mR = messageLength - ((x + 7) / 8);
             }
+
             recMsgLen[recMsgLenOffset] = (short) mR;
             return (short) sig.length;
         } catch (org.bouncycastle.crypto.CryptoException ex) {
