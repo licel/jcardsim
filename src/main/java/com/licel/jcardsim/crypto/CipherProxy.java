@@ -44,7 +44,7 @@ public class CipherProxy {
         if (externalAccess) {
             CryptoException.throwIt((short) 3);
         }
-        System.out.println("CipherProxy");
+ 
         switch (algorithm) {
             case Cipher.ALG_DES_CBC_NOPAD:
             case Cipher.ALG_DES_CBC_ISO9797_M1:
