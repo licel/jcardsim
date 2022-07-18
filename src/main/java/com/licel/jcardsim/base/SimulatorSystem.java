@@ -59,7 +59,6 @@ public class SimulatorSystem {
             sim = setCurrentInstance((SimulatorRuntime)Class.forName("com.licel.globalplatform.GpSimulatorRuntime").newInstance());
             System.out.println("Succesfully loaded the instance!");
         } catch (Throwable ex) {
-            ex.printStackTrace(System.err);
             System.out.println("Failed to load the instance! Will use the default SimulatorRuntime");
             sim = setCurrentInstance(new SimulatorRuntime());
         }
