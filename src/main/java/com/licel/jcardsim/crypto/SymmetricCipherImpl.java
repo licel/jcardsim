@@ -21,7 +21,9 @@ import javacard.security.Key;
 import javacard.security.KeyBuilder;
 import javacardx.crypto.Cipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.modes.SICBlockCipher;
 import org.bouncycastle.crypto.paddings.ISO7816d4Padding;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
@@ -143,6 +145,9 @@ public class SymmetricCipherImpl extends Cipher {
                 break;
             case ALG_AES_CBC_ISO9797_M2:
                 engine = new PaddedBufferedBlockCipher(new CBCBlockCipher(key.getCipher()), new ISO7816d4Padding());
+                break;
+            case ALG_AES_CTR:
+                engine = new BufferedBlockCipher(new SICBlockCipher(key.getCipher()));
                 break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
