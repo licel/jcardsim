@@ -112,6 +112,12 @@ public class SymmetricCipherImplTest extends TestCase {
     // Appendix F.2.5
     String[] AES_CBC_256_TEST = {"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4", "000102030405060708090a0b0c0d0e0f", "6bc1bee22e409f96e93d7e117393172a", "f58c4c04d6e5f1ba779eabfb5f7bfbd6"};
 
+    // AES CTR test vectors from NIST (sp800-38a)
+    // FORMAT: key:counter:plaintext:ciphertext
+    // Appendix F.5.1
+    String[] AES_CTR_128_TEST = {"2b7e151628aed2a6abf7158809cf4f3c", "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff","6bc1bee22e409f96e93d7e117393172a","874d6191b620e3261bef6864990db6ce"};
+    String[] AES_CTR_192_TEST = {"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b", "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff","6bc1bee22e409f96e93d7e117393172a","1abc932417521ca24f2b0459fe7e6e0b"};
+    String[] AES_CTR_256_TEST = {"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4", "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff","6bc1bee22e409f96e93d7e117393172a","601ec313775789a5b7a7f504bbf3d228"};
     public SymmetricCipherImplTest(String testName) {
         super(testName);
     }
@@ -484,4 +490,86 @@ public class SymmetricCipherImplTest extends TestCase {
         assertEquals(ISO7816.SW_UNKNOWN, Util.getShort(response, (short) 0));
 
     }
+
+    public void testAES_CTR_128BitKey(){
+        Cipher engine = Cipher.getInstance(Cipher.ALG_AES_CTR,false);
+        AESKey aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
+        short keyLenInBytes = (short) (KeyBuilder.LENGTH_AES_128 / Byte.SIZE);
+        byte[] etalonKey = Hex.decode(AES_CTR_128_TEST[0]);
+        byte[] key = new byte[keyLenInBytes];
+        Util.arrayCopy(etalonKey, (short) 0, key, (short) 0, (short) etalonKey.length);
+        aesKey.setKey(key, (short) 0);
+
+        byte[] initCounter = Hex.decode(AES_CTR_128_TEST[1]);
+        engine.init(aesKey,Cipher.MODE_ENCRYPT,initCounter, (short) 0, (short) initCounter.length);
+
+        byte[] msg = Hex.decode(AES_CTR_128_TEST[2]);
+        byte[] encrypted = new byte[msg.length];
+        engine.doFinal(msg, (short) 0, (short) msg.length,encrypted, (short) 0);
+
+        byte[] ciphertext = Hex.decode(AES_CTR_128_TEST[3]);
+
+        assertEquals(true,Arrays.areEqual(encrypted, ciphertext));
+
+        engine.init(aesKey,Cipher.MODE_DECRYPT,initCounter, (short) 0, (short) initCounter.length);
+        byte[] decrypted = new byte[encrypted.length];
+        engine.doFinal(encrypted, (short) 0, (short) encrypted.length,decrypted, (short) 0);
+
+        assertEquals(true,Arrays.areEqual(decrypted, msg));
+    }
+
+    public void testAES_CTR_192BitKey(){
+        Cipher engine = Cipher.getInstance(Cipher.ALG_AES_CTR,false);
+        AESKey aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_192, false);
+        short keyLenInBytes = (short) (KeyBuilder.LENGTH_AES_192 / Byte.SIZE);
+        byte[] etalonKey = Hex.decode(AES_CTR_192_TEST[0]);
+        byte[] key = new byte[keyLenInBytes];
+        Util.arrayCopy(etalonKey, (short) 0, key, (short) 0, (short) etalonKey.length);
+        aesKey.setKey(key, (short) 0);
+
+        byte[] initCounter = Hex.decode(AES_CTR_192_TEST[1]);
+        engine.init(aesKey,Cipher.MODE_ENCRYPT,initCounter, (short) 0, (short) initCounter.length);
+
+        byte[] msg = Hex.decode(AES_CTR_192_TEST[2]);
+        byte[] encrypted = new byte[msg.length];
+        engine.doFinal(msg, (short) 0, (short) msg.length,encrypted, (short) 0);
+
+        byte[] ciphertext = Hex.decode(AES_CTR_192_TEST[3]);
+
+        assertEquals(true,Arrays.areEqual(encrypted, ciphertext));
+
+        engine.init(aesKey,Cipher.MODE_DECRYPT,initCounter, (short) 0, (short) initCounter.length);
+        byte[] decrypted = new byte[encrypted.length];
+        engine.doFinal(encrypted, (short) 0, (short) encrypted.length,decrypted, (short) 0);
+
+        assertEquals(true,Arrays.areEqual(decrypted, msg));
+    }
+
+    public void testAES_CTR_256BitKey(){
+        Cipher engine = Cipher.getInstance(Cipher.ALG_AES_CTR,false);
+        AESKey aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_256, false);
+        short keyLenInBytes = (short) (KeyBuilder.LENGTH_AES_256 / Byte.SIZE);
+        byte[] etalonKey = Hex.decode(AES_CTR_256_TEST[0]);
+        byte[] key = new byte[keyLenInBytes];
+        Util.arrayCopy(etalonKey, (short) 0, key, (short) 0, (short) etalonKey.length);
+        aesKey.setKey(key, (short) 0);
+
+        byte[] initCounter = Hex.decode(AES_CTR_256_TEST[1]);
+        engine.init(aesKey,Cipher.MODE_ENCRYPT,initCounter, (short) 0, (short) initCounter.length);
+
+        byte[] msg = Hex.decode(AES_CTR_256_TEST[2]);
+        byte[] encrypted = new byte[msg.length];
+        engine.doFinal(msg, (short) 0, (short) msg.length,encrypted, (short) 0);
+
+        byte[] ciphertext = Hex.decode(AES_CTR_256_TEST[3]);
+
+        assertEquals(true,Arrays.areEqual(encrypted, ciphertext));
+
+        engine.init(aesKey,Cipher.MODE_DECRYPT,initCounter, (short) 0, (short) initCounter.length);
+        byte[] decrypted = new byte[encrypted.length];
+        engine.doFinal(encrypted, (short) 0, (short) encrypted.length,decrypted, (short) 0);
+
+        assertEquals(true,Arrays.areEqual(decrypted, msg));
+    }
+
 }
