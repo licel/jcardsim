@@ -58,6 +58,8 @@ public class CipherProxy {
             case Cipher.ALG_AES_BLOCK_128_ECB_NOPAD:
             case Cipher.ALG_AES_CBC_ISO9797_M2:
             case Cipher.ALG_AES_CTR:
+            case Cipher.ALG_KOREAN_SEED_ECB_NOPAD:
+            case Cipher.ALG_KOREAN_SEED_CBC_NOPAD:
                 instance = new SymmetricCipherImpl(algorithm);
                 break;
             case Cipher.ALG_RSA_PKCS1:

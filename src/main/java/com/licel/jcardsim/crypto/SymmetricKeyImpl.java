@@ -17,25 +17,24 @@ package com.licel.jcardsim.crypto;
 
 import java.security.SecureRandom;
 import javacard.framework.JCSystem;
-import javacard.security.AESKey;
-import javacard.security.CryptoException;
-import javacard.security.DESKey;
-import javacard.security.HMACKey;
-import javacard.security.KeyBuilder;
+import javacard.security.*;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.engines.DESedeEngine;
+import org.bouncycastle.crypto.engines.SEEDEngine;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
  * Implementation of secret key.
  * @see DESKey
  * @see AESKey
+ * @see HMACKey
+ * @see KoreanSEEDKey
  */
-public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey {
+public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey, KoreanSEEDKey {
 
     protected ByteContainer key;
 
@@ -52,16 +51,19 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey
             case KeyBuilder.TYPE_DES_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_AES_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_HMAC_TRANSIENT_DESELECT:
+            case KeyBuilder.TYPE_KOREAN_SEED_TRANSIENT_DESELECT:
                 key = new ByteContainer(JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
                 break;
             case KeyBuilder.TYPE_DES_TRANSIENT_RESET:
             case KeyBuilder.TYPE_AES_TRANSIENT_RESET:
             case KeyBuilder.TYPE_HMAC_TRANSIENT_RESET:
+            case KeyBuilder.TYPE_KOREAN_SEED_TRANSIENT_RESET:
                 key = new ByteContainer(JCSystem.MEMORY_TYPE_TRANSIENT_RESET);
                 break;
             case KeyBuilder.TYPE_DES:
             case KeyBuilder.TYPE_AES:
             case KeyBuilder.TYPE_HMAC:
+            case KeyBuilder.TYPE_KOREAN_SEED:
                 key = new ByteContainer(JCSystem.MEMORY_TYPE_PERSISTENT);
                 break;
         }
@@ -137,6 +139,12 @@ public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey
             case KeyBuilder.TYPE_AES_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_AES_TRANSIENT_RESET:
                 cipher = new AESEngine();
+                break;
+
+            case KeyBuilder.TYPE_KOREAN_SEED:
+            case KeyBuilder.TYPE_KOREAN_SEED_TRANSIENT_DESELECT:
+            case KeyBuilder.TYPE_KOREAN_SEED_TRANSIENT_RESET:
+                cipher = new SEEDEngine();
                 break;
         }
         return cipher;

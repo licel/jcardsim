@@ -116,7 +116,9 @@ public class SymmetricCipherImplTest extends TestCase {
     // FORMAT: key:counter:plaintext:ciphertext
     // Appendix F.5.1
     String[] AES_CTR_128_TEST = {"2b7e151628aed2a6abf7158809cf4f3c", "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff","6bc1bee22e409f96e93d7e117393172a","874d6191b620e3261bef6864990db6ce"};
+    // Appendix F.5.3
     String[] AES_CTR_192_TEST = {"8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b", "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff","6bc1bee22e409f96e93d7e117393172a","1abc932417521ca24f2b0459fe7e6e0b"};
+    // Appendix F.5.5
     String[] AES_CTR_256_TEST = {"603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4", "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff","6bc1bee22e409f96e93d7e117393172a","601ec313775789a5b7a7f504bbf3d228"};
     public SymmetricCipherImplTest(String testName) {
         super(testName);
@@ -571,5 +573,103 @@ public class SymmetricCipherImplTest extends TestCase {
 
         assertEquals(true,Arrays.areEqual(decrypted, msg));
     }
+
+    // Korean SEED test vectors from https://www.rfc-editor.org/rfc/pdfrfc/rfc4269.txt.pdf
+    // FORMAT: key:plaintext:ciphertext
+    // Appendix B.1
+    String[] KOREAN_SEED_TEST1 = {"00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+                                  "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F",
+                                  "5E BA C6 E0 05 4E 16 68 19 AF F1 CC 6D 34 6C DB"};
+    // Appendix B.2
+    String[] KOREAN_SEED_TEST2 = {"00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F",
+                                  "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+                                  "C1 1F 22 F2 01 40 50 50 84 48 35 97 E4 37 0F 43"};
+    // Appendix B.3
+    String[] KOREAN_SEED_TEST3 = {"47 06 48 08 51 E6 1B E8 5D 74 BF B3 FD 95 61 85",
+                                  "83 A2 F8 A2 88 64 1F B9 A4 E9 A5 CC 2F 13 1C 7D",
+                                  "EE 54 D1 3E BC AE 70 6D 22 6B C3 14 2C D4 0D 4A"};
+    // Appendix B.4
+    String[] KOREAN_SEED_TEST4 = {"28 DB C3 BC 49 FF D8 7D CF A5 09 B1 1D 42 2B E7",
+                                  "B4 1E 6B E2 EB A8 4A 14 8E 2E ED 84 59 3C 5E C7",
+                                  "9B 9B 7B FC D1 81 3C B9 5D 0B 36 18 F4 0F 51 22"};
+
+    public void testKOREAN_SEED_CBC_NOPAD(){
+        testKOREAN_SEED(KOREAN_SEED_TEST1,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+        testKOREAN_SEED(KOREAN_SEED_TEST2,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+        testKOREAN_SEED(KOREAN_SEED_TEST3,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+        testKOREAN_SEED(KOREAN_SEED_TEST4,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+
+        testKOREAN_SEED_WithIV(KOREAN_SEED_TEST1,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+        testKOREAN_SEED_WithIV(KOREAN_SEED_TEST2,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+        testKOREAN_SEED_WithIV(KOREAN_SEED_TEST3,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+        testKOREAN_SEED_WithIV(KOREAN_SEED_TEST4,Cipher.ALG_KOREAN_SEED_CBC_NOPAD);
+    }
+    public void testKOREAN_SEED_ECB_NOPAD(){
+        testKOREAN_SEED(KOREAN_SEED_TEST1,Cipher.ALG_KOREAN_SEED_ECB_NOPAD);
+        testKOREAN_SEED(KOREAN_SEED_TEST2,Cipher.ALG_KOREAN_SEED_ECB_NOPAD);
+        testKOREAN_SEED(KOREAN_SEED_TEST3,Cipher.ALG_KOREAN_SEED_ECB_NOPAD);
+        testKOREAN_SEED(KOREAN_SEED_TEST4,Cipher.ALG_KOREAN_SEED_ECB_NOPAD);
+
+        // From https://docs.oracle.com/javacard/3.0.5/api/javacardx/crypto/Cipher.html#init(javacard.security.Key,%20byte,%20byte[],%20short,%20short)
+        // AES algorithms in ECB mode, DES algorithms in ECB mode, Korean SEED algorithm in ECB mode, RSA and DSA algorithms throw CryptoException.ILLEGAL_VALUE.
+        try{
+            testKOREAN_SEED_WithIV(KOREAN_SEED_TEST1,Cipher.ALG_KOREAN_SEED_ECB_NOPAD);
+            fail("No exception");
+        }
+        catch (CryptoException e){
+            assertEquals(CryptoException.ILLEGAL_VALUE, e.getReason());
+        }
+    }
+    public void testKOREAN_SEED(String[] seedTestData, byte algorithm){
+        Cipher engine = Cipher.getInstance(algorithm, false);
+        KoreanSEEDKey seedKey = (KoreanSEEDKey) KeyBuilder.buildKey(KeyBuilder.TYPE_KOREAN_SEED, KeyBuilder.LENGTH_KOREAN_SEED_128, false);
+        short keyLenInBytes = (short) (KeyBuilder.LENGTH_KOREAN_SEED_128 / Byte.SIZE);
+        byte[] key = Hex.decode(seedTestData[0]);
+        seedKey.setKey(key, (short) 0);
+
+        engine.init(seedKey,Cipher.MODE_ENCRYPT);
+
+        byte[] msg = Hex.decode(seedTestData[1]);
+        byte[] encrypted = new byte[msg.length];
+        engine.doFinal(msg, (short) 0, (short) msg.length,encrypted, (short) 0);
+
+        byte[] ciphertext = Hex.decode(seedTestData[2]);
+
+        assertEquals(true,Arrays.areEqual(encrypted, ciphertext));
+
+        engine.init(seedKey,Cipher.MODE_DECRYPT);
+        byte[] decrypted = new byte[encrypted.length];
+        engine.doFinal(encrypted, (short) 0, (short) encrypted.length,decrypted, (short) 0);
+
+        assertEquals(true,Arrays.areEqual(decrypted, msg));
+    }
+
+    public void testKOREAN_SEED_WithIV(String[] seedTestData, byte algorithm){
+        Cipher engine = Cipher.getInstance(algorithm, false);
+        KoreanSEEDKey seedKey = (KoreanSEEDKey) KeyBuilder.buildKey(KeyBuilder.TYPE_KOREAN_SEED, KeyBuilder.LENGTH_KOREAN_SEED_128, false);
+        short keyLenInBytes = (short) (KeyBuilder.LENGTH_KOREAN_SEED_128 / Byte.SIZE);
+        byte[] key = Hex.decode(seedTestData[0]);
+        seedKey.setKey(key, (short) 0);
+
+        byte[] iv = new byte[16];
+        Arrays.fill(iv, (byte) 0);
+        engine.init(seedKey,Cipher.MODE_ENCRYPT, iv, (short) 0, (short) iv.length);
+
+        byte[] msg = Hex.decode(seedTestData[1]);
+        byte[] encrypted = new byte[msg.length];
+        engine.doFinal(msg, (short) 0, (short) msg.length,encrypted, (short) 0);
+
+        byte[] ciphertext = Hex.decode(seedTestData[2]);
+
+        assertEquals(true,Arrays.areEqual(encrypted, ciphertext));
+
+        engine.init(seedKey,Cipher.MODE_DECRYPT, iv, (short) 0, (short) iv.length);
+
+        byte[] decrypted = new byte[encrypted.length];
+        engine.doFinal(encrypted, (short) 0, (short) encrypted.length,decrypted, (short) 0);
+
+        assertEquals(true,Arrays.areEqual(decrypted, msg));
+    }
+
 
 }
