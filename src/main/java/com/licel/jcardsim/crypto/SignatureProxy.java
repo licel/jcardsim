@@ -102,5 +102,10 @@ public class SignatureProxy {
         }
         return instance;
     }
-    
+
+    public static final Signature getInstance(byte messageDigestAlgorithm, byte cipherAlgorithm,
+            byte paddingAlgorithm, boolean externalAccess) throws CryptoException {
+        return new AsymmetricSignatureImpl(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm);
+    }
+
 }
