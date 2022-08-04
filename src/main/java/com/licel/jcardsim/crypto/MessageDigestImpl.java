@@ -20,14 +20,8 @@ import javacard.security.CryptoException;
 import javacard.security.InitializedMessageDigest;
 import javacard.security.MessageDigest;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.crypto.digests.RIPEMD160Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.digests.SHA224Digest;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.digests.SHA384Digest;
-import org.bouncycastle.crypto.digests.SHA512Digest;
-import org.bouncycastle.crypto.util.Pack;
+import org.bouncycastle.crypto.digests.*;
+import org.bouncycastle.util.Pack;
 
 /**
  * Implementation
@@ -88,14 +82,44 @@ public class MessageDigestImpl extends InitializedMessageDigest {
                 byteCountFieldName = "byteCount1";
                 digestClass = engine.getClass().getSuperclass();
                 break;
+            case ALG_SHA3_224:
+                engine = new SHA3Digest(224);
+                digestClass = engine.getClass();
+                break;
+            case ALG_SHA3_256:
+                engine = new SHA3Digest(256);
+                break;
+            case ALG_SHA3_384:
+                engine = new SHA3Digest(384);
+                break;
+            case ALG_SHA3_512:
+                engine = new SHA3Digest(512);
+                break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
         }
         componentSize = (byte)(blockSize == 64 ? 4 : 8);
-        componentCount = (byte) (engine.getDigestSize() / componentSize);
+        componentCount = getComponentCount(algorithm);
     }
 
+    private byte getComponentCount(byte algorithm){
+        switch(algorithm){
+            case ALG_SHA:
+            case ALG_MD5:
+            case ALG_RIPEMD160:
+            case ALG_SHA_256:
+            case ALG_SHA_512:
+                return (byte) (engine.getDigestSize() / componentSize);
+
+            // From NIST FIPS 180-4, https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
+            case ALG_SHA_224: // 5.3.2 SHA-224 Initial Hash Words
+            case ALG_SHA_384: // 5.3.4 SHA-384 Initial Hash Words
+                return 8;
+        }
+
+        return 0;
+    }
     public byte getAlgorithm() {
         return algorithm;
     }
@@ -126,7 +150,6 @@ public class MessageDigestImpl extends InitializedMessageDigest {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
         // digestedMsgLenLength must be > 0 and < long value, more formal 2^64-1 bits
-        // TODO support length more 2^128-1 bits (SHA-384, SHA-512) 
         if (digestedMsgLenLength == 0 || digestedMsgLenLength > 8) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
@@ -151,9 +174,17 @@ public class MessageDigestImpl extends InitializedMessageDigest {
                 }
             }
             // set byteCount
-            Field h = digestClass.getSuperclass().getDeclaredField(byteCountFieldName);
-            h.setAccessible(true);
-            h.setLong(engine, byteCount);
+            Field byteCountField = null;
+
+            // CHeck if SHA-384 and SHA-512
+            if( engine instanceof LongDigest ){
+                byteCountField = digestClass.getDeclaredField(byteCountFieldName);
+            }
+            else{
+                byteCountField = digestClass.getSuperclass().getDeclaredField(byteCountFieldName);
+            }
+            byteCountField.setAccessible(true);
+            byteCountField.setLong(engine, byteCount);
         } catch (Exception e) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }
