@@ -15,12 +15,16 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+
+import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.InitializedMessageDigest;
 import javacard.security.MessageDigest;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
+import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.Pack;
 
 /**
@@ -37,8 +41,6 @@ public class MessageDigestImpl extends InitializedMessageDigest {
     private Digest engine;
     private byte algorithm;
     private short blockSize;
-    // internals BouncyCastle
-    private String byteCountFieldName = "byteCount";
     private Class digestClass;
     private byte componentSize;
     private byte componentCount;
@@ -46,59 +48,69 @@ public class MessageDigestImpl extends InitializedMessageDigest {
 
     public MessageDigestImpl(byte algorithm) {
         this.algorithm = algorithm;
-        blockSize = 64;       
         componentStartIdx = 1;
         switch (algorithm) {
             case ALG_SHA:
                 engine = new SHA1Digest();
                 digestClass = engine.getClass();
+                blockSize = (short) ((SHA1Digest)engine).getByteLength();
                 break;
             case ALG_MD5:
                 engine = new MD5Digest();
                 digestClass = engine.getClass();
+                blockSize = (short) ((MD5Digest)engine).getByteLength();
                 break;
             case ALG_RIPEMD160:
                 engine = new RIPEMD160Digest();
                 digestClass = engine.getClass();
+                blockSize = (short) ((RIPEMD160Digest)engine).getByteLength();
                 componentStartIdx = 0;
                 break;
             case ALG_SHA_224:
                 engine = new SHA224Digest();
                 digestClass = engine.getClass();
+                blockSize = (short) ((SHA224Digest)engine).getByteLength();
                 break;
             case ALG_SHA_256:
                 engine = new SHA256Digest();
                 digestClass = engine.getClass();
+                blockSize = (short) ((SHA256Digest)engine).getByteLength();
                 break;
             case ALG_SHA_384:
                 engine = new SHA384Digest();
-                blockSize = 128;                
-                byteCountFieldName = "byteCount1";
                 digestClass = engine.getClass().getSuperclass();
+                blockSize = (short) ((SHA384Digest)engine).getByteLength();
                 break;
             case ALG_SHA_512:
                 engine = new SHA512Digest();
-                blockSize = 128;                
-                byteCountFieldName = "byteCount1";
                 digestClass = engine.getClass().getSuperclass();
+                blockSize = (short) ((SHA512Digest)engine).getByteLength();
                 break;
             case ALG_SHA3_224:
                 engine = new SHA3Digest(224);
-                digestClass = engine.getClass();
+                digestClass = engine.getClass().getSuperclass();
+                blockSize = (short) ((SHA3Digest)engine).getByteLength();
                 break;
             case ALG_SHA3_256:
                 engine = new SHA3Digest(256);
+                digestClass = engine.getClass().getSuperclass();
+                blockSize = (short) ((SHA3Digest)engine).getByteLength();
                 break;
             case ALG_SHA3_384:
                 engine = new SHA3Digest(384);
+                digestClass = engine.getClass().getSuperclass();
+                blockSize = (short) ((SHA3Digest)engine).getByteLength();
                 break;
             case ALG_SHA3_512:
                 engine = new SHA3Digest(512);
+                digestClass = engine.getClass().getSuperclass();
+                blockSize = (short) ((SHA3Digest)engine).getByteLength();
                 break;
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
         }
+
         componentSize = (byte)(blockSize == 64 ? 4 : 8);
         componentCount = getComponentCount(algorithm);
     }
@@ -145,70 +157,187 @@ public class MessageDigestImpl extends InitializedMessageDigest {
     public void setInitialDigest(byte[] initialDigestBuf, short initialDigestOffset,
             short initialDigestLength, byte[] digestedMsgLenBuf, short digestedMsgLenOffset,
             short digestedMsgLenLength) throws CryptoException {
-        // initialDigestLength must be == DIGEST_SIZE
-        if (engine.getDigestSize() != initialDigestLength) {
+        // initialDigestLength must be == Intermediate State of hash value size
+        if (initialDigestLength != getIntermediateStateSize()) {
             CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
-        // digestedMsgLenLength must be > 0 and < long value, more formal 2^64-1 bits
-        if (digestedMsgLenLength == 0 || digestedMsgLenLength > 8) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-        }
-        long byteCount = 0;
-        for (short i = 0; i < digestedMsgLenLength; i++) {
-            byteCount = (byteCount << 8) + (digestedMsgLenBuf[digestedMsgLenOffset + i] & 0xff);
-        }
-        // byte count % block size must be == 0
-        if (byteCount % blockSize != 0) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
-        }
-        // set hash state - BouncyCastle specific
-        try {
-            for (byte i = 0; i < componentCount; i++) {
-                // some reflection work
-                Field h = digestClass.getDeclaredField("H" + (i + componentStartIdx));
-                h.setAccessible(true);
-                if (componentSize == 4) {
-                    h.setInt(engine, Pack.bigEndianToInt(initialDigestBuf, initialDigestOffset + i * componentSize));
-                } else {
-                    h.setLong(engine, Pack.bigEndianToLong(initialDigestBuf, initialDigestOffset + i * componentSize));
-                }
-            }
-            // set byteCount
-            Field byteCountField = null;
 
-            // CHeck if SHA-384 and SHA-512
-            if( engine instanceof LongDigest ){
-                byteCountField = digestClass.getDeclaredField(byteCountFieldName);
+        if ( !checkSupportDigestedMsgLenLength(digestedMsgLenLength) ) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
+        }
+
+        long byteCountLo = 0;
+        long byteCountHi = 0;
+        for (short i = 0; i < digestedMsgLenLength; i++) {
+            if( i < 8 )
+                byteCountLo = (byteCountLo << 8) + (digestedMsgLenBuf[digestedMsgLenOffset + i] & 0xff);
+            else
+                byteCountHi = (byteCountHi << 8) + (digestedMsgLenBuf[digestedMsgLenOffset + i] & 0xff);
+        }
+
+        // byte count % block size must be == 0
+        if (byteCountLo % blockSize != 0) {
+            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
+        }
+
+        // Set initial state for SHA3-224,SHA3-256,SHA3-384 and SHA3-512, BouncyCastle specific
+        if( (algorithm == ALG_SHA3_224) || (algorithm == ALG_SHA3_256) || (algorithm == ALG_SHA3_384) || (algorithm == ALG_SHA3_512) ){
+            try {
+                Field statesField = KeccakDigest.class.getDeclaredField("state");
+                statesField.setAccessible(true);
+                long[] states = long[].class.cast(statesField.get(engine));
+                for (byte i = 0; i < states.length; i++) {
+                    states[i] = Pack.bigEndianToLong(initialDigestBuf,i*(Long.SIZE/Byte.SIZE));
+                }
+            } catch (Exception e) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_USE);
             }
-            else{
-                byteCountField = digestClass.getSuperclass().getDeclaredField(byteCountFieldName);
+        }
+        else{
+            // Set hash state for SHA1, MD5, RIPEMD160, SHA-224, SHA-256, SHA-384 and SHA-512, BouncyCastle specific
+            try {
+                for (byte i = 0; i < componentCount; i++) {
+                    // some reflection work
+                    Field h = digestClass.getDeclaredField("H" + (i + componentStartIdx));
+                    h.setAccessible(true);
+                    if (componentSize == 4) {
+                        h.setInt(engine, Pack.bigEndianToInt(initialDigestBuf, initialDigestOffset + i * componentSize));
+                    } else {
+                        h.setLong(engine, Pack.bigEndianToLong(initialDigestBuf, initialDigestOffset + i * componentSize));
+                    }
+                }
+
+                // set byteCount
+                // Check if SHA-384 and SHA-512
+                if( (algorithm == ALG_SHA_384) || (algorithm == ALG_SHA_512)  ){
+                    Field byteCount1Field = digestClass.getDeclaredField("byteCount1");
+                    byteCount1Field.setAccessible(true);
+                    byteCount1Field.setLong(engine, byteCountLo);
+
+                    Field byteCount2Field = digestClass.getDeclaredField("byteCount2");
+                    byteCount2Field.setAccessible(true);
+                    byteCount2Field.setLong(engine, byteCountHi);
+                }
+                else{
+                    Field byteCountField = digestClass.getSuperclass().getDeclaredField("byteCount");
+                    byteCountField.setAccessible(true);
+                    byteCountField.setLong(engine, byteCountLo);
+                }
+
+            } catch (Exception e) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_USE);
             }
-            byteCountField.setAccessible(true);
-            byteCountField.setLong(engine, byteCount);
-        } catch (Exception e) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }
     }
 
-    void getIntermediateDigest(byte[] intermediateDigest, int off) {
-        // get hash state - BouncyCastle specific
-        try {
-            for (byte i = 0; i < componentCount; i++) {
-                // some reflection work
-                Field h = digestClass.getDeclaredField("H" + (i + componentStartIdx));
-                h.setAccessible(true);
-                if (componentSize == 4) {
-                    Pack.intToBigEndian(h.getInt(engine), intermediateDigest, off + i * componentSize);
-                } else {
-                    Pack.longToBigEndian(h.getLong(engine), intermediateDigest, off + i * componentSize);
+    private boolean checkSupportDigestedMsgLenLength(short digestedMsgLenLength){
+        if (digestedMsgLenLength == 0 ){
+            return false;
+        }
+
+        switch(algorithm){
+            case ALG_SHA:
+            case ALG_MD5:
+            case ALG_RIPEMD160:
+            case ALG_SHA_224:
+            case ALG_SHA_256:
+                if (digestedMsgLenLength > 8 ){
+                    return false;
                 }
+                break;
+
+            case ALG_SHA_384:
+            case ALG_SHA_512:
+                if (digestedMsgLenLength > 16 ){
+                    return false;
+                }
+                break;
+
+            case ALG_SHA3_224:
+            case ALG_SHA3_256:
+            case ALG_SHA3_384:
+            case ALG_SHA3_512:
+                // No limit for SHA3
+                return true;
+        }
+
+        return true;
+    }
+    void getIntermediateDigest(byte[] intermediateDigest, int off) {
+        if( (algorithm == ALG_SHA3_224) || (algorithm == ALG_SHA3_256) || (algorithm == ALG_SHA3_384) || (algorithm == ALG_SHA3_512) ){
+            // Get intermediate state for SHA3-224,SHA3-256,SHA3-384 and SHA3-512, BouncyCastle specific
+            try {
+                Field statesField = KeccakDigest.class.getDeclaredField("state");
+                statesField.setAccessible(true);
+                long[] states = long[].class.cast(statesField.get(engine));
+                for (byte i = 0; i < states.length; i++) {
+                    Pack.longToBigEndian(states[i],intermediateDigest,i*(Long.SIZE/Byte.SIZE));
+                }
+            } catch (Exception e) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_USE);
             }
-        } catch (Exception e) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        }
+        else{
+            // Get hash state for SHA1, MD5, RIPEMD160, SHA-224, SHA-256, SHA-384 and SHA-512, BouncyCastle specific
+            try {
+                for (byte i = 0; i < componentCount; i++) {
+                    // some reflection work
+                    Field h = digestClass.getDeclaredField("H" + (i + componentStartIdx));
+                    h.setAccessible(true);
+                    if (componentSize == 4) {
+                        Pack.intToBigEndian(h.getInt(engine), intermediateDigest, off + i * componentSize);
+                    } else {
+                        Pack.longToBigEndian(h.getLong(engine), intermediateDigest, off + i * componentSize);
+                    }
+                }
+            } catch (Exception e) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+            }
         }
     }
 
     short getBlockSize(){
         return blockSize;
     }
+
+    short getIntermediateStateSize(){
+        switch(algorithm){
+            // https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_SHA
+            case ALG_SHA: return 20;
+
+            // https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_MD5
+            case ALG_MD5: return 16;
+
+            //https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_RIPEMD160
+            case ALG_RIPEMD160 : return 20;
+
+            //https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_SHA_224
+            case ALG_SHA_224 : return 32;
+
+            //https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_SHA_256
+            case ALG_SHA_256 : return 32;
+
+            //https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_SHA_384
+            case ALG_SHA_384: return 64;
+
+            //https://docs.oracle.com/javacard/3.0.5/api/javacard/security/MessageDigest.html#ALG_SHA_512
+            case ALG_SHA_512: return 64;
+
+            // Javacard 3.0.5 api document represent not correct information for SHA3 Message digests.
+            // Javacard 3.1.0 api document and NIST- FIPS 202 are reference instead.
+            //https://docs.oracle.com/en/java/javacard/3.1/jc_api_srvc/api_classic/javacard/security/MessageDigest.html#ALG_SHA3_224
+            case ALG_SHA3_224: return 200;
+
+            //https://docs.oracle.com/en/java/javacard/3.1/jc_api_srvc/api_classic/javacard/security/MessageDigest.html#ALG_SHA3_256
+            case ALG_SHA3_256: return 200;
+
+            //https://docs.oracle.com/en/java/javacard/3.1/jc_api_srvc/api_classic/javacard/security/MessageDigest.html#ALG_SHA3_384
+            case ALG_SHA3_384: return 200;
+
+            //https://docs.oracle.com/en/java/javacard/3.1/jc_api_srvc/api_classic/javacard/security/MessageDigest.html#ALG_SHA3_512
+            case ALG_SHA3_512: return 200;
+        }
+        return 0;
+    }
+
 }

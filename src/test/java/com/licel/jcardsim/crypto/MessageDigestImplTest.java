@@ -348,18 +348,20 @@ public class MessageDigestImplTest extends TestCase {
      * Test of setInitialDigest method, of class MessageDigestImpl.
      */
     public void testSetInitialDigest() {
-        byte[] initialDigestBuf = new byte[128];
+        byte[] initialDigestBuf = new byte[256];
         byte[] inputData = new byte[254];
         rnd.nextBytes(inputData);
 
         MessageDigestImpl[] digests = new MessageDigestImpl[]{engineSHA1, engineMD5, engineRIPEMD160,
-                engineSHA224, engineSHA256, engineSHA384, engineSHA512 };
+                engineSHA224, engineSHA256, engineSHA384, engineSHA512,
+                engineSHA3_224, engineSHA3_256,engineSHA3_384, engineSHA3_512};
 
         for (short i = 0; i < digests.length; i++) {
             System.out.println("testSetInitialDigest() - "+digests[i].getAlgorithm());
-            
+
             byte[] digest = new byte[digests[i].getLength()];
             byte[] etalonDigest = new byte[digests[i].getLength()];
+            digests[i].reset();
             digests[i].doFinal(inputData, (short) 0, (short) inputData.length, etalonDigest, (short) 0);
 
             // calc first part
@@ -367,20 +369,22 @@ public class MessageDigestImplTest extends TestCase {
             short part = digests[i].getBlockSize();
             digests[i].update(inputData, (short) 0, part);
 
-            short initialDigestOff = (short) rnd.nextInt(initialDigestBuf.length - engineSHA512.getLength());
+            short initialDigestOff = (short) rnd.nextInt(initialDigestBuf.length - digests[i].getIntermediateStateSize());
             digests[i].getIntermediateDigest(initialDigestBuf, initialDigestOff);
+            digests[i].reset();
+
             InitializedMessageDigest mdInstance = MessageDigest.getInitializedMessageDigestInstance(digests[i].getAlgorithm(),false);
 
             byte[] partBytes = new byte[2];
             partBytes[0] = (byte)((part >> 8) & 0xff);
             partBytes[1] = (byte)(part& 0xff);
 
-            mdInstance.setInitialDigest(initialDigestBuf,initialDigestOff, (short) digests[i].getLength(),partBytes, (short) 0, (short) partBytes.length);
+            mdInstance.setInitialDigest(initialDigestBuf,initialDigestOff, (short) digests[i].getIntermediateStateSize(),partBytes, (short) 0, (short) partBytes.length);
             mdInstance.doFinal(inputData, part, (short) (inputData.length - part), digest, (short) 0);
 
             assertEquals(true, Arrays.areEqual(etalonDigest, digest));
         }
+
     }
-    
-    
+
 }
