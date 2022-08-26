@@ -24,6 +24,7 @@ import javacardx.crypto.Cipher;
 import org.bouncycastle.crypto.AsymmetricBlockCipher;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.encodings.OAEPEncoding;
 import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.paddings.BlockCipherPadding;
@@ -45,6 +46,8 @@ public class AsymmetricCipherImpl extends Cipher {
     byte[] buffer;
     short bufferPos;
 
+    byte initMode;
+
     public AsymmetricCipherImpl(byte algorithm) {
         this.algorithm = algorithm;
         switch (algorithm) {
@@ -54,6 +57,10 @@ public class AsymmetricCipherImpl extends Cipher {
                 break;
             case ALG_RSA_PKCS1:
                 engine = new PKCS1Encoding(new RSAEngine());
+                paddingEngine = null;
+                break;
+            case ALG_RSA_PKCS1_OAEP:
+                engine = new OAEPEncoding(new RSAEngine());
                 paddingEngine = null;
                 break;
             default:
@@ -75,6 +82,7 @@ public class AsymmetricCipherImpl extends Cipher {
         ParametersWithRandom params = new ParametersWithRandom(((KeyWithParameters) theKey).getParameters(), new SecureRandomNullProvider());
         engine.init(theMode == MODE_ENCRYPT, params);
         buffer = JCSystem.makeTransientByteArray((short) engine.getInputBlockSize(), JCSystem.CLEAR_ON_DESELECT);
+        initMode = theMode;
         bufferPos = 0;
         isInitialized = true;
     }
@@ -91,11 +99,19 @@ public class AsymmetricCipherImpl extends Cipher {
         if (!isInitialized) {
             CryptoException.throwIt(CryptoException.INVALID_INIT);
         }
-        if ((outBuff.length - outOffset) < engine.getOutputBlockSize()) {
-            CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+
+        if( initMode == MODE_ENCRYPT ) {
+            if ((outBuff.length - outOffset) < engine.getOutputBlockSize()) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+            }
+        }
+        else{
+            if ((inBuff.length - inOffset) < engine.getInputBlockSize()) {
+                CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+            }
         }
         update(inBuff, inOffset, inLength, outBuff, outOffset);
-        if (algorithm != ALG_RSA_PKCS1) {
+        if (algorithm == ALG_RSA_NOPAD) {
             if ((bufferPos < engine.getInputBlockSize()) && (paddingEngine == null)) {
                 CryptoException.throwIt(CryptoException.ILLEGAL_USE);
             } else if (bufferPos < engine.getInputBlockSize()) {
