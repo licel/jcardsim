@@ -187,6 +187,14 @@ public class AsymmetricSignatureImplTest extends TestCase {
         testSelfSignVerify(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, Signature.ALG_ECDSA_SHA_512);
     }
 
+    public void testSelfSignVerifyDSA_SHA(){
+        System.out.println("self test sign/verify DSA SHA");
+
+        testSelfSignVerify(KeyPair.ALG_DSA, KeyBuilder.LENGTH_DSA_512, Signature.ALG_DSA_SHA);
+        testSelfSignVerify(KeyPair.ALG_DSA, KeyBuilder.LENGTH_DSA_768, Signature.ALG_DSA_SHA);
+        testSelfSignVerify(KeyPair.ALG_DSA, KeyBuilder.LENGTH_DSA_1024, Signature.ALG_DSA_SHA);
+    }
+
     /**
      * Base SelfTest sign/verify method
      *

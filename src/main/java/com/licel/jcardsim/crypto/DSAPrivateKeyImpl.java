@@ -54,6 +54,7 @@ public class DSAPrivateKeyImpl extends DSAKeyImpl implements DSAPrivateKey {
     }
 
     public void setParameters(CipherParameters params) {
+        super.setParameters(params);
         x.setBigInteger(((DSAPrivateKeyParameters) params).getX());
     }
     

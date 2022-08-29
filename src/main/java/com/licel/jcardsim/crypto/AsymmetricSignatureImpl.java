@@ -35,11 +35,8 @@ import org.bouncycastle.crypto.digests.SHA384Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
-import org.bouncycastle.crypto.signers.DSADigestSigner;
-import org.bouncycastle.crypto.signers.ECDSASigner;
-import org.bouncycastle.crypto.signers.ISO9796d2Signer;
-import org.bouncycastle.crypto.signers.PSSSigner;
-import org.bouncycastle.crypto.signers.RSADigestSigner;
+import org.bouncycastle.crypto.signers.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /*
  * Implementation <code>Signature</code> with asymmetric keys based
@@ -146,6 +143,20 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 digest = new SHA512Digest();
                 engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
+            case ALG_DSA_SHA:
+                digest = new SHA1Digest();
+                engine = new DSADigestSigner(new DSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
+                break;
+            case ALG_RSA_SHA_RFC2409:
+            case ALG_RSA_MD5_RFC2409:
+            case ALG_RSA_MD5_PKCS1_PSS:
+            case ALG_RSA_RIPEMD160_PKCS1_PSS:
+            case ALG_RSA_RIPEMD160_ISO9796_MR:
+                throw new NotImplementedException();
+
+            default:
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                break;
         }
     }
 
@@ -200,6 +211,8 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_RSA_RIPEMD160_ISO9796:
             case ALG_RSA_RIPEMD160_PKCS1:
                 return (short)(key.getSize()>>3);
+
+            case ALG_DSA_SHA:
             case ALG_ECDSA_SHA:
             case ALG_ECDSA_SHA_256:
             case ALG_ECDSA_SHA_224:
