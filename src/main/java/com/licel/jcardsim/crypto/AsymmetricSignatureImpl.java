@@ -147,10 +147,16 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 digest = new SHA1Digest();
                 engine = new DSADigestSigner(new DSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
                 break;
+            case ALG_RSA_MD5_PKCS1_PSS:
+                digest = new MD5Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 16);
+                break;
+            case ALG_RSA_RIPEMD160_PKCS1_PSS:
+                digest = new RIPEMD160Digest();
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 20);
+                break;
             case ALG_RSA_SHA_RFC2409:
             case ALG_RSA_MD5_RFC2409:
-            case ALG_RSA_MD5_PKCS1_PSS:
-            case ALG_RSA_RIPEMD160_PKCS1_PSS:
             case ALG_RSA_RIPEMD160_ISO9796_MR:
                 throw new NotImplementedException();
 
@@ -208,8 +214,10 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_RSA_SHA_384_PKCS1_PSS:
             case ALG_RSA_SHA_512_PKCS1_PSS:
             case ALG_RSA_MD5_PKCS1:
+            case ALG_RSA_MD5_PKCS1_PSS:
             case ALG_RSA_RIPEMD160_ISO9796:
             case ALG_RSA_RIPEMD160_PKCS1:
+            case ALG_RSA_RIPEMD160_PKCS1_PSS:
                 return (short)(key.getSize()>>3);
 
             case ALG_DSA_SHA:
