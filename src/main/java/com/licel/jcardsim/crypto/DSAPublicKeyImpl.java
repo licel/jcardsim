@@ -54,6 +54,7 @@ public class DSAPublicKeyImpl extends DSAKeyImpl implements DSAPublicKey {
     }
 
     public void setParameters(CipherParameters params) {
+        super.setParameters(params);
         y.setBigInteger(((DSAPublicKeyParameters) params).getY());
     }
     
