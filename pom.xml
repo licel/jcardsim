@@ -44,9 +44,9 @@
     
     <distributionManagement>
         <repository>
-            <id>bintray-jcardsim-maven-jCardSim</id>
-            <name>jcardsim-maven-jCardSim</name>
-            <url>https://api.bintray.com/maven/jcardsim/maven/jCardSim</url>
+            <id>github</id>
+            <name>GitHub Licel JCardSim Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/licel/jcardsim</url>
         </repository>
     </distributionManagement>    
 
