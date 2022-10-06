@@ -45,7 +45,7 @@ assertEquals(0x9000, response.getSW());
 
   (Javadoc rendered: https://jcardsim.org/jcardsim/)
 
-*Latest release 3.0.5*: https://github.com/licel/jcardsim/raw/master/jcardsim-3.0.5-SNAPSHOT.jar
+*Latest release 3.0.5*: https://github.com/licel/jcardsim/packages/1650016
 
 
 ### What is the difference from Oracle Java Card Development Kit simulator?
