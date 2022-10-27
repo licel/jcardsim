@@ -17,6 +17,8 @@ package com.licel.jcardsim.base;
 
 import static com.licel.jcardsim.base.Simulator.ATR_SYSTEM_PROPERTY;
 import static com.licel.jcardsim.base.Simulator.DEFAULT_ATR;
+
+import com.licel.jcardsim.samples.HelloWorldApplet;
 import com.licel.jcardsim.samples.PersistentApplet;
 import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.ByteUtil;
@@ -39,7 +41,7 @@ public class PersistentRuntimeTest extends TestCase {
     String aidStr;
     AID aid;
     Path baseDir;
-    
+
     public PersistentRuntimeTest(String testName) {
         super(testName);
     }
@@ -62,7 +64,7 @@ public class PersistentRuntimeTest extends TestCase {
 
     public void testInstallApplet() {
         System.out.println("testInstallApplet");
-        
+
         SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         Simulator instance = new Simulator(runtime);
 
@@ -105,7 +107,7 @@ public class PersistentRuntimeTest extends TestCase {
     
     public void testDeSelectApplet() {
         System.out.println("testDeSelectApplet");
-        
+
         AID otherAid = AIDUtil.create("FFFFFFFFFF0F070809");
         SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         Simulator instance = new Simulator(runtime);
@@ -133,7 +135,7 @@ public class PersistentRuntimeTest extends TestCase {
     
     public void testNullAppletDir() {
         System.out.println("testNullAppletDir");
-       
+
         System.clearProperty("persistentSimulatorRuntime.dir");
         SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         Simulator instance = new Simulator(runtime);
@@ -152,7 +154,7 @@ public class PersistentRuntimeTest extends TestCase {
         assertEquals(true, instance.selectApplet(aid));
         byte[] response = instance.transmitCommand(new byte[]{0x01, GET_DATA_INS, 0x00, 0x00});
         assertSW_9000(response);
-        
+
         SimulatorRuntime otherRuntime = new PersistentSimulatorRuntime();
         Simulator otherInstance = new Simulator(otherRuntime);
         otherInstance.loadApplet(aid, PersistentApplet.class);
@@ -192,5 +194,26 @@ public class PersistentRuntimeTest extends TestCase {
             }
         }
         return directoryToBeDeleted.delete();
+    }
+
+    public void testResetRuntime(){
+        System.out.println("testResetRuntime");
+
+        System.clearProperty("persistentSimulatorRuntime.dir");
+
+        SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        Simulator instance = new Simulator(runtime);
+        instance.installApplet(aid, PersistentApplet.class);
+        assertEquals(true, instance.selectApplet(aid));
+        byte[] response = instance.transmitCommand(new byte[]{0x01, GET_DATA_INS, 0x00, 0x00});
+        assertSW_9000(response);
+
+        Simulator otherInstance = new Simulator(runtime);
+        AID helloWorldAppletAID = AIDUtil.create("01020304050607080A");
+        otherInstance.installApplet(helloWorldAppletAID, HelloWorldApplet.class);
+        assertEquals(true, otherInstance.selectApplet(helloWorldAppletAID));
+        byte[] otherResponse = otherInstance.transmitCommand(new byte[]{0x01, 0x02, 0x00, 0x00});
+        assertSW_9000(otherResponse);
+
     }
 }

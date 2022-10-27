@@ -119,8 +119,11 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
     public void resetRuntime() {
         activateSimulatorRuntimeInstance();
         transientMemory.clearOnReset();
-        updateAppletFiles();
-        
+
+        if(appletsDir != null) {
+            updateAppletFiles();
+        }
+
         Iterator<AID> aids = applets.keySet().iterator();
         ArrayList<AID> aidsToTrash = new ArrayList<AID>();
         while (aids.hasNext()) {
