@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import javacard.framework.AID;
 import javacard.framework.Applet;
-import javacard.framework.JCSystem;
 import javacard.framework.SystemException;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -50,7 +49,11 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
         kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
         
         String baseDir = System.getProperties().getProperty(PERSISTENT_BASE_DIR, null);
-        if(baseDir != null) {
+
+        if( (baseDir != null) ) {
+            if( baseDir.trim().isEmpty() )
+                throw new RuntimeException("persistentSimulatorRuntime.dir can't be empty string");
+
             Path p = Paths.get(baseDir, System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
             File appletsDirFile = p.toFile();
             if(!appletsDirFile.exists()) {
@@ -119,8 +122,11 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
     public void resetRuntime() {
         activateSimulatorRuntimeInstance();
         transientMemory.clearOnReset();
-        updateAppletFiles();
-        
+
+        if(appletsDir != null) {
+            updateAppletFiles();
+        }
+
         Iterator<AID> aids = applets.keySet().iterator();
         ArrayList<AID> aidsToTrash = new ArrayList<AID>();
         while (aids.hasNext()) {
