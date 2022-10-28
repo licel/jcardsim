@@ -51,7 +51,7 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
         String baseDir = System.getProperties().getProperty(PERSISTENT_BASE_DIR, null);
 
         if( (baseDir != null) ) {
-            if( isEmptyOrConsecutiveSpaces(baseDir) )
+            if( baseDir.trim().isEmpty() )
                 throw new RuntimeException("persistentSimulatorRuntime.dir is invalid");
 
             Path p = Paths.get(baseDir, System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
@@ -219,14 +219,5 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
             AID aid = appInst.getAID();
             updateAppletFile(aid, applet);
         }
-    }
-
-    private boolean isEmptyOrConsecutiveSpaces(String baseDir){
-        for( char ch : baseDir.toCharArray()){
-            if( ch != ' '){
-                return false;
-            }
-        }
-        return true;
     }
 }
