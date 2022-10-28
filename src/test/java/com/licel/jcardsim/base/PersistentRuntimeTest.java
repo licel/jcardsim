@@ -216,4 +216,55 @@ public class PersistentRuntimeTest extends TestCase {
         assertSW_9000(otherResponse);
 
     }
+
+    public void testEmptyAppletDir() {
+        System.out.println("testEmptyAppletDir");
+
+        System.setProperty("persistentSimulatorRuntime.dir","");
+
+        try {
+            SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        }catch(Throwable ex){
+            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir is invalid");
+        }
+
+        // Check path must not be created
+        Path path = Paths.get(DEFAULT_ATR);
+        assertEquals(false, Files.exists(path));
+    }
+
+    public void testSpaceAppletDir() {
+        System.out.println("testEmptyAppletDir");
+
+        String spacePathStr = " ";
+        System.setProperty("persistentSimulatorRuntime.dir",spacePathStr);
+
+        try {
+            SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        }catch(Throwable ex){
+            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir is invalid");
+        }
+
+        // Check path must not be created
+        Path path = Paths.get(spacePathStr);
+        assertEquals(false, Files.exists(path));
+    }
+
+    public void testConsecutiveSpaceAppletDir() {
+        System.out.println("testEmptyAppletDir");
+
+        String consecutiveSpacePathStr = "    ";
+        System.setProperty("persistentSimulatorRuntime.dir",consecutiveSpacePathStr);
+
+        try {
+            SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        }catch(Throwable ex){
+            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir is invalid");
+        }
+
+        // Check path must not be created
+        Path path = Paths.get(consecutiveSpacePathStr);
+        assertEquals(false, Files.exists(path));
+
+    }
 }
