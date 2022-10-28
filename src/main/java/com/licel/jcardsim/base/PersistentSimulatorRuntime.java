@@ -52,7 +52,7 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
 
         if( (baseDir != null) ) {
             if( baseDir.trim().isEmpty() )
-                throw new RuntimeException("persistentSimulatorRuntime.dir is invalid");
+                throw new RuntimeException("persistentSimulatorRuntime.dir can't be empty string");
 
             Path p = Paths.get(baseDir, System.getProperty(ATR_SYSTEM_PROPERTY, DEFAULT_ATR));
             File appletsDirFile = p.toFile();

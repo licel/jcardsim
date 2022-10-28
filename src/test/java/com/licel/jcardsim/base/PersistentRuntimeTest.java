@@ -225,7 +225,7 @@ public class PersistentRuntimeTest extends TestCase {
         try {
             SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         }catch(Throwable ex){
-            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir is invalid");
+            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir can't be empty string");
         }
 
         // Check path must not be created
@@ -242,7 +242,7 @@ public class PersistentRuntimeTest extends TestCase {
         try {
             SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         }catch(Throwable ex){
-            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir is invalid");
+            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir can't be empty string");
         }
 
         // Check path must not be created
@@ -259,7 +259,7 @@ public class PersistentRuntimeTest extends TestCase {
         try {
             SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         }catch(Throwable ex){
-            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir is invalid");
+            assertEquals(ex.getMessage(),"persistentSimulatorRuntime.dir can't be empty string");
         }
 
         // Check path must not be created
