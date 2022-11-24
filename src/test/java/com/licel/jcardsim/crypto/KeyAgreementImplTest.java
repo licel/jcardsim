@@ -59,6 +59,9 @@ public class KeyAgreementImplTest extends TestCase {
         testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_SVDP_DHC_PLAIN);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DHC);
         testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_SVDP_DHC_PLAIN);
+        System.out.println("test ecgm");
+        testGenerateSecret(KeyPair.ALG_EC_F2M, KeyBuilder.LENGTH_EC_F2M_113, KeyAgreement.ALG_EC_PACE_GM);
+        testGenerateSecret(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_112, KeyAgreement.ALG_EC_PACE_GM);
     }
     
      /**
@@ -147,7 +150,8 @@ public class KeyAgreementImplTest extends TestCase {
                 assertEquals(secret1Size, (int) Math.ceil(keySize / 8.0));
                 assertEquals(secret2Size, (int) Math.ceil(keySize / 8.0));
                 break;
-            case KeyAgreement.ALG_EC_SVDP_DH_PLAIN_XY:
+            case KeyAgreement.ALG_EC_SVDP_DH_PLAIN_XY: // no break
+            case KeyAgreement.ALG_EC_PACE_GM:
                 int fieldSize = (int) Math.ceil(keySize / 8.0);
                 assertEquals(secret1Size, 1 + fieldSize + fieldSize);
                 assertEquals(secret2Size, 1 + fieldSize + fieldSize);
