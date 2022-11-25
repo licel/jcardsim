@@ -246,8 +246,10 @@ public class PersistentRuntimeTest extends TestCase {
         }
 
         // Check path must not be created
-        Path path = Paths.get(spacePathStr);
-        assertEquals(false, Files.exists(path));
+        try {
+            Path path = Paths.get(spacePathStr);
+            assertEquals(false, Files.exists(path));
+        }catch(Throwable ex){}
     }
 
     public void testConsecutiveSpaceAppletDir() {
@@ -263,8 +265,45 @@ public class PersistentRuntimeTest extends TestCase {
         }
 
         // Check path must not be created
-        Path path = Paths.get(consecutiveSpacePathStr);
-        assertEquals(false, Files.exists(path));
+        try {
+            Path path = Paths.get(consecutiveSpacePathStr);
+            assertEquals(false, Files.exists(path));
+        }catch(Throwable ex){}
+    }
 
+    public void testResetWithAppletDirs(){
+        System.out.println("testResetWithAppletDirs");
+
+        SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        Simulator instance = new Simulator(runtime);
+        instance.installApplet(aid, PersistentApplet.class);
+        assertEquals(true, instance.selectApplet(aid));
+        byte[] response = instance.transmitCommand(new byte[]{0x01, GET_DATA_INS, 0x00, 0x00});
+        assertSW_9000(response);
+
+        instance.reset();
+
+        assertEquals(true, instance.selectApplet(aid));
+        response = instance.transmitCommand(new byte[]{0x01, GET_DATA_INS, 0x00, 0x00});
+        assertSW_9000(response);
+    }
+
+    public void testResetWithoutAppletDirs(){
+        System.out.println("testResetWithoutAppletDirs");
+
+        System.clearProperty("persistentSimulatorRuntime.dir");
+
+        SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        Simulator instance = new Simulator(runtime);
+        instance.installApplet(aid, PersistentApplet.class);
+        assertEquals(true, instance.selectApplet(aid));
+        byte[] response = instance.transmitCommand(new byte[]{0x01, GET_DATA_INS, 0x00, 0x00});
+        assertSW_9000(response);
+
+        instance.reset();
+
+        assertEquals(true, instance.selectApplet(aid));
+        response = instance.transmitCommand(new byte[]{0x01, GET_DATA_INS, 0x00, 0x00});
+        assertSW_9000(response);
     }
 }

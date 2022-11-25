@@ -149,7 +149,9 @@ public class BixVReaderCard {
                             driverProtocol.writeData(CardManager.dispatchApdu(sim, apdu));
                             break;
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    e.printStackTrace(System.err);
+                }
             }
         }
     }

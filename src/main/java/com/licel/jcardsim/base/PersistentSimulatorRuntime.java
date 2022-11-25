@@ -214,10 +214,12 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
     }
     
     private void updateAppletFiles() {
-        for(ApplicationInstance appInst : applets.values()) {
-            Applet applet = appInst.getApplet();
-            AID aid = appInst.getAID();
-            updateAppletFile(aid, applet);
+        if( appletsDir != null ){
+            for(ApplicationInstance appInst : applets.values()) {
+                Applet applet = appInst.getApplet();
+                AID aid = appInst.getAID();
+                updateAppletFile(aid, applet);
+            }
         }
     }
 }
