@@ -314,7 +314,7 @@ public class SimulatorRuntime {
         }
 
         // if theSW = 0x61XX or 0x9XYZ than return data (ISO7816-3)
-        if(theSW[0] == 0x61 || theSW[0] == 0x62 || theSW[0] == 0x63 || (theSW[0] >= (byte)0x90 && theSW[0] <= (byte)0x9F)) {
+        if(theSW[0] == 0x61 || theSW[0] == 0x62 || theSW[0] == 0x63 || (theSW[0] >= (byte)0x90 && theSW[0] <= (byte)0x9F) || isNotAbortingCase(theSW) ) {
             response = new byte[responseBufferSize + 2];
             Util.arrayCopyNonAtomic(responseBuffer, (short) 0, response, (short) 0, responseBufferSize);
             Util.arrayCopyNonAtomic(theSW, (short) 0, response, responseBufferSize, (short) 2);
@@ -324,6 +324,16 @@ public class SimulatorRuntime {
         }
 
         return response;
+    }
+
+    /**
+     * Check if secure channel is not aborted
+     * This method must be override in subclass that have secure channel abort checking
+     * @param SW Status word
+     * @return True if secure channel is not aborted
+     */
+    protected boolean isNotAbortingCase(byte[] SW) {
+        return false;
     }
 
     protected AID findAppletForSelectApdu(byte[] selectApdu, ApduCase apduCase) {
