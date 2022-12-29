@@ -22,11 +22,15 @@ import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacard.security.Signature;
 import javacard.security.SignatureMessageRecovery;
+import javacard.security.MessageDigest;
+import javacardx.crypto.Cipher;
+
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.SignerWithRecovery;
 import org.bouncycastle.crypto.digests.MD5Digest;
+import org.bouncycastle.crypto.digests.NullDigest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.digests.SHA224Digest;
@@ -48,6 +52,8 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     Signer engine;
     Key key;
     byte algorithm;
+    byte cipherAlgorithm;
+    byte paddingAlgorithm;
     boolean isInitialized;
     boolean isRecovery;
     byte[] preSig;
@@ -56,9 +62,19 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     boolean isImplicitTrailer;
 
     public AsymmetricSignatureImpl(byte algorithm) {
+        this(algorithm, (byte) 0, (byte) 0);
+    }
+
+    public AsymmetricSignatureImpl(byte algorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
         this.algorithm = algorithm;
         isImplicitTrailer = false;
+        this.cipherAlgorithm = cipherAlgorithm;
+        this.paddingAlgorithm = paddingAlgorithm;
         isRecovery = false;
+        if (isRawECDSAWithoutHash()) {
+            engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new NullDigest()));
+            return;
+        }
         switch (algorithm) {
             case ALG_RSA_SHA_ISO9796:
                 digest = new SHA1Digest();
@@ -166,6 +182,10 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         }
     }
 
+    private boolean isRawECDSAWithoutHash() {
+        return algorithm == MessageDigest.ALG_NULL && cipherAlgorithm == Signature.SIG_CIPHER_ECDSA && paddingAlgorithm == Cipher.PAD_NULL;
+    }
+
     public void init(Key theKey, byte theMode) throws CryptoException {
         if (theKey == null) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
@@ -201,6 +221,9 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         if (!key.isInitialized()) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
+        if (isRawECDSAWithoutHash()) {
+            return getECDSASignatureLength();
+        }
         switch (algorithm) {
             case ALG_RSA_SHA_ISO9796:
             case ALG_RSA_SHA_PKCS1:
@@ -227,9 +250,15 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_ECDSA_SHA_384:
             case ALG_ECDSA_SHA_512:
                 // x,y + der payload
-                return (short)(((key.getSize()*2)>>3) + 8);
+                return getECDSASignatureLength();
         }
         return 0;
+    }
+
+    private short getECDSASignatureLength() {
+        int keySizeInByte =key.getSize() / 8;
+        int signatureSize = keySizeInByte * 2; // r, s
+        return (short) (signatureSize + 8); // with payload
     }
 
     public byte getAlgorithm() {
