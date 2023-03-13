@@ -19,6 +19,7 @@ import javacard.security.Checksum;
 import junit.framework.TestCase;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
+import java.util.zip.CRC32;
 
 /**
  * Test for <code>CRC32</code>
@@ -29,7 +30,8 @@ public class CRC32Test extends TestCase {
     // etalon msg
     String MESSAGE = "C46A3D01F5494013F9DFF3C5392C64";
     // etalon crc
-    String CRC = "7C6277D0";
+//    String CRC = "7C6277D0";
+    String CRC = "C6A5A2E4";
 
     public CRC32Test(String testName) {
         super(testName);
