@@ -72,7 +72,7 @@ public class CRC32 extends Checksum {
         short poly_l = Util.getShort(polynom, (short) 2);
         byte carry = 0;
         for (short i = inOff; i < (short) (inOff + inLen); i++) {
-            short d_h = (short) (inBuf[i] << 8);
+            short d_h = (short) (reflect8(inBuf[i]) << 8);
             for (short k = 0; k < 8; k++) {
                 if (((fcs_h ^ d_h) & 0x8000) != 0) {
                     carry = 0;
@@ -104,8 +104,26 @@ public class CRC32 extends Checksum {
 
         }
 
-        Util.setShort(crc32, (short) 2, fcs_l);
-        Util.setShort(crc32, (short) 0, fcs_h);
+        Util.setShort(crc32, (short) 2, reflect16(fcs_h));
+        Util.setShort(crc32, (short) 0, reflect16(fcs_l));
+    }
+
+    private byte reflect8(byte input){
+        byte reflected = 0;
+        for( byte i = 0; i < 8; i++){
+            if((input & (0x80 >> i)) > 0 )
+                reflected |= (1 << i);
+        }
+        return reflected;
+    }
+
+    private short reflect16(short input){
+        short reflected = 0;
+        for( byte i = 0; i < 16; i++){
+            if((input & (0x8000 >> i)) > 0 )
+                reflected |= (1 << i);
+        }
+        return reflected;
     }
 
     short shift(short s) {
