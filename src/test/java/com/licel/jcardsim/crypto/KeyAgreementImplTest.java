@@ -83,12 +83,13 @@ public class KeyAgreementImplTest extends TestCase {
     public void generateSecretDH(byte keyAlg, short keySize, byte keyAgreementAlg) {
         // generate keys
         KeyPair kp = new KeyPair(keyAlg, keySize);
+        KeyPair kp2 = new KeyPair(keyAlg, keySize);
         kp.genKeyPair();
         PrivateKey privateKey1 = kp.getPrivate();
         DHPublicKey publicKey1 = (DHPublicKey) kp.getPublic();
-        kp.genKeyPair();
-        PrivateKey privateKey2 = kp.getPrivate();
-        DHPublicKey publicKey2 = (DHPublicKey) kp.getPublic();
+        kp2.genKeyPair();
+        PrivateKey privateKey2 = kp2.getPrivate();
+        DHPublicKey publicKey2 = (DHPublicKey) kp2.getPublic();
         // generate first secret
         KeyAgreement ka = KeyAgreement.getInstance(keyAgreementAlg, false);
         byte[] secret1 = new byte[256];
@@ -116,12 +117,13 @@ public class KeyAgreementImplTest extends TestCase {
     public void testGenerateSecret(byte keyAlg, short keySize, byte keyAgreementAlg) {
         // generate keys
         KeyPair kp = new KeyPair(keyAlg, keySize);
+        KeyPair kp2 = new KeyPair(keyAlg, keySize);
         kp.genKeyPair();
         PrivateKey privateKey1 = kp.getPrivate();
         ECPublicKey publicKey1 = (ECPublicKey) kp.getPublic();
-        kp.genKeyPair();
-        PrivateKey privateKey2 = kp.getPrivate();
-        ECPublicKey publicKey2 = (ECPublicKey) kp.getPublic();
+        kp2.genKeyPair();
+        PrivateKey privateKey2 = kp2.getPrivate();
+        ECPublicKey publicKey2 = (ECPublicKey) kp2.getPublic();
         // generate first secret
         KeyAgreement ka = KeyAgreement.getInstance(keyAgreementAlg, false);
         byte[] secret1 = new byte[65];
