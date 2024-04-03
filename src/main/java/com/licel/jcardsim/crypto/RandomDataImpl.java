@@ -22,6 +22,8 @@ import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 import org.bouncycastle.crypto.prng.RandomGenerator;
 
+import java.security.SecureRandom;
+
 /**
  * Implementation <code>RandomData</code> based
  * on BouncyCastle CryptoAPI.
@@ -34,6 +36,7 @@ public class RandomDataImpl extends RandomData {
     public RandomDataImpl(byte algorithm) {
         this.algorithm = algorithm;
         this.engine = new DigestRandomGenerator(new SHA1Digest());
+        this.engine.addSeedMaterial(new SecureRandom().generateSeed(8));
     }
 
     public void generateData(byte[] buffer, short offset, short length) throws CryptoException {
