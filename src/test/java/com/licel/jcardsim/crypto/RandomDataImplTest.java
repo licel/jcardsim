@@ -15,8 +15,11 @@
  */
 package com.licel.jcardsim.crypto;
 
+import javacard.framework.Util;
 import javacard.security.RandomData;
 import junit.framework.TestCase;
+
+import java.util.Arrays;
 
 /**
  * Test for <code>RandomDataImpl</code>
@@ -40,17 +43,29 @@ public class RandomDataImplTest extends TestCase {
      */
     public void testGenerateData() {
         System.out.println("generateData");
-        byte[] buffer = new byte[8];
+        byte[] buffer0 = new byte[]{0,0,0,0,0,0,0,0};
+        byte[] buffer1 = new byte[]{0,0,0,0,0,0,0,0};
+
         RandomData instance = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
-        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer0, (short) 0, (short) buffer0.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
-        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer1, (short) 0, (short) buffer1.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_TRNG);
-        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer0, (short) 0, (short) buffer0.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_FAST);
-        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer1, (short) 0, (short) buffer1.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_KEYGENERATION);
-        instance.generateData(buffer, (short) 0, (short) buffer.length);
+        instance.generateData(buffer0, (short) 0, (short) buffer0.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
     }
 
     /**
@@ -58,17 +73,28 @@ public class RandomDataImplTest extends TestCase {
      */
     public void testNextBytes() {
         System.out.println("nextBytes");
-        byte[] buffer = new byte[8];
+        byte[] buffer0 = new byte[]{0,0,0,0,0,0,0,0};
+        byte[] buffer1 = new byte[]{0,0,0,0,0,0,0,0};
+
         RandomData instance = RandomData.getInstance(RandomData.ALG_PSEUDO_RANDOM);
-        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance.nextBytes(buffer0, (short) 0, (short) buffer0.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_SECURE_RANDOM);
-        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance.nextBytes(buffer1, (short) 0, (short) buffer1.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_TRNG);
-        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance.nextBytes(buffer0, (short) 0, (short) buffer0.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_FAST);
-        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance.nextBytes(buffer1, (short) 0, (short) buffer1.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
+
         instance = RandomData.getInstance(RandomData.ALG_KEYGENERATION);
-        instance.nextBytes(buffer, (short) 0, (short) buffer.length);
+        instance.nextBytes(buffer0, (short) 0, (short) buffer0.length);
+        assertTrue( 0 != Util.arrayCompare(buffer0, (short) 0,buffer1, (short) 0, (short) buffer0.length));
     }
 
     /**
