@@ -17,6 +17,8 @@ package com.licel.jcardsim.remote;
 
 import com.licel.jcardsim.base.CardManager;
 import com.licel.jcardsim.base.Simulator;
+
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -135,6 +137,7 @@ public class BixVReaderCard {
 
         @Override
         public void run() {
+            int exceptionCount = 0;
             while (isRunning) {
                 try {
                     int cmd = driverProtocol.readCommand();
@@ -149,8 +152,14 @@ public class BixVReaderCard {
                             driverProtocol.writeData(CardManager.dispatchApdu(sim, apdu));
                             break;
                     }
+                } catch (EOFException eof) {
+                    eof.printStackTrace(System.err);
+                    break;
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
+                    if (exceptionCount++ >= 3) {
+                        break;
+                    }
                 }
             }
         }
