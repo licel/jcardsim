@@ -132,7 +132,7 @@ public final class ByteContainer {
         if (length == 0) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
-        return new BigInteger(1, data);
+        return new BigInteger(1, data, 0, length);
     }
 
     /**
