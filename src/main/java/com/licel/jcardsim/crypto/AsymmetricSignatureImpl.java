@@ -49,14 +49,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  */
 public class AsymmetricSignatureImpl extends Signature implements SignatureMessageRecovery{
     private final static byte UNDEFINED_SIG_ALG = 0;
-    private final static byte UNDEFINED_SIG_CIPHER_ALG = 0;
 
     Signer engine;
     Key key;
     byte algorithm;
     byte messageDigestAlgorithm = MessageDigest.ALG_NULL;
-
-
     byte cipherAlgorithm;
     byte paddingAlgorithm;
     boolean isInitialized;

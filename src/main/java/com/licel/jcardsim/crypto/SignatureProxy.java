@@ -80,6 +80,7 @@ public class SignatureProxy {
                     CryptoException.throwIt(CryptoException.INVALID_INIT);
                 }
                 break;
+
             case Signature.ALG_DES_MAC4_NOPAD:
             case Signature.ALG_DES_MAC8_NOPAD:
             case Signature.ALG_DES_MAC4_ISO9797_M1:
@@ -110,8 +111,31 @@ public class SignatureProxy {
     }
 
     public static final Signature getInstance(byte messageDigestAlgorithm, byte cipherAlgorithm,
-            byte paddingAlgorithm, boolean externalAccess) throws CryptoException {
-        return new AsymmetricSignatureImpl(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm);
+                                              byte paddingAlgorithm, boolean externalAccess) throws CryptoException {
+        Signature instance = null;
+
+        switch(cipherAlgorithm){
+            case Signature.SIG_CIPHER_DES_MAC4:
+            case Signature.SIG_CIPHER_DES_MAC8:
+            case Signature.SIG_CIPHER_AES_MAC128:
+            case Signature.SIG_CIPHER_HMAC:
+            case Signature.SIG_CIPHER_KOREAN_SEED_MAC:
+            case Signature.SIG_CIPHER_AES_CMAC128:
+                instance = new SymmetricSignatureImpl(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm);
+                break;
+
+            case Signature.SIG_CIPHER_RSA:
+            case Signature.SIG_CIPHER_DSA:
+            case Signature.SIG_CIPHER_ECDSA:
+            case Signature.SIG_CIPHER_ECDSA_PLAIN:
+                instance = new AsymmetricSignatureImpl(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm);
+                break;
+
+            default:
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                break;
+        }
+        return instance;
     }
 
 }
