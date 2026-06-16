@@ -71,6 +71,8 @@ public class SimulatorRuntime {
     /** previousActiveObject */
     protected Object previousActiveObject;
 
+    private boolean legacyMode;
+
     public SimulatorRuntime() {
         this(new TransientMemory());
     }
@@ -78,6 +80,14 @@ public class SimulatorRuntime {
     @SuppressWarnings("unchecked")
     public SimulatorRuntime(TransientMemory transientMemory) {
         this.transientMemory = transientMemory;
+        if( "legacy".equals( System.getProperty("mode"))){
+            this.legacyMode = true;
+            System.out.println("SimulatorRuntime run in Legacy Mode");
+        }
+        else {
+            this.legacyMode = false;
+        }
+
         try {
             Constructor<?> ctor = APDU.class.getDeclaredConstructors()[0];
             ctor.setAccessible(true);
@@ -239,14 +249,88 @@ public class SimulatorRuntime {
      * @return response apdu
      */
     public byte[] transmitCommand(byte[] command) throws SystemException {
-        activateSimulatorRuntimeInstance();
+        if( legacyMode ){
+            byte[] theSW;
+            block20: {
+                this.activateSimulatorRuntimeInstance();
+                ApduCase apduCase = ApduCase.getCase(command);
+                theSW = new byte[2];
+                Applet applet = this.getApplet(this.getAID());
+                this.selecting = false;
+                if (!apduCase.isExtended() && SimulatorRuntime.isAppletSelectionApdu(command)) {
+                    AID newAid = this.findAppletForSelectApdu(command, apduCase);
+                    if (newAid != null) {
+                        this.deselect(this.lookupApplet(this.getAID()));
+                        this.currentAID = newAid;
+                        applet = this.getApplet(this.getAID());
+                        this.selecting = true;
+                    } else if (applet == null) {
+                        Util.setShort(theSW, (short)0, ISO7816.SW_APPLET_SELECT_FAILED);
+                        return theSW;
+                    }
+                }
+                if (applet == null) {
+                    Util.setShort(theSW, (short)0, ISO7816.SW_COMMAND_NOT_ALLOWED);
+                    return theSW;
+                }
+                if (apduCase.isExtended()) {
+                    if (!(applet instanceof ExtendedLength)) {
+                        Util.setShort(theSW, (short)0, ISO7816.SW_WRONG_LENGTH);
+                        return theSW;
+                    }
+                    this.usingExtendedAPDUs = true;
+                } else {
+                    this.usingExtendedAPDUs = false;
+                }
+                this.responseBufferSize = 0;
+                APDU apdu = this.getCurrentAPDU();
+                try {
+                    if (this.selecting) {
+                        boolean success;
+                        try {
+                            success = applet.select();
+                        }
+                        catch (Exception e) {
+                            success = false;
+                        }
+                        if (!success) {
+                            throw new ISOException(ISO7816.SW_APPLET_SELECT_FAILED);
+                        }
+                    }
+                    this.resetAPDU(apdu, apduCase, command);
+                    applet.process(apdu);
+                    Util.setShort(theSW, (short)0, ISO7816.SW_NO_ERROR );
+                }
+                catch (Throwable e) {
+                    Util.setShort(theSW, (short)0, ISO7816.SW_UNKNOWN);
+                    if (e instanceof CardException) {
+                        Util.setShort(theSW, (short)0, ((CardException)e).getReason());
+                        break block20;
+                    }
+                    if (e instanceof CardRuntimeException) {
+                        Util.setShort(theSW, (short)0, ((CardRuntimeException)e).getReason());
+                    }
+                }
+                finally {
+                    this.selecting = false;
+                    this.resetAPDU(apdu, null, null);
+                }
+            }
+            if (theSW[0] != 97 && theSW[0] != 98 && theSW[0] != 99) {
+                if (theSW[0] < -112) return theSW;
+                if (theSW[0] > -97) return theSW;
+            }
+            byte[] response = new byte[this.responseBufferSize + 2];
+            Util.arrayCopyNonAtomic(this.responseBuffer, (short)0, response, (short)0, this.responseBufferSize);
+            Util.arrayCopyNonAtomic(theSW, (short)0, response, this.responseBufferSize, (short)2);
+            return response;
+        }
 
+        activateSimulatorRuntimeInstance();
         final ApduCase apduCase = ApduCase.getCase(command);
         final byte[] theSW = new byte[2];
         byte[] response;
-
         Applet applet = getApplet(getAID());
-
         selecting = false;
         // check if there is an applet to be selected
         if (!apduCase.isExtended() && isAppletSelectionApdu(command)) {
@@ -593,7 +677,7 @@ public class SimulatorRuntime {
 
     public void installApplet(final AID appletAid, byte[] bArray, short bOffset, byte bLength) {
         AID generatedAID = generatedLoadFileAIDs.get(appletAid);
-        
+
         if (generatedAID == null || !loadFiles.keySet().contains(generatedAID)) {
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
@@ -622,6 +706,7 @@ public class SimulatorRuntime {
         }
 
         final AtomicInteger callCount = new AtomicInteger(0);
+
         registrationCallback.set(new BiConsumer<Applet,AID>() {
             public void accept(Applet applet, AID installAID) {
                 // disallow second call to register
@@ -675,11 +760,11 @@ public class SimulatorRuntime {
         public Applet getApplet(){
             return applet;
         }
-        
+
         public AID getAID() {
             return aid;
         }
-        
+
         @Override
         public String toString() {
             return String.format("ApplicationInstance (%s)", AIDUtil.toString(aid));

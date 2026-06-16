@@ -18,16 +18,14 @@ package com.licel.jcardsim.crypto;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
+import javacard.security.MessageDigest;
 import javacard.security.Signature;
+import javacardx.crypto.Cipher;
 import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.CipherParameters;
+import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Mac;
-import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.crypto.digests.RIPEMD160Digest;
-import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.digests.SHA384Digest;
-import org.bouncycastle.crypto.digests.SHA512Digest;
+import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.macs.CBCBlockCipherMac;
 import org.bouncycastle.crypto.macs.CMac;
@@ -45,15 +43,28 @@ import org.bouncycastle.crypto.params.ParametersWithIV;
  * @see Signature
  */
 public class SymmetricSignatureImpl extends Signature {
-    
+    private final static byte UNDEFINED_SIG_ALG = 0;
+
     Mac engine;
     byte algorithm;
+    byte messageDigestAlgorithm = MessageDigest.ALG_NULL;
+    byte cipherAlgorithm;
+    byte paddingAlgorithm;
     boolean isInitialized;
     
     public SymmetricSignatureImpl(byte algorithm) {
         this.algorithm = algorithm;
+        this.messageDigestAlgorithm = getMessageDigestAlgorithm();
+        this.cipherAlgorithm = getCipherAlgorithm();
     }
-    
+
+    public SymmetricSignatureImpl(byte messageDigestAlgorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
+        this.algorithm = UNDEFINED_SIG_ALG;
+        this.messageDigestAlgorithm = messageDigestAlgorithm;
+        this.cipherAlgorithm = cipherAlgorithm;
+        this.paddingAlgorithm = paddingAlgorithm;
+    }
+
     public void init(Key theKey, byte theMode) throws CryptoException {
         init(theKey, theMode, null, (short) 0, (short) 0);
     }
@@ -78,7 +89,45 @@ public class SymmetricSignatureImpl extends Signature {
             }
             cipherParams = new ParametersWithIV(((SymmetricKeyImpl) theKey).getParameters(), bArray, bOff, bLen);
         }
+
         switch (algorithm) {
+            case UNDEFINED_SIG_ALG: {
+                if (this.cipherAlgorithm == Signature.SIG_CIPHER_HMAC ) {
+                    Digest digest = null;
+                    switch (this.messageDigestAlgorithm) {
+                        case MessageDigest.ALG_SHA:
+                            digest = new SHA1Digest();
+                            break;
+                        case MessageDigest.ALG_RIPEMD160:
+                            digest = new RIPEMD160Digest();
+                            break;
+
+                        case MessageDigest.ALG_SHA_224:
+                            digest = new SHA224Digest();
+                            break;
+
+                        case MessageDigest.ALG_SHA_256:
+                            digest = new SHA256Digest();
+                            break;
+
+                        case MessageDigest.ALG_SHA_384:
+                            digest = new SHA384Digest();
+                            break;
+
+                        case MessageDigest.ALG_SHA_512:
+                            digest = new SHA512Digest();
+                            break;
+                    }
+
+                    engine = new HMac(digest);
+
+                }
+                else {
+                    CryptoException.throwIt(CryptoException.INVALID_INIT);
+                }
+                break;
+            }
+
             case ALG_DES_MAC4_NOPAD:
                 engine = new CBCBlockCipherMac(cipher, 32, null);
                 break;
@@ -185,24 +234,133 @@ public class SymmetricSignatureImpl extends Signature {
         return Util.arrayCompare(sig, (short) 0, sigBuff, sigOffset, (short) sig.length) == 0;
     }
 
+    /**
+     * This method throws CryptoException.ILLEGAL_USE exception if the underlying signature algorithm does not compute a distinct message digest value prior to applying cryptographic primitives.
+     * These algorithms throw exception - DES, triple DES, AES, HMAC and KOREAN SEED.
+     */
     public void setInitialDigest(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        CryptoException.throwIt(CryptoException.ILLEGAL_USE);
     }
 
     public short signPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        return 0;
     }
+
     public boolean verifyPreComputedHash(byte[] bytes, short s, short s1, byte[] bytes1, short s2, short s3) throws CryptoException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        CryptoException.throwIt(CryptoException.ILLEGAL_USE);
+        return false;
     }
     public byte getPaddingAlgorithm() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        switch (this.algorithm) {
+            case UNDEFINED_SIG_ALG:
+                return this.paddingAlgorithm;
+
+            case ALG_DES_MAC4_NOPAD:
+            case ALG_DES_MAC8_NOPAD:
+            case ALG_AES_MAC_128_NOPAD:
+            case ALG_KOREAN_SEED_MAC_NOPAD:
+                return Cipher.PAD_NOPAD;
+
+            case ALG_DES_MAC4_ISO9797_M1:
+            case ALG_DES_MAC8_ISO9797_M1:
+                return Cipher.PAD_ISO9797_M1;
+
+            case ALG_DES_MAC4_ISO9797_M2:
+            case ALG_DES_MAC8_ISO9797_M2:
+            case ALG_AES_CMAC_128:
+                return Cipher.PAD_ISO9797_M2;
+
+            case ALG_DES_MAC4_ISO9797_1_M2_ALG3:
+            case ALG_DES_MAC8_ISO9797_1_M2_ALG3:
+                return Cipher.PAD_ISO9797_1_M2_ALG3;
+
+            case ALG_DES_MAC4_ISO9797_1_M1_ALG3:
+            case ALG_DES_MAC8_ISO9797_1_M1_ALG3:
+                return Cipher.PAD_ISO9797_1_M1_ALG3;
+
+            case ALG_DES_MAC4_PKCS5:
+            case ALG_DES_MAC8_PKCS5:
+                return Cipher.PAD_PKCS5;
+
+            case ALG_HMAC_SHA1:
+            case ALG_HMAC_SHA_256:
+            case ALG_HMAC_SHA_384:
+            case ALG_HMAC_SHA_512:
+            case ALG_HMAC_MD5:
+            case ALG_HMAC_RIPEMD160:
+                return Cipher.PAD_NULL;
+        }
+
+        return Cipher.PAD_NULL;
     }
+
     public byte getMessageDigestAlgorithm() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        switch (this.algorithm) {
+            case UNDEFINED_SIG_ALG:
+                return this.messageDigestAlgorithm;
+
+            case ALG_HMAC_SHA1:
+                return MessageDigest.ALG_SHA;
+
+            case ALG_HMAC_SHA_256:
+                return MessageDigest.ALG_SHA_256;
+
+            case ALG_HMAC_SHA_384:
+                return MessageDigest.ALG_SHA_384;
+
+            case ALG_HMAC_SHA_512:
+                return MessageDigest.ALG_SHA_512;
+
+            case ALG_HMAC_MD5:
+                return MessageDigest.ALG_MD5;
+
+            case ALG_HMAC_RIPEMD160:
+                return MessageDigest.ALG_RIPEMD160;
+
+        }
+        return MessageDigest.ALG_NULL;
     }
 
     public byte getCipherAlgorithm() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        switch (this.algorithm){
+            case UNDEFINED_SIG_ALG :
+                return this.cipherAlgorithm;
+
+            case ALG_DES_MAC4_NOPAD:
+            case ALG_DES_MAC4_ISO9797_M1:
+            case ALG_DES_MAC4_ISO9797_M2:
+            case ALG_DES_MAC4_ISO9797_1_M2_ALG3:
+            case ALG_DES_MAC4_ISO9797_1_M1_ALG3:
+            case ALG_DES_MAC4_PKCS5:
+                return Signature.SIG_CIPHER_DES_MAC4;
+
+            case ALG_DES_MAC8_NOPAD:
+            case ALG_DES_MAC8_ISO9797_M1:
+            case ALG_DES_MAC8_ISO9797_M2:
+            case ALG_DES_MAC8_ISO9797_1_M2_ALG3:
+            case ALG_DES_MAC8_ISO9797_1_M1_ALG3:
+            case ALG_DES_MAC8_PKCS5:
+                return Signature.SIG_CIPHER_DES_MAC8;
+
+            case ALG_AES_MAC_128_NOPAD:
+                return Signature.SIG_CIPHER_AES_MAC128;
+
+            case ALG_AES_CMAC_128:
+                return Signature.SIG_CIPHER_AES_CMAC128;
+
+            case ALG_KOREAN_SEED_MAC_NOPAD:
+                return Signature.SIG_CIPHER_KOREAN_SEED_MAC;
+
+            case ALG_HMAC_SHA1:
+            case ALG_HMAC_SHA_256:
+            case ALG_HMAC_SHA_384:
+            case ALG_HMAC_SHA_512:
+            case ALG_HMAC_MD5:
+            case ALG_HMAC_RIPEMD160:
+                return Signature.SIG_CIPHER_HMAC;
+
+        }
+        return 0;
     }
 }

@@ -48,10 +48,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * @see Signature
  */
 public class AsymmetricSignatureImpl extends Signature implements SignatureMessageRecovery{
+    private final static byte UNDEFINED_SIG_ALG = 0;
 
     Signer engine;
     Key key;
     byte algorithm;
+    byte messageDigestAlgorithm = MessageDigest.ALG_NULL;
     byte cipherAlgorithm;
     byte paddingAlgorithm;
     boolean isInitialized;
@@ -62,19 +64,10 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     boolean isImplicitTrailer;
 
     public AsymmetricSignatureImpl(byte algorithm) {
-        this(algorithm, (byte) 0, (byte) 0);
-    }
-
-    public AsymmetricSignatureImpl(byte algorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
         this.algorithm = algorithm;
-        isImplicitTrailer = false;
-        this.cipherAlgorithm = cipherAlgorithm;
-        this.paddingAlgorithm = paddingAlgorithm;
-        isRecovery = false;
-        if (isRawECDSAWithoutHash()) {
-            engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new NullDigest()));
-            return;
-        }
+        this.messageDigestAlgorithm = getMessageDigestAlgorithm();
+        this.cipherAlgorithm = getCipherAlgorithm();
+
         switch (algorithm) {
             case ALG_RSA_SHA_ISO9796:
                 digest = new SHA1Digest();
@@ -109,23 +102,23 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 break;
             case ALG_RSA_SHA_PKCS1_PSS:
                 digest = new SHA1Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 16);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
             case ALG_RSA_SHA_224_PKCS1_PSS:
                 digest = new SHA224Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 28);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
             case ALG_RSA_SHA_256_PKCS1_PSS:
                 digest = new SHA256Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 32);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
             case ALG_RSA_SHA_384_PKCS1_PSS:
                 digest = new SHA384Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 48);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
             case ALG_RSA_SHA_512_PKCS1_PSS:
                 digest = new SHA512Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 64);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
             case ALG_RSA_MD5_PKCS1:
                 digest = new MD5Digest();
@@ -165,12 +158,13 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
                 break;
             case ALG_RSA_MD5_PKCS1_PSS:
                 digest = new MD5Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 16);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
             case ALG_RSA_RIPEMD160_PKCS1_PSS:
                 digest = new RIPEMD160Digest();
-                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), 20);
+                engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
                 break;
+
             case ALG_RSA_SHA_RFC2409:
             case ALG_RSA_MD5_RFC2409:
             case ALG_RSA_RIPEMD160_ISO9796_MR:
@@ -179,6 +173,106 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
+        }
+    }
+
+    public AsymmetricSignatureImpl(byte messageDigestAlgorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
+        this.algorithm = UNDEFINED_SIG_ALG;
+        isImplicitTrailer = false;
+        this.messageDigestAlgorithm = messageDigestAlgorithm;
+        this.cipherAlgorithm = cipherAlgorithm;
+        this.paddingAlgorithm = paddingAlgorithm;
+        isRecovery = false;
+        if (isRawECDSAWithoutHash()) {
+            engine = new DSADigestSigner(new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(new NullDigest()));
+            return;
+        }
+
+        switch(this.messageDigestAlgorithm ){
+            case MessageDigest.ALG_SHA:
+                digest = new SHA1Digest();
+                break;
+
+            case MessageDigest.ALG_SHA_224:
+                digest = new SHA224Digest();
+                break;
+
+            case MessageDigest.ALG_SHA_256:
+                digest = new SHA256Digest();
+                break;
+
+            case MessageDigest.ALG_SHA_384:
+                digest = new SHA384Digest();
+                break;
+
+            case MessageDigest.ALG_SHA_512:
+                digest = new SHA512Digest();
+                break;
+
+            case MessageDigest.ALG_MD5:
+                digest = new MD5Digest();
+                break;
+
+            case MessageDigest.ALG_RIPEMD160:
+                digest = new RIPEMD160Digest();
+                break;
+
+            default:
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                break;
+        }
+
+        switch (this.cipherAlgorithm) {
+            case Signature.SIG_CIPHER_RSA:{
+                switch (this.paddingAlgorithm) {
+                    case Cipher.PAD_ISO9796:
+                        engine = new ISO9796d2Signer(new RSAEngine(), digest);
+                        break;
+
+                    case Cipher.PAD_ISO9796_MR:
+                        engine = new ISO9796d2Signer(new RSAEngine(), digest, true);
+                        isImplicitTrailer = true;
+                        isRecovery = true;
+                        break;
+
+                    case Cipher.PAD_PKCS1:
+                        engine = new RSADigestSigner(new BouncyCastlePrecomputedOrDigestProxy(digest));
+                        break;
+
+                    case Cipher.PAD_PKCS1_PSS:
+                        engine = new PSSSigner(new RSAEngine(), new BouncyCastlePrecomputedOrDigestProxy(digest), digest.getDigestSize());
+                        break;
+
+                    default:
+                        CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                        break;
+                }
+                break;
+            }
+
+            case Signature.SIG_CIPHER_ECDSA: {
+                if( this.paddingAlgorithm != Cipher.PAD_NULL) {
+                    CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                }
+                engine = new DSADigestSigner( new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
+                break;
+            }
+
+            case Signature.SIG_CIPHER_ECDSA_PLAIN: {
+                if( this.paddingAlgorithm != Cipher.PAD_NULL) {
+                    CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                }
+                engine = new DSADigestSigner( new ECDSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest), PlainDSAEncoding.INSTANCE);
+                break;
+            }
+
+            case Signature.SIG_CIPHER_DSA: {
+                if( this.paddingAlgorithm != Cipher.PAD_NULL) {
+                    CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                }
+                engine = new DSADigestSigner(new DSASigner(), new BouncyCastlePrecomputedOrDigestProxy(digest));
+                break;
+            }
         }
     }
 
@@ -443,12 +537,131 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
     }
     
     public byte getPaddingAlgorithm() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        switch (this.algorithm){
+            case ALG_RSA_MD5_PKCS1:
+            case ALG_RSA_RIPEMD160_PKCS1:
+            case ALG_RSA_SHA_PKCS1:
+            case ALG_RSA_SHA_224_PKCS1:
+            case ALG_RSA_SHA_256_PKCS1:
+            case ALG_RSA_SHA_384_PKCS1:
+            case ALG_RSA_SHA_512_PKCS1:
+                return Cipher.PAD_PKCS1;
+
+            case ALG_RSA_MD5_PKCS1_PSS:
+            case ALG_RSA_RIPEMD160_PKCS1_PSS:
+            case ALG_RSA_SHA_PKCS1_PSS:
+            case ALG_RSA_SHA_224_PKCS1_PSS:
+            case ALG_RSA_SHA_256_PKCS1_PSS:
+            case ALG_RSA_SHA_384_PKCS1_PSS:
+            case ALG_RSA_SHA_512_PKCS1_PSS:
+                return Cipher.PAD_PKCS1_PSS;
+
+            case ALG_RSA_MD5_RFC2409:
+            case ALG_RSA_SHA_RFC2409:
+                return Cipher.PAD_RFC2409;
+
+            case ALG_RSA_SHA_ISO9796:
+                return Cipher.PAD_ISO9796;
+
+            case ALG_RSA_SHA_ISO9796_MR:
+                return Cipher.PAD_ISO9796_MR;
+
+            default:
+                return Cipher.PAD_NULL;
+        }
     }
+
     public byte getCipherAlgorithm() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        switch(this.algorithm) {
+            case UNDEFINED_SIG_ALG:
+                return this.cipherAlgorithm;
+
+            case Signature.ALG_ECDSA_SHA:
+            case Signature.ALG_ECDSA_SHA_224:
+            case Signature.ALG_ECDSA_SHA_256:
+            case Signature.ALG_ECDSA_SHA_384:
+            case Signature.ALG_ECDSA_SHA_512:
+                return Signature.SIG_CIPHER_ECDSA;
+
+            case Signature.ALG_RSA_SHA_ISO9796:
+            case Signature.ALG_RSA_SHA_ISO9796_MR:
+            case Signature.ALG_RSA_SHA_PKCS1:
+            case Signature.ALG_RSA_SHA_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_RFC2409:
+            case Signature.ALG_RSA_SHA_224_PKCS1:
+            case Signature.ALG_RSA_SHA_224_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_256_PKCS1:
+            case Signature.ALG_RSA_SHA_256_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_384_PKCS1:
+            case Signature.ALG_RSA_SHA_384_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_512_PKCS1:
+            case Signature.ALG_RSA_SHA_512_PKCS1_PSS:
+            case Signature.ALG_RSA_MD5_PKCS1:
+            case Signature.ALG_RSA_MD5_PKCS1_PSS:
+            case Signature.ALG_RSA_MD5_RFC2409:
+            case Signature.ALG_RSA_RIPEMD160_ISO9796:
+            case Signature.ALG_RSA_RIPEMD160_ISO9796_MR:
+            case Signature.ALG_RSA_RIPEMD160_PKCS1:
+            case Signature.ALG_RSA_RIPEMD160_PKCS1_PSS:
+                return Signature.SIG_CIPHER_RSA;
+
+            case Signature.ALG_DSA_SHA:
+                return Signature.SIG_CIPHER_DSA;
+
+        }
+
+        return 0;
+
     }
+
     public byte getMessageDigestAlgorithm() {
-       throw new UnsupportedOperationException("Not supported yet.");
+        switch(this.algorithm){
+            case UNDEFINED_SIG_ALG:
+                // Signature instance created from md, cipher and padding algorithm
+                return this.messageDigestAlgorithm;
+
+            // Signature instance created directly from signature algorithm
+            case Signature.ALG_ECDSA_SHA:
+            case Signature.ALG_RSA_SHA_ISO9796:
+            case Signature.ALG_RSA_SHA_ISO9796_MR:
+            case Signature.ALG_RSA_SHA_PKCS1:
+            case Signature.ALG_RSA_SHA_PKCS1_PSS:
+            case Signature.ALG_RSA_SHA_RFC2409:
+            case Signature.ALG_DSA_SHA:
+                return MessageDigest.ALG_SHA;
+
+            case Signature.ALG_ECDSA_SHA_224:
+            case Signature.ALG_RSA_SHA_224_PKCS1:
+            case Signature.ALG_RSA_SHA_224_PKCS1_PSS:
+                return MessageDigest.ALG_SHA_224;
+
+            case Signature.ALG_ECDSA_SHA_256:
+            case Signature.ALG_RSA_SHA_256_PKCS1:
+            case Signature.ALG_RSA_SHA_256_PKCS1_PSS:
+                return MessageDigest.ALG_SHA_256;
+
+            case Signature.ALG_ECDSA_SHA_384:
+            case Signature.ALG_RSA_SHA_384_PKCS1:
+            case Signature.ALG_RSA_SHA_384_PKCS1_PSS:
+                return MessageDigest.ALG_SHA_384;
+
+            case Signature.ALG_ECDSA_SHA_512:
+            case Signature.ALG_RSA_SHA_512_PKCS1:
+            case Signature.ALG_RSA_SHA_512_PKCS1_PSS:
+                return MessageDigest.ALG_SHA_512;
+
+            case Signature.ALG_RSA_MD5_PKCS1:
+            case Signature.ALG_RSA_MD5_PKCS1_PSS:
+            case Signature.ALG_RSA_MD5_RFC2409:
+                return MessageDigest.ALG_MD5;
+
+            case Signature.ALG_RSA_RIPEMD160_ISO9796:
+            case Signature.ALG_RSA_RIPEMD160_ISO9796_MR:
+            case Signature.ALG_RSA_RIPEMD160_PKCS1:
+            case Signature.ALG_RSA_RIPEMD160_PKCS1_PSS:
+                return MessageDigest.ALG_RIPEMD160;
+        }
+
+        return MessageDigest.ALG_NULL;
     }   
 }

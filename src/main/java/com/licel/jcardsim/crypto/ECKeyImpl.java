@@ -254,7 +254,10 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
             case 283:
             case 409:
             case 571:
-                if ((keyType != KeyBuilder.TYPE_EC_F2M_PRIVATE) & (keyType != KeyBuilder.TYPE_EC_F2M_PUBLIC)) {
+                if ((keyType != KeyBuilder.TYPE_EC_F2M_PRIVATE) &&
+                    (keyType != KeyBuilder.TYPE_EC_F2M_PRIVATE_TRANSIENT_RESET) &&
+                    (keyType != KeyBuilder.TYPE_EC_F2M_PRIVATE_TRANSIENT_DESELECT) &&
+                    (keyType != KeyBuilder.TYPE_EC_F2M_PUBLIC)) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
                 curveName = "sect" + keySize + "r1";
@@ -267,7 +270,10 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
             case 256:
             case 384:
             case 521:
-                if ((keyType != KeyBuilder.TYPE_EC_FP_PRIVATE) & (keyType != KeyBuilder.TYPE_EC_FP_PUBLIC)) {
+                if ( (keyType != KeyBuilder.TYPE_EC_FP_PRIVATE) &&
+                     (keyType != KeyBuilder.TYPE_EC_FP_PRIVATE_TRANSIENT_RESET) &&
+                     (keyType != KeyBuilder.TYPE_EC_FP_PRIVATE_TRANSIENT_DESELECT) &&
+                     (keyType != KeyBuilder.TYPE_EC_FP_PUBLIC)) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
                 curveName = "secp" + keySize + "r1";

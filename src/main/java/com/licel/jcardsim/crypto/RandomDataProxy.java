@@ -17,11 +17,8 @@ package com.licel.jcardsim.crypto;
 
 import javacard.security.CryptoException;
 import javacard.security.RandomData;
-import static javacard.security.RandomData.ALG_PSEUDO_RANDOM;
-import static javacard.security.RandomData.ALG_SECURE_RANDOM;
-import static javacard.security.RandomData.ALG_TRNG;
-import static javacard.security.RandomData.ALG_FAST;
-import static javacard.security.RandomData.ALG_KEYGENERATION;
+
+import static javacard.security.RandomData.*;
 
 /**
  * ProxyClass for <code>RandomData</code>
@@ -43,6 +40,7 @@ public class RandomDataProxy {
             case ALG_PSEUDO_RANDOM: 
             case ALG_SECURE_RANDOM:
             case ALG_TRNG:
+            case ALG_PRESEEDED_DRBG:
             case ALG_FAST:
             case ALG_KEYGENERATION:
                 instance = new RandomDataImpl(algorithm);
