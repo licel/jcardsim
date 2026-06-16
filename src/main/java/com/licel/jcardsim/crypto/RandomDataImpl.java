@@ -33,10 +33,15 @@ public class RandomDataImpl extends RandomData {
     byte algorithm;
     RandomGenerator engine;
 
+    private transient SecureRandom secureRandom;
+
     public RandomDataImpl(byte algorithm) {
         this.algorithm = algorithm;
         this.engine = new DigestRandomGenerator(new SHA1Digest());
-        this.engine.addSeedMaterial(new SecureRandom().generateSeed(8));
+        if (secureRandom == null) {
+            secureRandom = new SecureRandom();
+        }
+        this.engine.addSeedMaterial(secureRandom.generateSeed(8));
     }
 
     public void generateData(byte[] buffer, short offset, short length) throws CryptoException {
