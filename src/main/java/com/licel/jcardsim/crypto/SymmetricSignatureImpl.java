@@ -89,7 +89,7 @@ public class SymmetricSignatureImpl extends Signature {
             }
             cipherParams = new ParametersWithIV(((SymmetricKeyImpl) theKey).getParameters(), bArray, bOff, bLen);
         }
-        
+
         switch (algorithm) {
             case UNDEFINED_SIG_ALG: {
                 if (this.cipherAlgorithm == Signature.SIG_CIPHER_HMAC ) {
