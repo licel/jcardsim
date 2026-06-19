@@ -56,6 +56,7 @@ public class JavaCardApiProcessor {
         proxyClass(buildDir, "com.licel.jcardsim.framework.CardRuntimeExceptionProxy", "javacard.framework.CardRuntimeException", false);
         proxyExceptionClass(buildDir, "javacard.framework.ISOException");
         proxyClass(buildDir, "com.licel.jcardsim.framework.JCSystemProxy", "javacard.framework.JCSystem", false);
+        proxyClass(buildDir, "com.licel.jcardsim.framework.SensitiveArraysProxy", "javacard.framework.SensitiveArrays", false);
         proxyExceptionClass(buildDir, "javacard.framework.PINException");
         proxyExceptionClass(buildDir, "javacard.framework.SystemException");
         proxyExceptionClass(buildDir, "javacard.framework.TransactionException");
