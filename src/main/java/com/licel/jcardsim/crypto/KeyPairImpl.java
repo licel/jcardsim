@@ -45,7 +45,7 @@ public final class KeyPairImpl {
     AsymmetricCipherKeyPairGenerator engine;
     PrivateKey privateKey;
     PublicKey publicKey;
-    SecureRandom rnd = new SecureRandomNullProvider();
+    transient SecureRandom rnd = new SecureRandomNullProvider();
     KeyGenerationParameters keyGenerationParameters;
 
     /**
@@ -221,6 +221,10 @@ public final class KeyPairImpl {
      * Init key pair generation engine
      */
     private void initEngine() {
+        if( rnd == null ){
+            rnd = new SecureRandomNullProvider();
+        }
+
         // only public key params, see specification
         if (publicKey != null) {
             keyGenerationParameters = ((KeyImpl) publicKey).getKeyGenerationParameters(rnd);

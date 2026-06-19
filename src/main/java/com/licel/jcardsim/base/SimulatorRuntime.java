@@ -73,13 +73,16 @@ public class SimulatorRuntime {
 
     private boolean legacyMode;
 
+    protected final SensitiveMemory sensitiveMemory;
+
     public SimulatorRuntime() {
-        this(new TransientMemory());
+        this(new TransientMemory(), new SensitiveMemory());
     }
 
     @SuppressWarnings("unchecked")
-    public SimulatorRuntime(TransientMemory transientMemory) {
+    public SimulatorRuntime(TransientMemory transientMemory, SensitiveMemory sensitiveMemory) {
         this.transientMemory = transientMemory;
+        this.sensitiveMemory = sensitiveMemory;
         if( "legacy".equals( System.getProperty("mode"))){
             this.legacyMode = true;
             System.out.println("SimulatorRuntime run in Legacy Mode");
@@ -499,12 +502,19 @@ public class SimulatorRuntime {
         responseBufferSize = 0;
         currentAID = null;
         previousAID = null;
+
         transientMemory.clearOnReset();
         transientMemory.forgetBuffers();
+
+        sensitiveMemory.forgetBuffers();
     }
 
     public TransientMemory getTransientMemory() {
         return transientMemory;
+    }
+
+    public SensitiveMemory getSensitiveMemory() {
+        return sensitiveMemory;
     }
 
     protected void resetAPDU(APDU apdu, ApduCase apduCase, byte[] buffer) {
