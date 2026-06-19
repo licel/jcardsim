@@ -26,7 +26,6 @@ public class SensitiveMemory {
     private final Set<Object> transientArrays = new HashSet<>();
 
     public void registerArray(Object array, byte memoryType) {
-
         if (array == null) {
             throw new NullPointerException();
         }
@@ -65,7 +64,7 @@ public class SensitiveMemory {
         }
 
         if (!isSensitive(array)) {
-            throw new SecurityException();
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
     }
 
@@ -75,7 +74,7 @@ public class SensitiveMemory {
         }
 
         if (!isSensitive(array)) {
-            throw new SecurityException();
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
         }
 
         return zero(array);
@@ -92,6 +91,10 @@ public class SensitiveMemory {
     }
 
     private short zero(Object obj) {
+        if( !(obj instanceof byte[]) && !(obj instanceof short[]) && !(obj instanceof boolean[]) && !(obj instanceof Object[]) ) {
+            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
+        }
+
         if (obj instanceof byte[]) {
             byte[] array = (byte[]) obj;
             Arrays.fill(array, (byte) 0);
@@ -121,8 +124,6 @@ public class SensitiveMemory {
             Arrays.fill(array, false);
             return (short) array.length;
         }
-
-        SystemException.throwIt(SystemException.ILLEGAL_VALUE);
 
         return 0;
     }

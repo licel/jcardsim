@@ -2,6 +2,7 @@ package com.licel.jcardsim.base;
 
 import javacard.framework.JCSystem;
 import javacard.framework.SensitiveArrays;
+import javacard.framework.SystemException;
 import junit.framework.TestCase;
 
 import java.util.Arrays;
@@ -12,8 +13,11 @@ public class SensitiveArraysTest extends TestCase {
         super(name);
     }
 
-    public void testCreatePersistentByteArray() {
+    public void testCheckSensitiveArraysSupport() {
+        assertTrue(SensitiveArrays.isIntegritySensitiveArraysSupported());
+    }
 
+    public void testCreatePersistentByteArray() {
         Object obj = SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_BYTE, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 16);
 
         assertNotNull(obj);
@@ -50,12 +54,23 @@ public class SensitiveArraysTest extends TestCase {
         assertTrue(SensitiveArrays.isIntegritySensitive(obj));
     }
 
-    public void testNormalArrayNotSensitive() {
+    public void testCreateNotSupportSensitiveIntArray() {
+        try {
+            Object obj = SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_INT, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 8);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+
+        }
+    }
+
+    public void testNotSensitivePersistentArray() {
         byte[] array = new byte[16];
         assertFalse(SensitiveArrays.isIntegritySensitive(array));
     }
 
-    public void testNormalTransientArrayNotSensitive() {
+    public void testNotSensitiveTransientArray() {
         byte[] array = JCSystem.makeTransientByteArray((short) 16, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
         assertFalse(SensitiveArrays.isIntegritySensitive(array));
     }
@@ -73,13 +88,15 @@ public class SensitiveArraysTest extends TestCase {
         byte[] array = new byte[16];
         try {
             SensitiveArrays.assertIntegrity(array);
-            fail("Expected SecurityException");
-        } catch (SecurityException expected) {
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
             // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+
         }
     }
 
-    public void testClearByteArray() {
+    public void testClearSensitiveByteArray() {
         byte[] array = (byte[]) SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_BYTE, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 10);
 
         for (short i = 0; i < array.length; i++) {
@@ -95,9 +112,8 @@ public class SensitiveArraysTest extends TestCase {
         }
     }
 
-    public void testClearShortArray() {
+    public void testClearSensitiveShortArray() {
         short[] array = (short[]) SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_SHORT, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 5);
-
         array[0] = 100;
         array[1] = 200;
 
@@ -108,9 +124,8 @@ public class SensitiveArraysTest extends TestCase {
         }
     }
 
-    public void testClearBooleanArray() {
+    public void testClearSensitiveBooleanArray() {
         boolean[] array = (boolean[]) SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_BOOLEAN, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 5);
-
         array[0] = true;
         array[1] = true;
 
@@ -121,15 +136,136 @@ public class SensitiveArraysTest extends TestCase {
         }
     }
 
-    public void testClearObjectArray() {
+    public void testClearSensitiveObjectArray() {
         Object[] array = (Object[]) SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_OBJECT, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 5);
-
         array[0] = "ABC";
 
         SensitiveArrays.clearArray(array);
 
         for (Object value : array) {
             assertNull(value);
+        }
+    }
+
+    public void testClearNotSensitivePersistentByteArrays() {
+        byte[] array = new byte[16];
+        for (short i = 0; i < array.length; i++) {
+            array[i] = (byte) (i + 1);
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+        }
+    }
+
+    public void testClearNotSensitiveTransientByteArrays() {
+        byte[] array = JCSystem.makeTransientByteArray((short) 8, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
+        for (short i = 0; i < array.length; i++) {
+            array[i] = (byte) (i + 1);
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+        }
+
+    }
+
+    public void testClearNotSensitivePersistentShortArrays() {
+        short[] array = new short[16];
+        for (short i = 0; i < array.length; i++) {
+            array[i] = (short) (i + 1);
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+        }
+    }
+
+    public void testClearNotSensitiveTransientShortArrays() {
+        short[] array = JCSystem.makeTransientShortArray((short) 16, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
+        for (short i = 0; i < array.length; i++) {
+            array[i] = (short) (i + 1);
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+
+        }
+    }
+
+    public void testClearNotSensitivePersistentBooleanArrays() {
+        boolean[] array = new boolean[16];
+        for (short i = 0; i < array.length; i++) {
+            array[i] = true;
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+        }
+    }
+
+    public void testClearNotSensitiveTransientBooleanArrays() {
+        boolean[] array = JCSystem.makeTransientBooleanArray((short) 16, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
+        for (short i = 0; i < array.length; i++) {
+            array[i] = true;
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+        }
+    }
+
+    public void testClearNotSensitivePersistentObjectArrays() {
+        Object[] array = new Object[16];
+        for (short i = 0; i < array.length; i++) {
+            array[i] = "ABCD";
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
+        }
+    }
+
+    public void testClearNotSensitiveTransientObjectArrays() {
+        Object[] array = JCSystem.makeTransientObjectArray((short) 16, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
+        for (short i = 0; i < array.length; i++) {
+            array[i] = "ABCD";
+        }
+
+        try {
+            short len = SensitiveArrays.clearArray(array);
+            fail("Expected SystemException.ILLEGAL_VALUE");
+        } catch (SystemException expected) {
+            // success
+            assertEquals(SystemException.ILLEGAL_VALUE, expected.getReason());
         }
     }
 
@@ -162,8 +298,7 @@ public class SensitiveArraysTest extends TestCase {
             assertEquals(0, b);
         }
     }
-
-
+    
     public void testPersistentArraySurvivesReset() {
         SimulatorRuntime runtime = new PersistentSimulatorRuntime();
         Simulator instance = new Simulator(runtime);

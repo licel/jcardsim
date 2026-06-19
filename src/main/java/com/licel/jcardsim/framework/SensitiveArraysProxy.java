@@ -35,6 +35,10 @@ public final class SensitiveArraysProxy {
     }
 
     public static Object makeIntegritySensitiveArray( byte type, byte memoryType, short length) {
+        if( !isIntegritySensitiveArraysSupported()){
+            SystemException.throwIt(SystemException.ILLEGAL_USE);
+        }
+
         if (length < 0) {
             throw new NegativeArraySizeException();
         }
@@ -42,7 +46,6 @@ public final class SensitiveArraysProxy {
         final Object array;
 
         switch (type) {
-
             case JCSystem.ARRAY_TYPE_BOOLEAN:
                 array = createBooleanArray(memoryType, length);
                 break;
@@ -57,10 +60,6 @@ public final class SensitiveArraysProxy {
 
             case JCSystem.ARRAY_TYPE_OBJECT:
                 array = createObjectArray(memoryType, length);
-                break;
-
-            case JCSystem.ARRAY_TYPE_INT:
-                array = createIntArray(memoryType, length);
                 break;
 
             default:
@@ -152,13 +151,5 @@ public final class SensitiveArraysProxy {
                 SystemException.throwIt(SystemException.ILLEGAL_VALUE);
                 return null;
         }
-    }
-
-    private static int[] createIntArray(byte memoryType, short length) {
-        if (memoryType != JCSystem.MEMORY_TYPE_PERSISTENT) {
-            SystemException.throwIt(SystemException.ILLEGAL_VALUE);
-        }
-
-        return new int[length];
     }
 }
