@@ -31,7 +31,7 @@ import javacard.framework.Util;
  */
 public class APDUProxy {
     // buffer size
-    private static final short BUFFER_SIZE = 260;
+    private static final short BUFFER_SIZE = 261;
     // buffer size (extended APDU) + (CLA,INS,P1,P2,0,Lc_Hi,Lc_Low,CData,Le_Hi,Le_Lo)
     private static final int BUFFER_EXTENDED_SIZE = Short.MAX_VALUE + 10;
     // input block size, for T0 protocol = 1
