@@ -82,15 +82,16 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
                     }
                 } catch (Exception ex) {
                     System.err.println(
-                            "Failed to load applet"
-                                    + "\nAID         : " + AIDUtil.toString(aid)
-                                    + "\nAppletClass : " + appletClass.getName()
-                                    + "\nAppletDir   : " + appletInstanceFile.getAbsolutePath()
-                                    + "\nReason      : " + ex.getClass().getName()
-                                    + "\nMessage     : " + ex.getMessage());
+                        "Failed to load applet"
+                        + "\nAID         : " + AIDUtil.toString(aid)
+                        + "\nAppletClass : " + appletClass.getName()
+                        + "\nAppletDir   : " + appletInstanceFile.getAbsolutePath()
+                        + "\nReason      : " + ex.getClass().getName()
+                        + "\nMessage     : " + ex.getMessage()
+                    );
 
                     ex.printStackTrace(System.err);
-                    throw new RuntimeException();
+                    throw new RuntimeException(ex);
                 }
             }
         }
