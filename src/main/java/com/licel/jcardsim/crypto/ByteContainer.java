@@ -106,21 +106,10 @@ public final class ByteContainer {
      * @param length length of data in byte array
      */
     public void setBytes(byte[] buff, short offset, short length) {
-        if (data == null) {
-            switch (memoryType) {
-                case JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT:
-                    data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
-                    break;
-                case JCSystem.MEMORY_TYPE_TRANSIENT_RESET:
-                    data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
-                    break;
-                default:
-                    data = new byte[length];
-                    break;
-            }
+        if (data == null || length > data.length) {
+            allocateData(length);
         }
         Util.arrayCopy(buff, offset, data, (short) 0, length);
-        // current length
         this.length = length;
     }
 
@@ -132,7 +121,12 @@ public final class ByteContainer {
         if (length == 0) {
             CryptoException.throwIt(CryptoException.UNINITIALIZED_KEY);
         }
-        return new BigInteger(1, data);
+
+        byte[] activeData = new byte[length];
+        System.arraycopy(data, 0, activeData, 0, length);
+        return new BigInteger(1, activeData);
+
+//        return new BigInteger(1, data);
     }
 
     /**
@@ -183,5 +177,20 @@ public final class ByteContainer {
      */
     public boolean isInitialized() {
         return length > 0;
+    }
+
+
+    private void allocateData(short length) {
+        switch (memoryType) {
+            case JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT:
+                data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
+                break;
+            case JCSystem.MEMORY_TYPE_TRANSIENT_RESET:
+                data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_RESET);
+                break;
+            default:
+                data = new byte[length];
+                break;
+        }
     }
 }

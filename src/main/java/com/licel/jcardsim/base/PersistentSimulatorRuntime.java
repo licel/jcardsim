@@ -80,7 +80,17 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
                         Applet object = (Applet) kryo.readClassAndObject(input);
                         applets.put(aid, new ApplicationInstance(aid, object));
                     }
-                } catch (FileNotFoundException ex) {
+                } catch (Exception ex) {
+                    System.err.println(
+                        "Failed to load applet"
+                        + "\nAID         : " + AIDUtil.toString(aid)
+                        + "\nAppletClass : " + appletClass.getName()
+                        + "\nAppletDir   : " + appletInstanceFile.getAbsolutePath()
+                        + "\nReason      : " + ex.getClass().getName()
+                        + "\nMessage     : " + ex.getMessage()
+                    );
+
+                    ex.printStackTrace(System.err);
                     throw new RuntimeException(ex);
                 }
             }
