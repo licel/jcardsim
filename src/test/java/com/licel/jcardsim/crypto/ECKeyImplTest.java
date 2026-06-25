@@ -15,8 +15,10 @@
  */
 package com.licel.jcardsim.crypto;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import javacard.security.KeyBuilder;
+
+import javacard.security.*;
 import junit.framework.TestCase;
 import org.bouncycastle.crypto.params.ECKeyGenerationParameters;
 import org.bouncycastle.math.ec.ECCurve;
@@ -59,6 +61,35 @@ public class ECKeyImplTest extends TestCase {
         instance = new ECPrivateKeyImpl(KeyBuilder.TYPE_EC_FP_PRIVATE, KeyBuilder.LENGTH_EC_FP_192);
         result = (ECKeyGenerationParameters) instance.getKeyGenerationParameters(rnd);
         assertEquals(result.getDomainParameters().getCurve()instanceof ECCurve.Fp, true);
+    }
+
+    public void testECKeyReuseLoop() throws Exception {
+        byte[] message = "Hello Javacard ECDSA".getBytes(StandardCharsets.UTF_8);
+        byte[] signature = new byte[100];
+
+        // Instantiate KeyPair once to trigger reuse/recycling
+        KeyPair ecKeyPair = new KeyPair(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_256);
+
+        // Run iterations to trigger the 1/256 probability case
+        for (int i = 0; i < 1000; i++) {
+            ecKeyPair.genKeyPair();
+
+            ECPrivateKey privKey = (ECPrivateKey) ecKeyPair.getPrivate();
+            ECPublicKey pubKey = (ECPublicKey) ecKeyPair.getPublic();
+
+            // Sign
+            Signature signer = Signature.getInstance(Signature.ALG_ECDSA_SHA_256, false);
+            signer.init(privKey, Signature.MODE_SIGN);
+            short sigLen = signer.sign(message, (short) 0, (short) message.length, signature, (short) 0);
+
+            // Verify
+            Signature verifier = Signature.getInstance(Signature.ALG_ECDSA_SHA_256, false);
+            verifier.init(pubKey, Signature.MODE_VERIFY);
+            boolean verified = verifier.verify(message, (short) 0, (short) message.length, signature, (short) 0, sigLen);
+
+
+            assertTrue("Verification failed at iteration " + i, verified);
+        }
     }
 
 }
