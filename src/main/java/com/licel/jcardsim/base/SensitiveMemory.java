@@ -45,11 +45,6 @@ public class SensitiveMemory {
         }
     }
 
-    public void unregisterArray(Object array) {
-        persistentArrays.remove(array);
-        transientArrays.remove(array);
-    }
-
     public boolean isSensitive(Object array) {
         if (array == null) {
             throw new NullPointerException();
@@ -78,10 +73,6 @@ public class SensitiveMemory {
         }
 
         return zero(array);
-    }
-
-    protected void forgetBuffers() {
-        transientArrays.clear();
     }
 
     protected void zero(Set<Object> arrays) {
@@ -133,6 +124,9 @@ public class SensitiveMemory {
     }
 
     public void clearAll() {
+        zero(persistentArrays);
+        zero(transientArrays);
+
         persistentArrays.clear();
         transientArrays.clear();
     }
