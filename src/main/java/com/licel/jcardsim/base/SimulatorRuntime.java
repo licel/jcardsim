@@ -506,7 +506,7 @@ public class SimulatorRuntime {
         transientMemory.clearOnReset();
         transientMemory.forgetBuffers();
 
-        sensitiveMemory.forgetBuffers();
+        sensitiveMemory.clearAll();
     }
 
     public TransientMemory getTransientMemory() {
