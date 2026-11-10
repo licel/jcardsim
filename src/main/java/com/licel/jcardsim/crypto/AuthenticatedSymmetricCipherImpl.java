@@ -31,7 +31,6 @@ import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.internal.asn1.cms.GCMParameters;
 import org.bouncycastle.util.Arrays;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.crypto.spec.GCMParameterSpec;
 
