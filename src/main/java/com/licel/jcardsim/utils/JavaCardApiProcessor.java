@@ -159,7 +159,7 @@ public class JavaCardApiProcessor {
         String className;
 
         public ExceptionClassProxy(ClassWriter cv, int classVersion, String exceptionClassName, String superClassName) {
-            super(ASM4, cv);
+            super(ASM7, cv);
             this.superClassName = superClassName;
             this.className = exceptionClassName;
         }
@@ -204,7 +204,7 @@ public class JavaCardApiProcessor {
     static class ClassAdapter extends ClassNode implements Opcodes {
 
         public ClassAdapter(ClassVisitor cv) {
-            super(ASM4);
+            super(ASM7);
             this.cv = cv;
         }
 

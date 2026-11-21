@@ -40,7 +40,6 @@ import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.signers.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /*
  * Implementation <code>Signature</code> with asymmetric keys based
@@ -168,7 +167,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
             case ALG_RSA_SHA_RFC2409:
             case ALG_RSA_MD5_RFC2409:
             case ALG_RSA_RIPEMD160_ISO9796_MR:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
 
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
