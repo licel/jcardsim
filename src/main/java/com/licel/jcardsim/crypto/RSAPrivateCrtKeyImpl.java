@@ -30,6 +30,13 @@ import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
  */
 public class RSAPrivateCrtKeyImpl extends RSAKeyImpl implements RSAPrivateCrtKey {
 
+    static {
+        // Java Card RSAPrivateCrtKey does not store the public exponent (e),
+        // which BouncyCastle 1.77+ requires for Lenstra's CRT check unless
+        // this property is enabled.
+        System.setProperty("org.bouncycastle.rsa.no_lenstra_check", "true");
+    }
+
     protected ByteContainer p = new ByteContainer();
     protected ByteContainer q = new ByteContainer();
     protected ByteContainer dp1 = new ByteContainer();

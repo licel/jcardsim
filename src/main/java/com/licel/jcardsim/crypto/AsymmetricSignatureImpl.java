@@ -505,7 +505,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         try {
             if((engine instanceof RSADigestSigner) || (engine instanceof DSADigestSigner) || (engine instanceof PSSSigner)) {
                 // set precomputed hava value - BouncyCastle specific
-                 Field h = engine.getClass().getDeclaredField(engine instanceof PSSSigner ? "contentDigest" : "digest");
+                 Field h = engine.getClass().getDeclaredField(engine instanceof PSSSigner ? "contentDigest1" : "digest");
                  h.setAccessible(true);
                  Object digestObject = h.get(engine);
                  digestObject.getClass().getMethod("setPrecomputedValue", new Class[]{byte[].class, int.class, int.class})
@@ -522,7 +522,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         try {
             if((engine instanceof RSADigestSigner) || (engine instanceof DSADigestSigner) || (engine instanceof PSSSigner)) {
                 // set precomputed hava value - BouncyCastle specific
-                 Field h = engine.getClass().getDeclaredField(engine instanceof PSSSigner ? "contentDigest" : "digest");
+                 Field h = engine.getClass().getDeclaredField(engine instanceof PSSSigner ? "contentDigest1" : "digest");
                  h.setAccessible(true);
                  Object digestObject = h.get(engine);
                  digestObject.getClass().getMethod("setPrecomputedValue", new Class[]{byte[].class, int.class, int.class})
