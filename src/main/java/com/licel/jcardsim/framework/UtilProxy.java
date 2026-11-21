@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.framework;
 
+import java.util.Arrays;
 import javacard.framework.TransactionException;
 
 /**
@@ -111,6 +112,29 @@ public class UtilProxy {
             throws ArrayIndexOutOfBoundsException, NullPointerException {
         System.arraycopy(src, srcOff, dest, destOff, length);
         return (short) (destOff + length);
+    }
+
+    /**
+     * Fills the byte array (atomically) beginning at the specified position,
+     * for the specified length with the specified byte value.
+     *
+     * @param bArray the byte array
+     * @param bOff offset within byte array to start filling bValue into
+     * @param bLen byte length to be filled
+     * @param bValue the value to fill the byte array with
+     * @return bOff+bLen
+     * @throws ArrayIndexOutOfBoundsException if the fill operation would cause access of data outside array bounds
+     * @throws NullPointerException if bArray is <code>null</code>
+     * @throws TransactionException if the operation would cause the commit capacity to be exceeded
+     * @see javacard.framework.JCSystem#getUnusedCommitCapacity()
+     */
+    public static final short arrayFill(byte bArray[], short bOff, short bLen, byte bValue)
+            throws ArrayIndexOutOfBoundsException, NullPointerException, TransactionException {
+        if (bLen < 0) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        Arrays.fill(bArray, bOff, bOff + bLen, bValue);
+        return (short) (bOff + bLen);
     }
 
     /**
