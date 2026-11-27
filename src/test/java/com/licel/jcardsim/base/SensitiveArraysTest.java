@@ -313,4 +313,43 @@ public class SensitiveArraysTest extends TestCase {
             assertEquals((byte) 0x55, b);
         }
     }
+
+    public void testClearAllSensitiveMemoryOnResetRuntime() {
+        SimulatorRuntime runtime = new PersistentSimulatorRuntime();
+        Simulator instance = new Simulator(runtime);
+
+        byte[] persistentByteArray = (byte[]) SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_BYTE, JCSystem.MEMORY_TYPE_PERSISTENT, (short) 10);
+        byte[] transientByteArray = (byte[]) SensitiveArrays.makeIntegritySensitiveArray(JCSystem.ARRAY_TYPE_BYTE, JCSystem.MEMORY_TYPE_TRANSIENT_RESET, (short) 10);
+
+        Arrays.fill(persistentByteArray, (byte) 0x55);
+        Arrays.fill(transientByteArray, (byte) 0xAA);
+
+        instance.reset();
+
+        for (byte b : persistentByteArray) {
+            assertEquals((byte) 0x55, b);
+        }
+
+        for (byte b : transientByteArray) {
+            assertEquals((byte) 0, b);
+        }
+
+        assertTrue(SensitiveArrays.isIntegritySensitive(persistentByteArray));
+        assertTrue(SensitiveArrays.isIntegritySensitive(transientByteArray));
+
+        Arrays.fill(transientByteArray, (byte) 0xAA);
+
+        instance.resetRuntime();
+
+        assertFalse(SensitiveArrays.isIntegritySensitive(persistentByteArray));
+        assertFalse(SensitiveArrays.isIntegritySensitive(transientByteArray));
+
+        for (byte b : persistentByteArray) {
+            assertEquals((byte) 0, b);
+        }
+
+        for (byte b : transientByteArray) {
+            assertEquals((byte) 0, b);
+        }
+    }
 }

@@ -156,8 +156,7 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
         previousAID = null;
         
         transientMemory.forgetBuffers();
-        sensitiveMemory.forgetBuffers();
-
+        sensitiveMemory.clearAll();
     }
     
     @Override
